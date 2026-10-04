@@ -1,0 +1,32 @@
+﻿@model IEnumerable<_25DH110528_MyStore.Models.Category>
+
+@{
+    ViewBag.Title = "Danh mục sản phẩm";
+}
+
+<div class="panel panel-primary">
+    <div class="panel-heading"><h3 class="panel-title">DANH SÁCH DANH MỤC</h3></div>
+    <div class="panel-body">
+        <p>@Html.ActionLink("Thêm mới", "Create", null, new { @class = "btn btn-success" })</p>
+
+        <table class="table table-bordered table-hover">
+            <tr class="info">
+                <th>Mã danh mục</th>
+                <th>Tên danh mục</th>
+                <th></th>
+            </tr>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.CategoryID)</td>
+                    <td>@Html.DisplayFor(modelItem => item.CategoryName)</td>
+                    <td>
+                        @Html.ActionLink("Sửa", "Edit", new { id = item.CategoryID }, new { @class = "btn btn-warning btn-sm" })
+                        @Html.ActionLink("Chi tiết", "Details", new { id = item.CategoryID }, new { @class = "btn btn-info btn-sm" })
+                        @Html.ActionLink("Xóa", "Delete", new { id = item.CategoryID }, new { @class = "btn btn-danger btn-sm" })
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>  

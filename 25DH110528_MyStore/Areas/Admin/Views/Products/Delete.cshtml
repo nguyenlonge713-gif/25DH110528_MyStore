@@ -1,0 +1,59 @@
+﻿@model _25DH110528_MyStore.Models.Product
+
+@{
+    ViewBag.Title = "Xóa sản phẩm";
+}
+
+<div class="panel panel-danger">
+
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <span class="glyphicon glyphicon-trash"></span>
+            XÁC NHẬN XÓA SẢN PHẨM
+        </h3>
+    </div>
+
+    <div class="panel-body">
+
+        <div class="alert alert-danger">
+            <span class="glyphicon glyphicon-warning-sign"></span>
+            <strong>Cảnh báo!</strong>
+            Bạn có chắc chắn muốn xóa sản phẩm này không?
+            Hành động này không thể hoàn tác.
+        </div>
+
+        @Html.Partial("PVProductInfo", Model)
+
+        <hr />
+
+        @using (Html.BeginForm(
+        "Delete",
+        "Products",
+        new
+        {
+        area = "Admin",
+        id = Model.ProductID
+        },
+        FormMethod.Post))
+        {
+        @Html.AntiForgeryToken()
+
+        <div class="text-center">
+
+            <button type="submit" class="btn btn-danger">
+                <span class="glyphicon glyphicon-trash"></span>
+                Xóa sản phẩm
+            </button>
+
+            @Html.ActionLink(
+            "Quay lại",
+            "Index",
+            "Products",
+            new { area = "Admin" },
+            new { @class = "btn btn-default" })
+
+        </div>
+        }
+
+    </div>
+</div>

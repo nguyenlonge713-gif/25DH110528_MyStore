@@ -1,0 +1,111 @@
+﻿@model _25DH110528_MyStore.Models.ViewModel.ProductSearchVM
+
+@{
+    ViewBag.Title = "Sản phẩm";
+}
+
+<link href="~/Content/PagedList.css" rel="stylesheet" />
+
+<div class="panel panel-primary">
+
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <span class="glyphicon glyphicon-th-list"></span>
+            QUẢN LÝ SẢN PHẨM
+        </h3>
+    </div>
+
+    <div class="panel-body">
+
+        <p>
+            @Html.ActionLink(
+            "Thêm sản phẩm",
+            "Create",
+            null,
+            new { @class = "btn btn-success" })
+        </p>
+
+        @using (Html.BeginForm(
+        "Index",
+        "Products",
+        FormMethod.Get,
+        new { @class = "form-inline" }))
+        {
+        <div class="form-group">
+            <input type="text"
+                   name="searchTerm"
+                   value="@Model.SearchTerm"
+                   class="form-control"
+                   placeholder="Tên, mô tả, danh mục..." />
+        </div>
+
+        <div class="form-group">
+            <input type="number"
+                   name="minPrice"
+                   value="@Model.MinPrice"
+                   class="form-control"
+                   placeholder="Giá từ" />
+        </div>
+
+        <div class="form-group">
+            <input type="number"
+                   name="maxPrice"
+                   value="@Model.MaxPrice"
+                   class="form-control"
+                   placeholder="Giá đến" />
+        </div>
+
+        <div class="form-group">
+            <select name="sortOrder" class="form-control">
+
+                @if (Model.SortOrder == "name_asc")
+                {
+                <option value="name_asc" selected="selected">Tên A → Z</option>
+                }
+                else
+                {
+                <option value="name_asc">Tên A → Z</option>
+                }
+
+                @if (Model.SortOrder == "name_desc")
+                {
+                <option value="name_desc" selected="selected">Tên Z → A</option>
+                }
+                else
+                {
+                <option value="name_desc">Tên Z → A</option>
+                }
+
+                @if (Model.SortOrder == "price_asc")
+                {
+                <option value="price_asc" selected="selected">Giá tăng dần</option>
+                }
+                else
+                {
+                <option value="price_asc">Giá tăng dần</option>
+                }
+
+                @if (Model.SortOrder == "price_desc")
+                {
+                <option value="price_desc" selected="selected">Giá giảm dần</option>
+                }
+                else
+                {
+                <option value="price_desc">Giá giảm dần</option>
+                }
+
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            <span class="glyphicon glyphicon-search"></span>
+            Tìm kiếm
+        </button>
+        }
+
+        <br />
+
+        @Html.Partial("PVListProduct", Model)
+
+    </div>
+</div>
