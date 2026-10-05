@@ -1,36 +1,77 @@
 ﻿@model IEnumerable<_25DH110528_MyStore.Models.Category>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Danh sách danh mục";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h2 class="bg-success">Danh sách các mục </h2>>
+<h2 class="bg-success">Danh sách các mục</h2>
+
+@if (TempData["DeleteError"] != null)
+{
+    <div class="alert alert-danger">
+        <span class="glyphicon glyphicon-warning-sign"></span>
+        <strong>Không thể xóa!</strong>
+        @TempData["DeleteError"]
+    </div>
+}
 
 <p>
-    @Html.ActionLink("Thêm mới", "Create",null, new { @class = "btn btn-primary" }  )
+    @Html.ActionLink(
+        "Thêm mới",
+        "Create",
+        null,
+        new { @class = "btn btn-primary" }
+    )
 </p>
+
 <table class="table bg-info col-lg-8 col-md-6 col-sm-3">
+
     <tr>
-        <th >
-            @*Html.DisplayNameFor(model => model.CategoryName)*@
+        <th>
             TÊN DANH MỤC
         </th>
-        <th></th>
-    </tr>   
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.CategoryName)
-        </td>
-        <td>
-            
-            @Html.ActionLink("Cập nhật", "Edit", new { id = item.CategoryID }, new { @class = "btn btn-primary btn-sm" })
-            @Html.ActionLink("Chi tiết", "Details", new { id = item.CategoryID }, new { @class = "btn btn-primary btn-sm" })
-            @Html.ActionLink("Xóa", "Delete", new { id = item.CategoryID }, new { @class = "btn btn-primary btn-sm" })
-        </td>
+        <th></th>
     </tr>
-}
+
+    @if (Model != null)
+    {
+        foreach (var item in Model)
+        {
+            <tr>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.CategoryName)
+                </td>
+
+                <td>
+
+                    @Html.ActionLink(
+                        "Cập nhật",
+                        "Edit",
+                        new { id = item.CategoryID },
+                        new { @class = "btn btn-primary btn-sm" }
+                    )
+
+                    @Html.ActionLink(
+                        "Chi tiết",
+                        "Details",
+                        new { id = item.CategoryID },
+                        new { @class = "btn btn-primary btn-sm" }
+                    )
+
+                    @Html.ActionLink(
+                        "Xóa",
+                        "Delete",
+                        new { id = item.CategoryID },
+                        new { @class = "btn btn-danger btn-sm" }
+                    )
+
+                </td>
+
+            </tr>
+        }
+    }
 
 </table>

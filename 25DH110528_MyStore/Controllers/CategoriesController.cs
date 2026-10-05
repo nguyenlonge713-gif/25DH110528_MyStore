@@ -15,25 +15,26 @@ namespace _25DH110528_MyStore.Controllers
         private MyStoreEntities db = new MyStoreEntities();
 
         // GET: Categories
-        //Get lấy dữ liệu categories từ database và trả về view Index
         public ActionResult Index()
         {
             return View(db.Categories.ToList());
         }
 
         // GET: Categories/Details/5
-        // lấy chi tiết một bản ghi có categoryID = id từ database và trả về view Details
         public ActionResult Details(int? id)
         {
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             Category category = db.Categories.Find(id);
-            if (category == null) // ko tìm thấy bản ghi
+
+            if (category == null)
             {
-                return HttpNotFound(); // mã lỗi 404 
+                return HttpNotFound();
             }
+
             return View(category);
         }
 
@@ -44,16 +45,16 @@ namespace _25DH110528_MyStore.Controllers
         }
 
         // POST: Categories/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "CategoryID,CategoryName")] Category category)
+        public ActionResult Create(
+            [Bind(Include = "CategoryID,CategoryName")] Category category)
         {
             if (ModelState.IsValid)
             {
                 db.Categories.Add(category);
                 db.SaveChanges();
+
                 return RedirectToAction("Index");
             }
 
@@ -67,27 +68,31 @@ namespace _25DH110528_MyStore.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             Category category = db.Categories.Find(id);
+
             if (category == null)
             {
                 return HttpNotFound();
             }
+
             return View(category);
         }
 
         // POST: Categories/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "CategoryID,CategoryName")] Category category)
+        public ActionResult Edit(
+            [Bind(Include = "CategoryID,CategoryName")] Category category)
         {
             if (ModelState.IsValid)
             {
                 db.Entry(category).State = EntityState.Modified;
                 db.SaveChanges();
+
                 return RedirectToAction("Index");
             }
+
             return View(category);
         }
 
@@ -98,11 +103,14 @@ namespace _25DH110528_MyStore.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
             Category category = db.Categories.Find(id);
+
             if (category == null)
             {
                 return HttpNotFound();
             }
+
             return View(category);
         }
 
@@ -112,8 +120,30 @@ namespace _25DH110528_MyStore.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             Category category = db.Categories.Find(id);
+
+            if (category == null)
+            {
+                return HttpNotFound();
+            }
+
+            // Kiểm tra danh mục có sản phẩm hay không
+            int productCount = db.Products.Count(p => p.CategoryID == id);
+
+            // Nếu còn sản phẩm thì không cho xóa
+            if (productCount > 0)
+            {
+                TempData["DeleteError"] =
+                    "Không thể xóa danh mục này vì đang có "
+                    + productCount
+                    + " sản phẩm thuộc danh mục.";
+
+                return RedirectToAction("Delete", new { id = id });
+            }
+
+            // Nếu không có sản phẩm thì cho phép xóa
             db.Categories.Remove(category);
             db.SaveChanges();
+
             return RedirectToAction("Index");
         }
 
@@ -123,6 +153,7 @@ namespace _25DH110528_MyStore.Controllers
             {
                 db.Dispose();
             }
+
             base.Dispose(disposing);
         }
     }

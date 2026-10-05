@@ -2,6 +2,7 @@
 
 @{
     ViewBag.Title = "Sản phẩm";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
 <link href="~/Content/PagedList.css" rel="stylesheet" />
@@ -22,7 +23,8 @@
             "Thêm sản phẩm",
             "Create",
             null,
-            new { @class = "btn btn-success" })
+            new { @class = "btn btn-success" }
+            )
         </p>
 
         @using (Html.BeginForm(
@@ -60,38 +62,54 @@
 
                 @if (Model.SortOrder == "name_asc")
                 {
-                <option value="name_asc" selected="selected">Tên A → Z</option>
+                <option value="name_asc" selected="selected">
+                    Tên A → Z
+                </option>
                 }
                 else
                 {
-                <option value="name_asc">Tên A → Z</option>
+                <option value="name_asc">
+                    Tên A → Z
+                </option>
                 }
 
                 @if (Model.SortOrder == "name_desc")
                 {
-                <option value="name_desc" selected="selected">Tên Z → A</option>
+                <option value="name_desc" selected="selected">
+                    Tên Z → A
+                </option>
                 }
                 else
                 {
-                <option value="name_desc">Tên Z → A</option>
+                <option value="name_desc">
+                    Tên Z → A
+                </option>
                 }
 
                 @if (Model.SortOrder == "price_asc")
                 {
-                <option value="price_asc" selected="selected">Giá tăng dần</option>
+                <option value="price_asc" selected="selected">
+                    Giá tăng dần
+                </option>
                 }
                 else
                 {
-                <option value="price_asc">Giá tăng dần</option>
+                <option value="price_asc">
+                    Giá tăng dần
+                </option>
                 }
 
                 @if (Model.SortOrder == "price_desc")
                 {
-                <option value="price_desc" selected="selected">Giá giảm dần</option>
+                <option value="price_desc" selected="selected">
+                    Giá giảm dần
+                </option>
                 }
                 else
                 {
-                <option value="price_desc">Giá giảm dần</option>
+                <option value="price_desc">
+                    Giá giảm dần
+                </option>
                 }
 
             </select>
