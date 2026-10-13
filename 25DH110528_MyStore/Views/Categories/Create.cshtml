@@ -1,22 +1,48 @@
-﻿@model _25DH110528_MyStore.Models.Category
+﻿
+@model _25DH110528_MyStore.Models.Category
 
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "Thêm danh mục";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
 <h2>Thêm danh mục</h2>
 
-@using (Html.BeginForm()) 
+@using (Html.BeginForm(
+    "Create",
+    "Categories",
+    new { area = "Admin" },
+    FormMethod.Post))
 {
     @Html.AntiForgeryToken()
-    
-<div class="form-horizontal">
-    
-    <hr />
-    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-    @*Nhúng partial view vào form cha*@
-    @Html.Partial("PVCreateEditCategory", Model)
-</div>
-}
 
+    <div class="form-horizontal">
+        <hr />
+
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        @if (ViewBag.CreateError != null)
+        {
+            <div class="alert alert-danger">
+                @ViewBag.CreateError
+            </div>
+        }
+
+        @Html.Partial("PVCreateEditCategory", Model)
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit"
+                       value="Thêm danh mục"
+                       class="btn btn-success" />
+
+                @Html.ActionLink(
+                    "Quay lại danh sách",
+                    "Index",
+                    "Categories",
+                    new { area = "Admin" },
+                    null)
+            </div>
+        </div>
+    </div>
+}

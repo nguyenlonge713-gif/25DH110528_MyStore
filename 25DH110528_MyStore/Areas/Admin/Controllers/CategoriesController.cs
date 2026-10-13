@@ -1,4 +1,4 @@
-﻿using System.Data;
+﻿using System;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
@@ -15,7 +15,6 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
         public ActionResult Index()
         {
             var categories = db.Categories.ToList();
-
             return View(categories);
         }
 
@@ -24,7 +23,8 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return new HttpStatusCodeResult(
+                    HttpStatusCode.BadRequest);
             }
 
             Category category = db.Categories.Find(id);
@@ -40,24 +40,66 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
         // GET: Admin/Categories/Create
         public ActionResult Create()
         {
-            return View();
+            return View(new Category());
         }
 
         // POST: Admin/Categories/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(
-            [Bind(Include = "CategoryID,CategoryName")] Category category)
+            [Bind(Include = "CategoryID,CategoryName")]
+            Category category)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage);
+
+                ViewBag.CreateError = string.Join(" | ", errors);
+
+                return View(category);
+            }
+
+            try
+            {
+                // Chuẩn hóa tên danh mục
+                if (category.CategoryName != null)
+                {
+                    category.CategoryName =
+                        category.CategoryName.Trim();
+                }
+
+                // Kiểm tra tên danh mục rỗng
+                if (string.IsNullOrWhiteSpace(category.CategoryName))
+                {
+                    ViewBag.CreateError =
+                        "Vui lòng nhập tên danh mục.";
+
+                    return View(category);
+                }
+
+                // Thêm danh mục vào database
                 db.Categories.Add(category);
                 db.SaveChanges();
 
+                // Thêm thành công, quay về danh sách
                 return RedirectToAction("Index");
             }
+            catch (Exception ex)
+            {
+                // Hiển thị lỗi để tiện kiểm tra
+                Exception error = ex;
 
-            return View(category);
+                while (error.InnerException != null)
+                {
+                    error = error.InnerException;
+                }
+
+                ViewBag.CreateError = error.Message;
+
+                return View(category);
+            }
         }
 
         // GET: Admin/Categories/Edit/5
@@ -65,7 +107,8 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return new HttpStatusCodeResult(
+                    HttpStatusCode.BadRequest);
             }
 
             Category category = db.Categories.Find(id);
@@ -82,17 +125,50 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(
-            [Bind(Include = "CategoryID,CategoryName")] Category category)
+            [Bind(Include = "CategoryID,CategoryName")]
+            Category category)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                db.Entry(category).State = EntityState.Modified;
+                return View(category);
+            }
+
+            Category existingCategory =
+                db.Categories.Find(category.CategoryID);
+
+            if (existingCategory == null)
+            {
+                return HttpNotFound(
+                    "Không tìm thấy danh mục cần cập nhật.");
+            }
+
+            if (string.IsNullOrWhiteSpace(category.CategoryName))
+            {
+                ModelState.AddModelError(
+                    "CategoryName",
+                    "Vui lòng nhập tên danh mục.");
+
+                return View(category);
+            }
+
+            try
+            {
+                existingCategory.CategoryName =
+                    category.CategoryName.Trim();
+
                 db.SaveChanges();
 
                 return RedirectToAction("Index");
             }
+            catch (Exception)
+            {
+                ModelState.AddModelError(
+                    "",
+                    "Không thể cập nhật danh mục. "
+                    + "Vui lòng kiểm tra lại dữ liệu.");
 
-            return View(category);
+                return View(category);
+            }
         }
 
         // GET: Admin/Categories/Delete/5
@@ -100,7 +176,8 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return new HttpStatusCodeResult(
+                    HttpStatusCode.BadRequest);
             }
 
             Category category = db.Categories.Find(id);
@@ -125,10 +202,9 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
                 return HttpNotFound();
             }
 
-            // Kiểm tra danh mục còn sản phẩm hay không
-            int productCount = db.Products.Count(p => p.CategoryID == id);
+            int productCount = db.Products.Count(
+                p => p.CategoryID == id);
 
-            // Nếu còn sản phẩm thì không cho xóa
             if (productCount > 0)
             {
                 TempData["DeleteError"] =
@@ -139,11 +215,21 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
                 return RedirectToAction("Delete", new { id = id });
             }
 
-            // Nếu không còn sản phẩm thì xóa danh mục
-            db.Categories.Remove(category);
-            db.SaveChanges();
+            try
+            {
+                db.Categories.Remove(category);
+                db.SaveChanges();
 
-            return RedirectToAction("Index");
+                return RedirectToAction("Index");
+            }
+            catch (Exception)
+            {
+                TempData["DeleteError"] =
+                    "Không thể xóa danh mục. "
+                    + "Vui lòng kiểm tra dữ liệu liên quan.";
+
+                return RedirectToAction("Delete", new { id = id });
+            }
         }
 
         protected override void Dispose(bool disposing)

@@ -82,18 +82,16 @@ namespace _25DH110528_MyStore.Controllers
         // POST: Categories/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(
-            [Bind(Include = "CategoryID,CategoryName")] Category category)
+        public ActionResult Edit([Bind(Include = "CategoryID,CategoryName")] Category posted)
         {
-            if (ModelState.IsValid)
-            {
-                db.Entry(category).State = EntityState.Modified;
-                db.SaveChanges();
+            if (!ModelState.IsValid) return View(posted);
 
-                return RedirectToAction("Index");
-            }
+            var dbCategory = db.Categories.Find(posted.CategoryID);
+            if (dbCategory == null) return HttpNotFound();
 
-            return View(category);
+            dbCategory.CategoryName = posted.CategoryName;
+            db.SaveChanges();
+            return RedirectToAction("Index");
         }
 
         // GET: Categories/Delete/5
