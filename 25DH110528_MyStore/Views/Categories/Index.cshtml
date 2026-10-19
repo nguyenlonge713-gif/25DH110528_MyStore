@@ -5,7 +5,7 @@
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h2 class="bg-success">Danh sách các mục</h2>
+<h2 class="bg-success text-white p-2 rounded">Danh sách danh mục</h2>
 
 @if (TempData["DeleteError"] != null)
 {
@@ -16,62 +16,61 @@
     </div>
 }
 
-<p>
+<p class="my-3">
     @Html.ActionLink(
-        "Thêm mới",
+        "Thêm mới danh mục",
         "Create",
         null,
         new { @class = "btn btn-primary" }
     )
 </p>
 
-<table class="table bg-info col-lg-8 col-md-6 col-sm-3">
+<table class="table table-bordered table-hover">
+    <thead class="thead-dark">
+        <tr>
+            <th>TÊN DANH MỤC</th>
+            <th style="width: 250px; text-align: center;">HÀNH ĐỘNG</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td class="align-middle">
+                        <strong>@Html.DisplayFor(modelItem => item.CategoryName)</strong>
+                    </td>
+                    <td class="text-center align-middle">
+                        @Html.ActionLink(
+                            "Cập nhật",
+                            "Edit",
+                            new { id = item.CategoryID },
+                            new { @class = "btn btn-warning btn-sm" }
+                        )
 
-    <tr>
-        <th>
-            TÊN DANH MỤC
-        </th>
+                        @Html.ActionLink(
+                            "Chi tiết",
+                            "Details",
+                            new { id = item.CategoryID },
+                            new { @class = "btn btn-info btn-sm" }
+                        )
 
-        <th></th>
-    </tr>
-
-    @if (Model != null)
-    {
-        foreach (var item in Model)
+                        @Html.ActionLink(
+                            "Xóa",
+                            "Delete",
+                            new { id = item.CategoryID },
+                            new { @class = "btn btn-danger btn-sm" }
+                        )
+                    </td>
+                </tr>
+            }
+        }
+        else
         {
             <tr>
-
-                <td>
-                    @Html.DisplayFor(modelItem => item.CategoryName)
-                </td>
-
-                <td>
-
-                    @Html.ActionLink(
-                        "Cập nhật",
-                        "Edit",
-                        new { id = item.CategoryID },
-                        new { @class = "btn btn-primary btn-sm" }
-                    )
-
-                    @Html.ActionLink(
-                        "Chi tiết",
-                        "Details",
-                        new { id = item.CategoryID },
-                        new { @class = "btn btn-primary btn-sm" }
-                    )
-
-                    @Html.ActionLink(
-                        "Xóa",
-                        "Delete",
-                        new { id = item.CategoryID },
-                        new { @class = "btn btn-danger btn-sm" }
-                    )
-
-                </td>
-
+                <td colspan="2" class="text-center text-muted">Chưa có danh mục nào.</td>
             </tr>
         }
-    }
-
+    </tbody>
 </table>

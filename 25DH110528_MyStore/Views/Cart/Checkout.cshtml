@@ -1,0 +1,97 @@
+﻿@model IEnumerable<_25DH110528_MyStore.Models.CartItem>
+
+@{
+    ViewBag.Title = "Thông tin giao hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var customer = Session["Customer"] as _25DH110528_MyStore.Models.Customer;
+}
+
+<div class="container mt-4 mb-5" style="max-width: 800px;">
+    <h2 class="mb-4 font-weight-normal text-secondary">Thông tin giao hàng</h2>
+
+    @using (Html.BeginForm("Checkout", "Cart", FormMethod.Post, new { @class = "form-horizontal" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <!-- Địa chỉ giao hàng hiện tại (mặc định lấy từ thông tin Customer) -->
+        <div class="form-group row mb-3 align-items-center">
+            <label class="col-sm-4 col-form-label text-sm-right font-weight-bold">Địa chỉ giao hàng</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control bg-light" value="@(customer != null ? customer.CustomerAddress : "")" readonly />
+                <small class="form-text text-muted">
+                    <a href="#" class="text-info text-decoration-none" onclick="toggleNewAddress(event)">Chỉnh sửa</a>
+                </small>
+            </div>
+        </div>
+
+        <!-- Địa chỉ mới (mặc định ẩn hoặc hiển thị ô nhập) -->
+        <div class="form-group row mb-3 align-items-center" id="newAddressGroup">
+            <label class="col-sm-4 col-form-label text-sm-right font-weight-bold">Địa chỉ mới</label>
+            <div class="col-sm-8">
+                <input type="text" name="AddressDelivery" class="form-control" placeholder="Nhập địa chỉ mới nếu muốn thay đổi..." value="@(customer != null ? customer.CustomerAddress : "")" />
+            </div>
+        </div>
+
+        <!-- Phương thức giao hàng -->
+        <div class="form-group row mb-3">
+            <label class="col-sm-4 col-form-label text-sm-right font-weight-bold">Phương thức giao hàng</label>
+            <div class="col-sm-8">
+                <div class="form-check mb-1">
+                    <input class="form-check-input" type="radio" name="ShippingMethod" id="ship1" value="Giao hàng nhanh" checked>
+                    <label class="form-check-label" for="ship1">Giao hàng nhanh</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="ShippingMethod" id="ship2" value="Giao hàng tiết kiệm">
+                    <label class="form-check-label" for="ship2">Giao hàng tiết kiệm</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phương thức thanh toán -->
+        <div class="form-group row mb-3">
+            <label class="col-sm-4 col-form-label text-sm-right font-weight-bold">Phương thức thanh toán</label>
+            <div class="col-sm-8">
+                <div class="form-check mb-1">
+                    <input class="form-check-input" type="radio" name="PaymentMethod" id="pay1" value="Tiền mặt" checked>
+                    <label class="form-check-label" for="pay1">Tiền mặt</label>
+                </div>
+                <div class="form-check mb-1">
+                    <input class="form-check-input" type="radio" name="PaymentMethod" id="pay2" value="Paypal">
+                    <label class="form-check-label" for="pay2">Paypal</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="PaymentMethod" id="pay3" value="Mua trước trả sau">
+                    <label class="form-check-label" for="pay3">Mua trước trả sau</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tổng giá trị -->
+        <div class="form-group row mb-4 align-items-center">
+            <label class="col-sm-4 col-form-label text-sm-right font-weight-bold">Tổng giá trị</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control bg-light text-danger font-weight-bold" value="@(((decimal)ViewBag.TotalAmount).ToString("N0")) VNĐ" readonly />
+            </div>
+        </div>
+
+        <!-- Nút Đặt hàng -->
+        <div class="form-group row">
+            <div class="col-sm-8 offset-sm-4">
+                <button type="submit" class="btn btn-outline-secondary px-4 py-2">
+                    Đặt hàng
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    function toggleNewAddress(e) {
+        e.preventDefault();
+        var input = document.querySelector('input[name="AddressDelivery"]');
+        if (input) {
+            input.focus();
+            input.select();
+        }
+    }
+</script>

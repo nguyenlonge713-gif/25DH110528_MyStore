@@ -4,46 +4,50 @@
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
     @Html.HiddenFor(model => model.ProductImage)
 
-    <div class="form-group">
-        @Html.Label("Danh mục", htmlAttributes: new { @class = "control-label col-md-2" })
+    <div class="form-group mb-3">
+        @Html.Label("Danh mục", htmlAttributes: new { @class = "control-label col-md-2 fw-bold" })
         <div class="col-md-10">
             @Html.DropDownList("CategoryID", null, htmlAttributes: new { @class = "form-control" })
             @Html.ValidationMessageFor(model => model.CategoryID, "", new { @class = "text-danger" })
         </div>
     </div>
 
-    <div class="form-group">
-        @Html.Label("Tên sản phẩm", htmlAttributes: new { @class = "control-label col-md-2" })
+    <div class="form-group mb-3">
+        @Html.Label("Tên sản phẩm", htmlAttributes: new { @class = "control-label col-md-2 fw-bold" })
         <div class="col-md-10">
             @Html.EditorFor(model => model.ProductName, new { htmlAttributes = new { @class = "form-control" } })
             @Html.ValidationMessageFor(model => model.ProductName, "", new { @class = "text-danger" })
         </div>
     </div>
 
-    <div class="form-group">
-        @Html.Label("Mô tả", htmlAttributes: new { @class = "control-label col-md-2" })
+    <div class="form-group mb-3">
+        @Html.Label("Mô tả", htmlAttributes: new { @class = "control-label col-md-2 fw-bold" })
         <div class="col-md-10">
             @Html.EditorFor(model => model.ProductDescription, new { htmlAttributes = new { @class = "form-control" } })
             @Html.ValidationMessageFor(model => model.ProductDescription, "", new { @class = "text-danger" })
         </div>
     </div>
 
-    <div class="form-group">
-        @Html.Label("Giá", htmlAttributes: new { @class = "control-label col-md-2" })
+    <div class="form-group mb-3">
+        @Html.Label("Giá", htmlAttributes: new { @class = "control-label col-md-2 fw-bold" })
         <div class="col-md-10">
             @Html.EditorFor(model => model.ProductPrice, new { htmlAttributes = new { @class = "form-control" } })
             @Html.ValidationMessageFor(model => model.ProductPrice, "", new { @class = "text-danger" })
         </div>
     </div>
 
-    <div class="form-group">
-        @Html.Label("Hình ảnh", htmlAttributes: new { @class = "control-label col-md-2" })
+    <div class="form-group mb-3">
+        @Html.Label("Hình ảnh", htmlAttributes: new { @class = "control-label col-md-2 fw-bold" })
         <div class="col-md-10">
-            <input type="file" name="UploadImg" class="form-control" />
+            <!-- Đã đổi name="UploadImg" thành name="ImageFile" khớp chuẩn với ProductsController -->
+            <input type="file" name="ImageFile" class="form-control" />
+
             @if (Model != null && !string.IsNullOrEmpty(Model.ProductImage))
             {
-                <br />
-                <img src="@Url.Content(Model.ProductImage)" width="100" />
+            <div class="mt-2">
+                <small class="text-muted d-block mb-1">Ảnh hiện tại:</small>
+                <img src="@Url.Content(Model.ProductImage)" width="120" class="img-thumbnail rounded shadow-sm" alt="Ảnh sản phẩm" />
+            </div>
             }
         </div>
     </div>

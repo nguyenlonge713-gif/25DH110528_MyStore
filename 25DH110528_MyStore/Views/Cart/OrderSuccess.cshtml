@@ -1,0 +1,21 @@
+﻿@model _25DH110528_MyStore.Models.Order
+
+@{
+    ViewBag.Title = "Đặt hàng thành công";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="text-center py-5">
+    <div class="mb-3 text-success">
+        <i class="fas fa-check-circle fa-5x"></i>
+    </div>
+    <h1 class="text-success">Đặt hàng thành công!</h1>
+    <p class="fs-5 text-muted">Cảm ơn bạn đã mua sắm tại MyStore. Mã đơn hàng của bạn là: <strong>#@Model.OrderID</strong></p>
+    <p>Tổng tiền: <strong class="text-danger">@Convert.ToDecimal(Model.TotalAmount).ToString("N0") VNĐ</strong></p>
+
+    <div class="mt-4">
+        <a href="@Url.Action("Index", "Home")" class="btn btn-primary">
+            <i class="fas fa-home"></i> Trở về trang chủ
+        </a>
+    </div>
+</div>

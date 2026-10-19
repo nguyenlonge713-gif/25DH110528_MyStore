@@ -138,17 +138,21 @@
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
     <Compile Include="Areas\Admin\Controllers\CategoriesController.cs" />
     <Compile Include="Areas\Admin\Controllers\ProductsController.cs" />
+    <Compile Include="Controllers\CartController.cs" />
     <Compile Include="Controllers\CategoriesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\CartItem.cs" />
     <Compile Include="Models\Category.cs">
       <DependentUpon>MyStoreModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Customer.cs">
       <DependentUpon>MyStoreModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Metadata.cs" />
     <Compile Include="Models\MyStoreModel.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -170,6 +174,7 @@
     <Compile Include="Models\OrderDetail.cs">
       <DependentUpon>MyStoreModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\PartialClasses.cs" />
     <Compile Include="Models\Product.cs">
       <DependentUpon>MyStoreModel.tt</DependentUpon>
     </Compile>
@@ -258,6 +263,15 @@
     <Content Include="Views\Categories\Edit.cshtml" />
     <Content Include="Views\Categories\Index.cshtml" />
     <Content Include="Views\Categories\PVCreateEditCategory.cshtml" />
+    <Content Include="Views\User\Register.cshtml" />
+    <Content Include="Views\User\Login.cshtml" />
+    <Content Include="Views\Cart\Checkout.cshtml" />
+    <Content Include="Views\Cart\OrderSuccess.cshtml" />
+    <Content Include="Views\Cart\Index.cshtml" />
+    <Content Include="Views\User\Profile.cshtml" />
+    <Content Include="Views\User\OrderHistory.cshtml" />
+    <Content Include="Views\User\OrderDetail.cshtml" />
+    <Content Include="Views\Home\ProductDetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

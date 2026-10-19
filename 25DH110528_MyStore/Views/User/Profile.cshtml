@@ -1,0 +1,67 @@
+﻿@model _25DH110528_MyStore.Models.Customer
+
+@{
+    ViewBag.Title = "Thông tin tài khoản";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4 mb-5" style="max-width: 600px;">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="fas fa-id-card me-2"></i> Thông tin tài khoản</h4>
+        </div>
+        <div class="card-body">
+            @if (ViewBag.SuccessMessage != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @ViewBag.SuccessMessage
+                </div>
+            }
+
+            @using (Html.BeginForm("Profile", "User", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.CustomerID)
+                @Html.HiddenFor(m => m.Username)
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Tên đăng nhập</label>
+                    <input type="text" class="form-control bg-light" value="@Model.Username" disabled />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Họ và tên</label>
+                    @Html.TextBoxFor(m => m.CustomerName, new { @class = "form-control", required = "required" })
+                    @Html.ValidationMessageFor(m => m.CustomerName, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Số điện thoại</label>
+                    @Html.TextBoxFor(m => m.CustomerPhone, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.CustomerPhone, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Email</label>
+                    @Html.TextBoxFor(m => m.CustomerEmail, new { @class = "form-control", type = "email" })
+                    @Html.ValidationMessageFor(m => m.CustomerEmail, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">Địa chỉ nhận hàng mặc định</label>
+                    @Html.TextAreaFor(m => m.CustomerAddress, new { @class = "form-control", rows = "3" })
+                    @Html.ValidationMessageFor(m => m.CustomerAddress, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Cập nhật thông tin
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

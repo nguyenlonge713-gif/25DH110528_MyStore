@@ -1,0 +1,55 @@
+﻿@{
+    ViewBag.Title = "Đăng nhập";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <!-- Căn giữa hoàn toàn theo cả chiều ngang và chiều dọc -->
+    <div class="row justify-content-center align-items-center" style="min-height: 60vh;">
+        <div class="col-md-6 col-lg-4" style="max-width: 450px; margin: 0 auto;">
+            <div class="card shadow border-0 rounded-lg">
+                <div class="card-header bg-primary text-white text-center py-3" style="background-color: #007bff !important;">
+                    <h4 class="mb-0 font-weight-bold">
+                        <i class="fas fa-sign-in-alt me-1"></i> ĐĂNG NHẬP HỆ THỐNG
+                    </h4>
+                </div>
+
+                <div class="card-body p-4 bg-white">
+                    @using (Html.BeginForm("Login", "User", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3 small" })
+
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold text-dark mb-1">Tên đăng nhập:</label>
+                            <input type="text"
+                                   name="Username"
+                                   class="form-control"
+                                   placeholder="Nhập tên đăng nhập..."
+                                   required
+                                   style="height: 42px; width: 100% !important; max-width: none !important;" />
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="font-weight-bold text-dark mb-1">Mật khẩu:</label>
+                            <input type="password"
+                                   name="Password"
+                                   class="form-control"
+                                   placeholder="Nhập mật khẩu..."
+                                   required
+                                   style="height: 42px; width: 100% !important; max-width: none !important;" />
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit"
+                                    class="btn btn-primary w-100 py-2 font-weight-bold shadow-sm"
+                                    style="background-color: #007bff; border: none; font-size: 16px;">
+                                <i class="fas fa-sign-in-alt me-1"></i> Đăng nhập
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

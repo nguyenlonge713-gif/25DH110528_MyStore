@@ -3,37 +3,136 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - Quản trị website</title>
+    <title>@ViewBag.Title - FASTOR Store</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        /* Style thanh Header trên cùng giống mẫu Fastor */
+        .fastor-header {
+            background-color: #f1f1f1;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .dropdown-menu.show {
+            display: block !important;
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
-        <div class="container">
-            @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                </ul>
-            </div>
+    <!-- Top Header giống mẫu Fastor -->
+    <div class="fastor-header py-2 px-4 shadow-sm">
+        <div class="container d-flex justify-content-between align-items-center">
+            <!-- Logo / Tên Shop -->
+            <a href="@Url.Action("Index", "Home")" class="font-weight-bold text-dark text-decoration-none" style="letter-spacing: 2px; font-size: 24px;">
+                FAST<span class="text-danger">OR</span>
+            </a>
+
+            <!-- Menu bên phải: Trang chủ, Tài khoản, Giỏ hàng -->
+            <ul class="nav align-items-center mb-0">
+                <li class="nav-item">
+                    <a class="nav-link text-dark fw-semibold" href="@Url.Action("Index", "Home")">
+                        <i class="fas fa-home me-1"></i> Trang chủ
+                    </a>
+                </li>
+
+                @if (Session["Username"] != null)
+                {
+                    <!-- Dropdown khi đã đăng nhập -->
+                    <li class="nav-item dropdown" style="position: relative;" id="userDropdownContainer">
+                        <a class="nav-link text-dark dropdown-toggle fw-semibold" href="javascript:void(0);" id="userDropdown">
+                            <i class="fas fa-user me-1"></i> Hello, @Session["Username"]
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" id="userDropdownMenu" style="position: absolute; right: 0;">
+                            <li>
+                                <a class="dropdown-item" href="@Url.Action("Profile", "User")">
+                                    <i class="fas fa-id-card me-2"></i> Thông tin tài khoản
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="@Url.Action("OrderHistory", "User")">
+                                    <i class="fas fa-history me-2"></i> Lịch sử mua hàng
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="@Url.Action("Logout", "User")">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                }
+                else
+                {
+                    <!-- Dropdown Tài khoản giống mẫu khi chưa đăng nhập -->
+                    <li class="nav-item dropdown" style="position: relative;" id="userDropdownContainer">
+                        <a class="nav-link text-dark dropdown-toggle fw-semibold" href="javascript:void(0);" id="userDropdown">
+                            <i class="fas fa-user me-1"></i> Tài khoản
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" id="userDropdownMenu" style="position: absolute; right: 0;">
+                            <li>
+                                <a class="dropdown-item" href="@Url.Action("Register", "User")">Đăng ký</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="@Url.Action("Login", "User")">Đăng nhập</a>
+                            </li>
+                        </ul>
+                    </li>
+                }
+
+                <!-- Biểu tượng Giỏ hàng -->
+                <li class="nav-item ms-3">
+                    <a class="nav-link text-dark fw-bold" href="@Url.Action("Index", "Cart")">
+                        <i class="fas fa-shopping-cart text-primary"></i> (<span class="text-danger">@(Session["CartCount"] ?? 0)</span>)
+                    </a>
+                </li>
+            </ul>
         </div>
-    </nav>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
     </div>
+
+    <!-- Nội dung chính của trang -->
+    <main class="container-fluid px-0 body-content">
+        @RenderBody()
+    </main>
+
+    <!-- Chân trang (Footer) -->
+    <footer class="bg-dark text-white text-center py-4 mt-5">
+        <div class="container">
+            <p class="mb-0">&copy; @DateTime.Now.Year - FASTOR E-Commerce Website. All rights reserved.</p>
+        </div>
+    </footer>
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
+
+    <!-- Script xử lý bật/tắt Dropdown mượt mà -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var toggleBtn = document.getElementById("userDropdown");
+            var menu = document.getElementById("userDropdownMenu");
+
+            if (toggleBtn && menu) {
+                toggleBtn.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    menu.classList.toggle("show");
+                });
+
+                document.addEventListener("click", function (e) {
+                    var container = document.getElementById("userDropdownContainer");
+                    if (container && !container.contains(e.target)) {
+                        menu.classList.remove("show");
+                    }
+                });
+            }
+        });
+    </script>
+
     @RenderSection("scripts", required: false)
 </body>
 </html>

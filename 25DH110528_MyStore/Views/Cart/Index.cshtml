@@ -1,0 +1,82 @@
+﻿@model IEnumerable<_25DH110528_MyStore.Models.CartItem>
+
+@{
+    ViewBag.Title = "Giỏ hàng của bạn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="mb-4"><i class="fas fa-shopping-cart"></i> Giỏ hàng của bạn</h2>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info text-center py-5">
+        <h4>Giỏ hàng đang trống!</h4>
+        <p>Hãy chọn thêm sản phẩm vào giỏ hàng để tiếp tục mua sắm.</p>
+        <a href="@Url.Action("Index", "Home")" class="btn btn-primary mt-2">
+            <i class="fas fa-store"></i> Đến trang sản phẩm
+        </a>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>Hình ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Đơn giá</th>
+                    <th style="width: 150px;">Số lượng</th>
+                    <th>Thành tiền</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center">
+                            <img src="@Url.Content(string.IsNullOrEmpty(item.ProductImage) ? "~/Content/images/default.png" : item.ProductImage)" alt="@item.ProductName" style="width: 70px; height: 70px; object-fit: cover;" class="rounded" />
+                        </td>
+                        <td><strong>@item.ProductName</strong></td>
+                        <td class="text-end">@item.UnitPrice.ToString("N0") VNĐ</td>
+                        <td>
+                            @using (Html.BeginForm("UpdateCart", "Cart", FormMethod.Post, new { @class = "d-flex align-items-center" }))
+                            {
+                                <input type="hidden" name="id" value="@item.ProductID" />
+                                <input type="number" name="quantity" value="@item.Quantity" min="1" class="form-control form-control-sm me-1 text-center" />
+                                <button type="submit" class="btn btn-sm btn-outline-secondary" title="Cập nhật">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            }
+                        </td>
+                        <td class="text-end text-danger fw-bold">@item.TotalPrice.ToString("N0") VNĐ</td>
+                        <td class="text-center">
+                            <a href="@Url.Action("RemoveFromCart", "Cart", new { id = item.ProductID })" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?');">
+                                <i class="fas fa-trash-alt"></i> Xóa
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" class="text-end fw-bold fs-5">Tổng tiền thanh toán:</td>
+                    <td class="text-end text-danger fw-bold fs-5">
+                        @(((decimal)ViewBag.TotalAmount).ToString("N0")) VNĐ
+                    </td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+        <a href="@Url.Action("Index", "Home")" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
+        </a>
+        <a href="@Url.Action("Checkout", "Cart")" class="btn btn-success btn-lg">
+            Thanh toán <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+}

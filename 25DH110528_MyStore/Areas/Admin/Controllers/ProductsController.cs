@@ -120,10 +120,23 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
         // POST: Admin/Products/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Product product)
+        public ActionResult Create(Product product, HttpPostedFileBase ImageFile)
         {
             if (ModelState.IsValid)
             {
+                // Xử lý upload ảnh khi thêm mới
+                if (ImageFile != null && ImageFile.ContentLength > 0)
+                {
+                    string fileName = System.IO.Path.GetFileName(ImageFile.FileName);
+                    string path = System.IO.Path.Combine(Server.MapPath("~/Content/images/"), fileName);
+                    ImageFile.SaveAs(path);
+                    product.ProductImage = "~/Content/images/" + fileName;
+                }
+                else
+                {
+                    product.ProductImage = "~/Content/images/default.png";
+                }
+
                 SaveProduct(product, "Create");
 
                 return RedirectToAction("Index");
@@ -159,10 +172,28 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
         // POST: Admin/Products/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(Product product)
+        public ActionResult Edit(Product product, HttpPostedFileBase ImageFile)
         {
             if (ModelState.IsValid)
             {
+                // Xử lý upload ảnh khi chỉnh sửa
+                if (ImageFile != null && ImageFile.ContentLength > 0)
+                {
+                    string fileName = System.IO.Path.GetFileName(ImageFile.FileName);
+                    string path = System.IO.Path.Combine(Server.MapPath("~/Content/images/"), fileName);
+                    ImageFile.SaveAs(path);
+                    product.ProductImage = "~/Content/images/" + fileName;
+                }
+                else
+                {
+                    // Nếu không chọn ảnh mới, giữ nguyên đường dẫn ảnh cũ trong CSDL
+                    var existingProduct = db.Products.AsNoTracking().FirstOrDefault(p => p.ProductID == product.ProductID);
+                    if (existingProduct != null)
+                    {
+                        product.ProductImage = existingProduct.ProductImage;
+                    }
+                }
+
                 SaveProduct(product, "Edit");
 
                 return RedirectToAction("Index");
