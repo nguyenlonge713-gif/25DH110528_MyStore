@@ -114,29 +114,39 @@ namespace _25DH110528_MyStore.Controllers
         [HttpPost]
         public ActionResult UpdateCart(int id, int quantity)
         {
-            List<CartItem> cart = GetCart();
+            // 1. Lấy giỏ hàng hiện tại trực tiếp từ Session hoặc bộ nhớ User
+            List<CartItem> cart = Session["Cart"] as List<CartItem>;
+            string username = Session["Username"] as string;
+
+            if (cart == null)
+            {
+                cart = GetCart();
+            }
+
+            // 2. Tìm sản phẩm cần cập nhật trong giỏ
             CartItem item = cart.FirstOrDefault(p => p.ProductID == id);
 
             if (item != null)
             {
                 if (quantity > 0)
                 {
-                    item.Quantity = quantity;
+                    item.Quantity = quantity; // Cập nhật số lượng mới
                 }
                 else
                 {
-                    cart.Remove(item);
+                    cart.Remove(item); // Nếu số lượng <= 0 thì xóa sản phẩm
                 }
             }
 
+            // 3. Cập nhật lại Session và bộ nhớ đệm ngay lập tức
             Session["Cart"] = cart;
-            string username = Session["Username"] as string;
+            Session["CartCount"] = cart.Sum(i => i.Quantity);
+
             if (!string.IsNullOrEmpty(username))
             {
-                UserCarts[username] = cart;
+                UserCarts[username] = cart; // Đồng bộ vào bộ nhớ tĩnh theo tài khoản
             }
 
-            GetCart();
             return RedirectToAction("Index");
         }
 
