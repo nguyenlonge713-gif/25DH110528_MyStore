@@ -10,16 +10,31 @@
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-    
-<div class="form-horizontal">
-    <h4>Category</h4>
-    <hr />
-    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-    @*Nhúng partial view vào form cha*@
-    @Html.Partial("PVCreateEditCategory", Model)
 
+    <div class="form-horizontal">
+        <h4>Category</h4>
+        <hr />
 
-</div>
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        @* Nhúng partial view vào form cha *@
+        @Html.Partial("PVCreateEditCategory", Model)
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-save"></span>
+                    Cập nhật
+                </button>
+
+                @Html.ActionLink(
+                    "Quay lại",
+                    "Index",
+                    "Categories",
+                    new { area = "Admin" },
+                    new { @class = "btn btn-default" }
+                )
+            </div>
+        </div>
+    </div>
 }
-
-

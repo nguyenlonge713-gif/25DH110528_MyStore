@@ -1,0 +1,53 @@
+﻿@model _25DH110528_MyStore.Models.Product
+
+@{
+    ViewBag.Title = "Sửa sản phẩm";
+}
+
+<div class="panel panel-warning">
+
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <span class="glyphicon glyphicon-edit"></span>
+            CẬP NHẬT SẢN PHẨM
+        </h3>
+    </div>
+
+    <div class="panel-body">
+
+        @using (Html.BeginForm(
+        "Edit",
+        "Products",
+        FormMethod.Post,
+        new { enctype = "multipart/form-data" }))
+        {
+        @Html.AntiForgeryToken()
+
+        @Html.HiddenFor(model => model.ProductID)
+
+        @Html.Partial("PVCreateEditProduct", Model)
+
+        <hr />
+
+        <div class="text-center">
+
+            <button type="submit" class="btn btn-warning">
+                <span class="glyphicon glyphicon-save"></span>
+                Cập nhật sản phẩm
+            </button>
+
+            @Html.ActionLink(
+            "Quay lại",
+            "Index",
+            null,
+            new { @class = "btn btn-default" })
+
+        </div>
+        }
+
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

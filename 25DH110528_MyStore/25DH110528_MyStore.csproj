@@ -232,6 +232,14 @@
     </Content>
     <Content Include="Areas\Admin\Views\web.config" />
     <Content Include="Areas\Admin\Views\Shared\_AdminLayout.cshtml" />
+    <Content Include="Areas\Admin\Views\Create.cshtml" />
+    <Content Include="Areas\Admin\Views\Delete.cshtml" />
+    <Content Include="Areas\Admin\Views\Details.cshtml" />
+    <Content Include="Areas\Admin\Views\Edit.cshtml" />
+    <Content Include="Areas\Admin\Views\Index.cshtml" />
+    <Content Include="Areas\Admin\Views\PVCreateEditProduct.cshtml" />
+    <Content Include="Areas\Admin\Views\PVListProduct.cshtml" />
+    <Content Include="Areas\Admin\Views\PVProductInfo.cshtml" />
     <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.0.js" />
     <Content Include="Scripts\jquery-3.7.0.min.js" />
@@ -276,8 +284,6 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Admin\Data\" />
-    <Folder Include="Areas\Admin\Views\Categories\" />
-    <Folder Include="Areas\Admin\Views\Products\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

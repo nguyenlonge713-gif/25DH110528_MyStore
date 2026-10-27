@@ -1,0 +1,38 @@
+﻿@model _25DH110528_MyStore.Models.Product
+
+<div class="row">
+
+    <div class="col-md-4 text-center">
+
+        <img src="@Url.Content(string.IsNullOrEmpty(Model.ProductImage) ? " ~ /Content/images/default.png" : Model.ProductImage)"
+             class="img-thumbnail"
+             style="width:200px; height:200px; object-fit:cover;"
+             alt="@Model.ProductName" />
+
+    </div>
+
+    <div class="col-md-8">
+
+        <dl class="dl-horizontal">
+
+            <dt>Danh mục</dt>
+            <dd>@Model.Category.CategoryName</dd>
+
+            <dt>Tên sản phẩm</dt>
+            <dd>
+                <strong>@Model.ProductName</strong>
+            </dd>
+
+            <dt>Mô tả</dt>
+            <dd>@Model.ProductDescription</dd>
+
+            <dt>Giá</dt>
+            <dd>
+                <strong>@Model.ProductPrice.ToString("N0") VNĐ</strong>
+            </dd>
+
+        </dl>
+
+    </div>
+
+</div>

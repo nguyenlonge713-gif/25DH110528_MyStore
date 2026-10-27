@@ -1,0 +1,174 @@
+﻿@model _25DH110528_MyStore.Models.ViewModel.ProductSearchVM
+@using PagedList
+@using PagedList.Mvc
+
+<div class="table-responsive">
+
+    <table class="table table-bordered table-hover">
+
+        <thead>
+            <tr class="info text-center">
+
+                <th style="width:100px;">
+                    Ảnh
+                </th>
+
+                <th>
+                    Tên sản phẩm
+                </th>
+
+                <th>
+                    Danh mục
+                </th>
+
+                <th style="width:150px;">
+                    Giá
+                </th>
+
+                <th style="width:220px;">
+                    Thao tác
+                </th>
+
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach (var item in Model.Products)
+            {
+            <tr>
+
+                <!-- Ảnh -->
+                <td class="text-center">
+
+                    <img src="@Url.Content(
+                            string.IsNullOrEmpty(item.ProductImage)
+                            ? " ~ /Content/images/default.png"
+                         : item.ProductImage
+                         )"
+                         width="70"
+                         height="70"
+                         style="object-fit:cover; border-radius:5px;"
+                         alt="@item.ProductName" />
+
+                </td>
+
+                <!-- Tên sản phẩm -->
+                <td style="vertical-align:middle;">
+
+                    <strong>
+                        @item.ProductName
+                    </strong>
+
+                </td>
+
+                <!-- Danh mục -->
+                <td style="vertical-align:middle;">
+
+                    @if (item.Category != null)
+                    {
+                    @item.Category.CategoryName
+                    }
+                    else
+                    {
+                    <span>Chưa có danh mục</span>
+                    }
+
+                </td>
+
+                <!-- Giá -->
+                <td style="vertical-align:middle;">
+
+                    <strong>
+                        @item.ProductPrice.ToString("N0") VNĐ
+                    </strong>
+
+                </td>
+
+                <!-- Thao tác -->
+                <td class="text-center" style="vertical-align:middle;">
+
+                    @Html.ActionLink(
+                    "Sửa",
+                    "Edit",
+                    "Products",
+                    new
+                    {
+                    area = "Admin",
+                    id = item.ProductID
+                    },
+                    new
+                    {
+                    @class = "btn btn-warning btn-sm"
+                    })
+
+                    @Html.ActionLink(
+                    "Chi tiết",
+                    "Details",
+                    "Products",
+                    new
+                    {
+                    area = "Admin",
+                    id = item.ProductID
+                    },
+                    new
+                    {
+                    @class = "btn btn-info btn-sm"
+                    })
+
+                    @Html.ActionLink(
+                    "Xóa",
+                    "Delete",
+                    "Products",
+                    new
+                    {
+                    area = "Admin",
+                    id = item.ProductID
+                    },
+                    new
+                    {
+                    @class = "btn btn-danger btn-sm"
+                    })
+
+                </td>
+
+            </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<!-- PHÂN TRANG -->
+
+<div class="text-center">
+
+    <strong>
+        Trang
+        @(Model.Products.PageCount < Model.Products.PageNumber
+        ? 0
+        : Model.Products.PageNumber)
+        /
+        @Model.Products.PageCount
+    </strong>
+
+    @Html.PagedListPager(
+    Model.Products,
+    page => Url.Action(
+    "Index",
+    "Products",
+    new
+    {
+    area = "Admin",
+    page = page,
+    searchTerm = Model.SearchTerm,
+    minPrice = Model.MinPrice,
+    maxPrice = Model.MaxPrice,
+    sortOrder = Model.SortOrder
+    })
+    )
+
+</div>
