@@ -1,32 +1,114 @@
-﻿@model IEnumerable<_25DH110528_MyStore.Models.OrderDetail>
+﻿
+@model IEnumerable<_25DH110528_MyStore.Models.OrderDetail>
 
 @{
     ViewBag.Title = "Chi tiết đơn hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
     var order = ViewBag.Order as _25DH110528_MyStore.Models.Order;
+
+    var status = order == null ||
+                 string.IsNullOrWhiteSpace(order.OrderStatus)
+        ? "Chưa cập nhật"
+        : order.OrderStatus.Trim();
+
+    var badgeClass = "bg-secondary";
+    var iconClass = "fas fa-info-circle";
+
+    if (status.Equals("Chờ xác nhận",
+        StringComparison.OrdinalIgnoreCase))
+    {
+        badgeClass = "bg-warning text-dark";
+        iconClass = "fas fa-clock";
+    }
+    else if (status.Equals("Đã xác nhận",
+        StringComparison.OrdinalIgnoreCase))
+    {
+        badgeClass = "bg-primary";
+        iconClass = "fas fa-check";
+    }
+    else if (status.Equals("Đang giao hàng",
+        StringComparison.OrdinalIgnoreCase))
+    {
+        badgeClass = "bg-info text-dark";
+        iconClass = "fas fa-truck";
+    }
+    else if (status.Equals("Đã giao hàng",
+        StringComparison.OrdinalIgnoreCase))
+    {
+        badgeClass = "bg-success";
+        iconClass = "fas fa-check-circle";
+    }
+    else if (status.Equals("Đã hủy",
+        StringComparison.OrdinalIgnoreCase))
+    {
+        badgeClass = "bg-danger";
+        iconClass = "fas fa-times-circle";
+    }
 }
 
 <div class="container mt-4 mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3><i class="fas fa-file-invoice me-2"></i> Chi tiết đơn hàng #@(order != null ? order.OrderID : 0)</h3>
-        <a href="@Url.Action("OrderHistory", "User")" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> Quay lại danh sách
+
+    <div class="d-flex justify-content-between
+                align-items-center mb-3 flex-wrap gap-2">
+        <h3>
+            <i class="fas fa-file-invoice me-2"></i>
+            Chi tiết đơn hàng #@(order != null ? order.OrderID : 0)
+        </h3>
+
+        <a href="@Url.Action("OrderHistory", "User")"
+           class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i>
+            Quay lại danh sách
         </a>
     </div>
 
     @if (order != null)
     {
-        <div class="card mb-4 bg-light">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Thông tin đơn hàng
+                </h5>
+            </div>
+
             <div class="card-body">
-                <p class="mb-1"><strong>Ngày đặt hàng:</strong> @order.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
-                <p class="mb-1"><strong>Địa chỉ giao hàng:</strong> @order.AddressDelivery</p>
-                <p class="mb-0"><strong>Tổng tiền thanh toán:</strong> <span class="text-danger font-weight-bold fs-5">@order.TotalAmount.ToString("N0") VNĐ</span></p>
+                <p class="mb-3">
+                    <strong>Ngày đặt hàng:</strong>
+                    @order.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                </p>
+
+                <p class="mb-3">
+                    <strong>Địa chỉ giao hàng:</strong>
+                    @order.AddressDelivery
+                </p>
+
+                <p class="mb-3">
+                    <strong>Trạng thái đơn hàng:</strong>
+                    <span class="badge @badgeClass px-3 py-2">
+                        <i class="@iconClass me-1"></i>
+                        @status
+                    </span>
+                </p>
+
+                <p class="mb-0">
+                    <strong>Tổng tiền thanh toán:</strong>
+                    <span class="text-danger fw-bold fs-5">
+                        @order.TotalAmount.ToString("N0") VNĐ
+                    </span>
+                </p>
             </div>
         </div>
     }
 
+    <h5 class="mb-3">
+        <i class="fas fa-shopping-bag me-2"></i>
+        Sản phẩm trong đơn hàng
+    </h5>
+
     <div class="table-responsive">
-        <table class="table table-bordered align-middle">
+        <table class="table table-bordered table-hover align-middle">
             <thead class="table-secondary text-center">
                 <tr>
                     <th>Sản phẩm</th>
@@ -35,19 +117,42 @@
                     <th>Thành tiền</th>
                 </tr>
             </thead>
+
             <tbody>
                 @if (Model != null && Model.Any())
                 {
                     foreach (var detail in Model)
                     {
                         var total = detail.Quantity * detail.UnitPrice;
+
                         <tr>
-                            <td>@(detail.Product != null ? detail.Product.ProductName : "Mã SP: " + detail.ProductID)</td>
-                            <td class="text-center">@detail.Quantity</td>
-                            <td class="text-end">@detail.UnitPrice.ToString("N0") VNĐ</td>
-                            <td class="text-end text-danger font-weight-bold">@total.ToString("N0") VNĐ</td>
+                            <td>
+                                @(detail.Product != null
+                                    ? detail.Product.ProductName
+                                    : "Mã SP: " + detail.ProductID)
+                            </td>
+
+                            <td class="text-center">
+                                @detail.Quantity
+                            </td>
+
+                            <td class="text-end">
+                                @detail.UnitPrice.ToString("N0") VNĐ
+                            </td>
+
+                            <td class="text-end text-danger fw-bold">
+                                @total.ToString("N0") VNĐ
+                            </td>
                         </tr>
                     }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">
+                            Không có sản phẩm trong đơn hàng này.
+                        </td>
+                    </tr>
                 }
             </tbody>
         </table>

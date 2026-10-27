@@ -33,6 +33,7 @@
           <Property Name="TotalAmount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="PaymentStatus" Type="nvarchar(max)" />
           <Property Name="AddressDelivery" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="OrderStatus" Type="nvarchar" MaxLength="50" />
         </EntityType>
         <EntityType Name="OrderDetail">
           <Key>
@@ -199,6 +200,7 @@
           <Property Name="AddressDelivery" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="Customer" Relationship="Self.FK__Order__CustomerI__5441852A" FromRole="Order" ToRole="Customer" />
           <NavigationProperty Name="OrderDetails" Relationship="Self.FK__OrderDeta__Order__5812160E" FromRole="Order" ToRole="OrderDetail" />
+          <Property Name="OrderStatus" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="OrderDetail">
           <Key>
@@ -362,6 +364,7 @@
           <EntitySetMapping Name="Orders">
             <EntityTypeMapping TypeName="MyStoreModel.Order">
               <MappingFragment StoreEntitySet="Order">
+                <ScalarProperty Name="OrderStatus" ColumnName="OrderStatus" />
                 <ScalarProperty Name="OrderID" ColumnName="OrderID" />
                 <ScalarProperty Name="CustomerID" ColumnName="CustomerID" />
                 <ScalarProperty Name="OrderDate" ColumnName="OrderDate" />

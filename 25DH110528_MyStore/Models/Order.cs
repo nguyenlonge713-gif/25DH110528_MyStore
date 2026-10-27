@@ -26,6 +26,7 @@ namespace _25DH110528_MyStore.Models
         public decimal TotalAmount { get; set; }
         public string PaymentStatus { get; set; }
         public string AddressDelivery { get; set; }
+        public string OrderStatus { get; set; }
     
         public virtual Customer Customer { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

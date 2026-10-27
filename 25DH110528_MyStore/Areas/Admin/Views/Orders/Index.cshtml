@@ -1,0 +1,236 @@
+﻿@model IEnumerable<_25DH110528_MyStore.Models.Order>
+
+@{
+    ViewBag.Title = "Quản lý đơn hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <h2 class="mb-4">Quản lý đơn hàng</h2>
+
+    @* Thông báo kết quả *@
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    @* Thống kê đơn hàng *@
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted">Tổng số đơn hàng</h6>
+                    <h3>@Model.Count()</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted">Chờ xác nhận</h6>
+                    <h3>
+                        @Model.Count(o => o.OrderStatus == "Chờ xác nhận")
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted">Đã giao</h6>
+                    <h3>
+                        @Model.Count(o => o.OrderStatus == "Đã giao")
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Bảng danh sách đơn hàng *@
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Khách hàng</th>
+                            <th>Ngày đặt</th>
+                            <th>Tổng tiền</th>
+                            <th>Thanh toán</th>
+                            <th>Trạng thái đơn hàng</th>
+                            <th style="min-width: 280px;">Cập nhật trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.OrderID</td>
+
+                                    <td>
+                                        @if (item.Customer != null)
+                                        {
+                                            @item.Customer.CustomerName
+                                        }
+                                        else
+                                        {
+                                            <span>Không xác định</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @item.OrderDate.ToString("dd/MM/yyyy")
+                                    </td>
+
+                                    <td class="text-end">
+                                        @item.TotalAmount.ToString("N0") đ
+                                    </td>
+
+                                    <td>
+                                        @if (item.PaymentStatus == "Đã thanh toán")
+                                        {
+                                            <span class="badge bg-success">
+                                                Đã thanh toán
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                @(string.IsNullOrWhiteSpace(item.PaymentStatus)
+                                                    ? "Chưa cập nhật"
+                                                    : item.PaymentStatus)
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (item.OrderStatus == "Đã giao")
+                                        {
+                                            <span class="badge bg-success">
+                                                Đã giao
+                                            </span>
+                                        }
+                                        else if (item.OrderStatus == "Đã hủy")
+                                        {
+                                            <span class="badge bg-danger">
+                                                Đã hủy
+                                            </span>
+                                        }
+                                        else if (item.OrderStatus == "Đang giao")
+                                        {
+                                            <span class="badge bg-info text-dark">
+                                                Đang giao
+                                            </span>
+                                        }
+                                        else if (item.OrderStatus == "Đã xác nhận")
+                                        {
+                                            <span class="badge bg-primary">
+                                                Đã xác nhận
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">
+                                                @(string.IsNullOrWhiteSpace(item.OrderStatus)
+                                                    ? "Chưa cập nhật"
+                                                    : item.OrderStatus)
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (item.OrderStatus == "Đã giao" ||
+                                             item.OrderStatus == "Đã hủy")
+                                        {
+                                            <span class="text-muted">
+                                                Đơn hàng đã kết thúc
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            using (Html.BeginForm(
+                                                "UpdateStatus",
+                                                "Orders",
+                                                new { area = "Admin" },
+                                                FormMethod.Post,
+                                                new { @class = "d-flex flex-column gap-2" }))
+                                            {
+                                                @Html.AntiForgeryToken()
+
+                                                @Html.Hidden("id", item.OrderID)
+
+                                                <select name="orderStatus"
+                                                        class="form-select form-select-sm"
+                                                        required>
+                                                    <option value="Chờ xác nhận"
+                                                            @(item.OrderStatus == "Chờ xác nhận" ? "selected" : "")>
+                                                        Chờ xác nhận
+                                                    </option>
+
+                                                    <option value="Đã xác nhận"
+                                                            @(item.OrderStatus == "Đã xác nhận" ? "selected" : "")>
+                                                        Đã xác nhận
+                                                    </option>
+
+                                                    <option value="Đang giao"
+                                                            @(item.OrderStatus == "Đang giao" ? "selected" : "")>
+                                                        Đang giao
+                                                    </option>
+
+                                                    <option value="Đã giao">
+                                                        Đã giao
+                                                    </option>
+
+                                                    <option value="Đã hủy">
+                                                        Đã hủy
+                                                    </option>
+                                                </select>
+
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-primary">
+                                                    Cập nhật
+                                                </button>
+                                            }
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @Html.ActionLink(
+                                            "Chi tiết",
+                                            "Details",
+                                            new { id = item.OrderID },
+                                            new { @class = "btn btn-sm btn-outline-primary" })
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center py-4">
+                                    Chưa có đơn hàng nào.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

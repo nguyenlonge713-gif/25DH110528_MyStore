@@ -10,10 +10,11 @@ namespace _25DH110528_MyStore.Controllers
     {
         private MyStoreEntities db = new MyStoreEntities();
 
-        // Bộ nhớ lưu trữ giỏ hàng tạm theo Username (Chống mất giỏ hàng khi Logout)
-        private static Dictionary<string, List<CartItem>> UserCarts = new Dictionary<string, List<CartItem>>();
+        // Bộ nhớ lưu trữ giỏ hàng tạm theo Username
+        private static Dictionary<string, List<CartItem>> UserCarts =
+            new Dictionary<string, List<CartItem>>();
 
-        // Hàm hỗ trợ đồng bộ giỏ hàng theo Username
+        // Đồng bộ giỏ hàng theo Username
         public static void SyncUserCart(string username, List<CartItem> cart)
         {
             if (!string.IsNullOrEmpty(username))
@@ -22,17 +23,19 @@ namespace _25DH110528_MyStore.Controllers
             }
         }
 
-        // Hàm hỗ trợ lấy giỏ hàng đã lưu của User
+        // Lấy giỏ hàng đã lưu của User
         public static List<CartItem> GetUserCart(string username)
         {
-            if (!string.IsNullOrEmpty(username) && UserCarts.ContainsKey(username))
+            if (!string.IsNullOrEmpty(username) &&
+                UserCarts.ContainsKey(username))
             {
                 return UserCarts[username];
             }
+
             return null;
         }
 
-        // Lấy giỏ hàng từ Session hoặc bộ nhớ đệm của User
+        // Lấy giỏ hàng từ Session hoặc bộ nhớ đệm
         private List<CartItem> GetCart()
         {
             List<CartItem> cart = Session["Cart"] as List<CartItem>;
@@ -40,8 +43,8 @@ namespace _25DH110528_MyStore.Controllers
 
             if (cart == null)
             {
-                // Thử khôi phục từ bộ nhớ đệm nếu user đã đăng nhập
-                if (!string.IsNullOrEmpty(username) && UserCarts.ContainsKey(username))
+                if (!string.IsNullOrEmpty(username) &&
+                    UserCarts.ContainsKey(username))
                 {
                     cart = UserCarts[username];
                 }
@@ -49,16 +52,17 @@ namespace _25DH110528_MyStore.Controllers
                 {
                     cart = new List<CartItem>();
                 }
+
                 Session["Cart"] = cart;
             }
 
-            // Đồng bộ ngược lại bộ nhớ nếu đang đăng nhập
             if (!string.IsNullOrEmpty(username))
             {
                 UserCarts[username] = cart;
             }
 
             Session["CartCount"] = cart.Sum(item => item.Quantity);
+
             return cart;
         }
 
@@ -66,7 +70,9 @@ namespace _25DH110528_MyStore.Controllers
         public ActionResult Index()
         {
             List<CartItem> cart = GetCart();
+
             ViewBag.TotalAmount = cart.Sum(item => item.TotalPrice);
+
             return View(cart);
         }
 
@@ -74,12 +80,14 @@ namespace _25DH110528_MyStore.Controllers
         public ActionResult AddToCart(int id, int quantity = 1)
         {
             var product = db.Products.Find(id);
+
             if (product == null)
             {
                 return HttpNotFound();
             }
 
             List<CartItem> cart = GetCart();
+
             CartItem item = cart.FirstOrDefault(p => p.ProductID == id);
 
             if (item == null)
@@ -98,23 +106,24 @@ namespace _25DH110528_MyStore.Controllers
                 item.Quantity += quantity;
             }
 
-            // Lưu và đồng bộ
             Session["Cart"] = cart;
+
             string username = Session["Username"] as string;
+
             if (!string.IsNullOrEmpty(username))
             {
                 UserCarts[username] = cart;
             }
 
             GetCart();
+
             return RedirectToAction("Index");
         }
 
-        // 3. CẬP NHẬT SỐ LƯỢNG SẢN PHẨM TRONG GIỎ
+        // 3. CẬP NHẬT SỐ LƯỢNG SẢN PHẨM
         [HttpPost]
         public ActionResult UpdateCart(int id, int quantity)
         {
-            // 1. Lấy giỏ hàng hiện tại trực tiếp từ Session hoặc bộ nhớ User
             List<CartItem> cart = Session["Cart"] as List<CartItem>;
             string username = Session["Username"] as string;
 
@@ -123,37 +132,36 @@ namespace _25DH110528_MyStore.Controllers
                 cart = GetCart();
             }
 
-            // 2. Tìm sản phẩm cần cập nhật trong giỏ
             CartItem item = cart.FirstOrDefault(p => p.ProductID == id);
 
             if (item != null)
             {
                 if (quantity > 0)
                 {
-                    item.Quantity = quantity; // Cập nhật số lượng mới
+                    item.Quantity = quantity;
                 }
                 else
                 {
-                    cart.Remove(item); // Nếu số lượng <= 0 thì xóa sản phẩm
+                    cart.Remove(item);
                 }
             }
 
-            // 3. Cập nhật lại Session và bộ nhớ đệm ngay lập tức
             Session["Cart"] = cart;
             Session["CartCount"] = cart.Sum(i => i.Quantity);
 
             if (!string.IsNullOrEmpty(username))
             {
-                UserCarts[username] = cart; // Đồng bộ vào bộ nhớ tĩnh theo tài khoản
+                UserCarts[username] = cart;
             }
 
             return RedirectToAction("Index");
         }
 
-        // 4. XÓA MỘT SẢN PHẨM KHỎI GIỎ
+        // 4. XÓA SẢN PHẨM KHỎI GIỎ
         public ActionResult RemoveFromCart(int id)
         {
             List<CartItem> cart = GetCart();
+
             CartItem item = cart.FirstOrDefault(p => p.ProductID == id);
 
             if (item != null)
@@ -162,17 +170,20 @@ namespace _25DH110528_MyStore.Controllers
             }
 
             Session["Cart"] = cart;
+
             string username = Session["Username"] as string;
+
             if (!string.IsNullOrEmpty(username))
             {
                 UserCarts[username] = cart;
             }
 
             GetCart();
+
             return RedirectToAction("Index");
         }
 
-        // 5. TRANG THANH TOÁN (CHECKOUT)
+        // 5. TRANG THANH TOÁN
         [HttpGet]
         public ActionResult Checkout()
         {
@@ -182,16 +193,18 @@ namespace _25DH110528_MyStore.Controllers
             }
 
             List<CartItem> cart = GetCart();
+
             if (cart.Count == 0)
             {
                 return RedirectToAction("Index", "Home");
             }
 
             ViewBag.TotalAmount = cart.Sum(item => item.TotalPrice);
+
             return View(cart);
         }
 
-        // 6. XỬ LÝ ĐẶT HÀNG (LƯU VÀO CSDL: ORDER & ORDERDETAIL)
+        // 6. XỬ LÝ ĐẶT HÀNG
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Checkout(FormCollection collection)
@@ -202,6 +215,7 @@ namespace _25DH110528_MyStore.Controllers
             }
 
             List<CartItem> cart = GetCart();
+
             if (cart.Count == 0)
             {
                 return RedirectToAction("Index", "Home");
@@ -212,28 +226,41 @@ namespace _25DH110528_MyStore.Controllers
 
             if (currentCustomer == null)
             {
-                currentCustomer = db.Customers.FirstOrDefault(c => c.Username == username);
+                currentCustomer = db.Customers
+                    .FirstOrDefault(c => c.Username == username);
             }
 
+            // Lấy địa chỉ giao hàng
             string addressDelivery = collection["AddressDelivery"];
-            if (string.IsNullOrWhiteSpace(addressDelivery) && currentCustomer != null)
+
+            if (string.IsNullOrWhiteSpace(addressDelivery) &&
+                currentCustomer != null)
             {
                 addressDelivery = currentCustomer.CustomerAddress;
             }
 
-            // 1. Tạo Đơn hàng mới (Order)
+            // 7. TẠO ĐƠN HÀNG MỚI
             Order order = new Order
             {
-                CustomerID = currentCustomer != null ? currentCustomer.CustomerID : 0,
+                CustomerID = currentCustomer != null
+                    ? currentCustomer.CustomerID
+                    : 0,
+
                 OrderDate = DateTime.Now,
                 TotalAmount = cart.Sum(i => i.TotalPrice),
-                AddressDelivery = addressDelivery
+                AddressDelivery = addressDelivery,
+
+                // Trạng thái xử lý đơn hàng
+                OrderStatus = "Chờ xác nhận",
+
+                // Trạng thái thanh toán
+                PaymentStatus = "Chưa thanh toán"
             };
 
             db.Orders.Add(order);
             db.SaveChanges();
 
-            // 2. Tạo Chi tiết đơn hàng (OrderDetail)
+            // 8. TẠO CHI TIẾT ĐƠN HÀNG
             foreach (var item in cart)
             {
                 OrderDetail detail = new OrderDetail
@@ -243,20 +270,33 @@ namespace _25DH110528_MyStore.Controllers
                     Quantity = item.Quantity,
                     UnitPrice = item.UnitPrice
                 };
+
                 db.OrderDetails.Add(detail);
             }
 
             db.SaveChanges();
 
-            // 3. Xóa giỏ hàng sau khi đặt thành công
+            // 9. XÓA GIỎ HÀNG SAU KHI ĐẶT HÀNG THÀNH CÔNG
             Session["Cart"] = null;
             Session["CartCount"] = 0;
+
             if (UserCarts.ContainsKey(username))
             {
-                UserCarts.Remove(username); // Xóa giỏ hàng đã thanh toán khỏi bộ nhớ
+                UserCarts.Remove(username);
             }
 
             return View("OrderSuccess", order);
+        }
+
+        // Giải phóng kết nối cơ sở dữ liệu
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

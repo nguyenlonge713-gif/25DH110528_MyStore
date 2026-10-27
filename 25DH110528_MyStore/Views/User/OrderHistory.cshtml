@@ -1,4 +1,5 @@
-﻿@model IEnumerable<_25DH110528_MyStore.Models.Order>
+﻿```cshtml
+@model IEnumerable<_25DH110528_MyStore.Models.Order>
 
 @{
     ViewBag.Title = "Lịch sử mua hàng";
@@ -6,14 +7,22 @@
 }
 
 <div class="container mt-4 mb-5">
-    <h3 class="mb-4"><i class="fas fa-history me-2"></i> Lịch sử mua hàng</h3>
+    <h3 class="mb-4">
+        <i class="fas fa-history me-2"></i>
+        Lịch sử mua hàng
+    </h3>
 
     @if (Model == null || !Model.Any())
     {
         <div class="alert alert-info text-center py-4">
             <h5>Bạn chưa có đơn hàng nào!</h5>
-            <p class="mb-0">Hãy chọn mua các sản phẩm yêu thích ngay nhé.</p>
-            <a href="@Url.Action("Index", "Home")" class="btn btn-primary mt-3">Mua sắm ngay</a>
+            <p class="mb-0">
+                Hãy chọn mua các sản phẩm yêu thích ngay nhé.
+            </p>
+            <a href="@Url.Action("Index", "Home")"
+               class="btn btn-primary mt-3">
+                Mua sắm ngay
+            </a>
         </div>
     }
     else
@@ -26,22 +35,84 @@
                         <th>Ngày đặt</th>
                         <th>Địa chỉ giao hàng</th>
                         <th>Tổng tiền</th>
+                        <th>Trạng thái đơn hàng</th>
                         <th>Thao tác</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     @foreach (var item in Model)
                     {
+                        var status = string.IsNullOrWhiteSpace(item.OrderStatus)
+                            ? "Chờ xác nhận"
+                            : item.OrderStatus.Trim();
+
+                        var badgeClass = "bg-secondary";
+                        var iconClass = "fas fa-info-circle";
+
+                        if (status.Equals("Chờ xác nhận",
+                            StringComparison.OrdinalIgnoreCase))
+                        {
+                            badgeClass = "bg-warning text-dark";
+                            iconClass = "fas fa-clock";
+                        }
+                        else if (status.Equals("Đã xác nhận",
+                            StringComparison.OrdinalIgnoreCase))
+                        {
+                            badgeClass = "bg-primary";
+                            iconClass = "fas fa-check";
+                        }
+                        else if (status.Equals("Đang giao hàng",
+                            StringComparison.OrdinalIgnoreCase))
+                        {
+                            badgeClass = "bg-info text-dark";
+                            iconClass = "fas fa-truck";
+                        }
+                        else if (status.Equals("Đã giao hàng",
+                            StringComparison.OrdinalIgnoreCase))
+                        {
+                            badgeClass = "bg-success";
+                            iconClass = "fas fa-check-circle";
+                        }
+                        else if (status.Equals("Đã hủy",
+                            StringComparison.OrdinalIgnoreCase))
+                        {
+                            badgeClass = "bg-danger";
+                            iconClass = "fas fa-times-circle";
+                        }
+
                         <tr>
-                            <td class="text-center font-weight-bold">#@item.OrderID</td>
-                            <td class="text-center">@item.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td>@item.AddressDelivery</td>
-                            <td class="text-end text-danger font-weight-bold">
+                            <td class="text-center fw-bold">
+                                #@item.OrderID
+                            </td>
+
+                            <td class="text-center">
+                                @item.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                            </td>
+
+                            <td>
+                                @item.AddressDelivery
+                            </td>
+
+                            <td class="text-end text-danger fw-bold">
                                 @item.TotalAmount.ToString("N0") VNĐ
                             </td>
+
                             <td class="text-center">
-                                <a href="@Url.Action("OrderDetail", "User", new { id = item.OrderID })" class="btn btn-sm btn-info text-white">
-                                    <i class="fas fa-eye me-1"></i> Xem chi tiết
+                                <span class="badge @badgeClass px-3 py-2">
+                                    <i class="@iconClass me-1"></i>
+                                    @status
+                                </span>
+                            </td>
+
+                            <td class="text-center">
+                                <a href="@Url.Action(
+                                    "OrderDetail",
+                                    "User",
+                                    new { id = item.OrderID })"
+                                   class="btn btn-sm btn-info text-white">
+                                    <i class="fas fa-eye me-1"></i>
+                                    Xem chi tiết
                                 </a>
                             </td>
                         </tr>
@@ -51,3 +122,4 @@
         </div>
     }
 </div>
+```
