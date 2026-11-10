@@ -1,29 +1,286 @@
-﻿@model _25DH110528_MyStore.Models.Category
+﻿
+@model _25DH110528_MyStore.Models.Category
 
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = "Chi tiết danh mục";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h2>Thông Tin Chi Tiết</h2>
+<style>
+    .category-details-page {
+        max-width: 950px;
+        margin: 0 auto;
+        padding: 25px 15px 40px;
+        color: #263445;
+    }
 
-<div>
-  
-    <hr />
-    <dl class="dl-horizontal  ">
-        <dt>
-            @*Html.DisplayNameFor(model => model.CategoryName)*@
-            Tên danh mục 
-        </dt>
-        @* Gía trị của trường CategoryName*@
-        <dd>
-            @Html.DisplayFor(model => model.CategoryName)
-        </dd>
+        .category-details-page .page-header-custom {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e8edf3;
+        }
 
-    </dl>
+        .category-details-page .breadcrumb-custom {
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+            .category-details-page .breadcrumb-custom a {
+                color: #2563eb;
+                text-decoration: none;
+            }
+
+                .category-details-page .breadcrumb-custom a:hover {
+                    text-decoration: underline;
+                }
+
+        .category-details-page .page-title {
+            margin: 0 0 7px;
+            font-size: 27px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .category-details-page .page-description {
+            margin: 0;
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .category-details-page .details-card {
+            overflow: hidden;
+            background: #fff;
+            border: 1px solid #e5eaf0;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(15, 23, 42, 0.05);
+        }
+
+        .category-details-page .card-header-custom {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 20px 25px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e8edf3;
+        }
+
+        .category-details-page .icon-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: #e8f0ff;
+            color: #2563eb;
+            font-size: 20px;
+        }
+
+        .category-details-page .card-heading {
+            margin: 0 0 5px;
+            font-size: 17px;
+            font-weight: 700;
+            color: #263445;
+        }
+
+        .category-details-page .card-subheading {
+            margin: 0;
+            font-size: 13px;
+            color: #8491a3;
+        }
+
+        .category-details-page .card-body-custom {
+            padding: 30px 25px;
+        }
+
+        .category-details-page .info-label {
+            display: block;
+            margin-bottom: 10px;
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .category-details-page .info-value-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 65px;
+            padding: 15px 18px;
+            background: #f8fafc;
+            border: 1px solid #e5eaf0;
+            border-radius: 8px;
+        }
+
+            .category-details-page .info-value-box .glyphicon {
+                color: #2563eb;
+                font-size: 19px;
+            }
+
+        .category-details-page .category-name {
+            color: #1e293b;
+            font-size: 17px;
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
+        .category-details-page .category-id {
+            margin-top: 20px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .category-details-page .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 28px;
+            padding-top: 22px;
+            border-top: 1px solid #edf0f4;
+        }
+
+        .category-details-page .btn-edit {
+            padding: 10px 20px;
+            color: #fff;
+            font-weight: 600;
+            background: #2563eb;
+            border: 1px solid #2563eb;
+            border-radius: 7px;
+            transition: 0.2s;
+        }
+
+            .category-details-page .btn-edit:hover {
+                color: #fff;
+                background: #1d4ed8;
+                border-color: #1d4ed8;
+                text-decoration: none;
+            }
+
+        .category-details-page .btn-back {
+            padding: 10px 20px;
+            color: #475569;
+            font-weight: 600;
+            background: #fff;
+            border: 1px solid #d7dee8;
+            border-radius: 7px;
+            transition: 0.2s;
+        }
+
+            .category-details-page .btn-back:hover {
+                color: #1e293b;
+                background: #f1f5f9;
+                text-decoration: none;
+            }
+
+        .category-details-page .glyphicon {
+            margin-right: 6px;
+        }
+
+    @@media (max-width: 600px) {
+        .category-details-page {
+            padding: 15px 8px 25px;
+        }
+
+            .category-details-page .card-header-custom {
+                padding: 16px;
+            }
+
+            .category-details-page .card-body-custom {
+                padding: 20px 15px;
+            }
+
+            .category-details-page .form-actions {
+                flex-direction: column;
+            }
+
+                .category-details-page .form-actions .btn {
+                    width: 100%;
+                    text-align: center;
+                }
+    }
+</style>
+
+<div class="category-details-page">
+
+    <!-- Tiêu đề và điều hướng -->
+    <div class="page-header-custom">
+
+        <div class="breadcrumb-custom">
+            <a href="@Url.Action("Index", "Categories", new { area = "Admin" })">
+                Quản lý danh mục
+            </a>
+            <span> / </span>
+            <span>Chi tiết danh mục</span>
+        </div>
+
+        <h2 class="page-title">Chi tiết danh mục</h2>
+
+        <p class="page-description">
+            Xem thông tin chi tiết của danh mục sản phẩm trong hệ thống.
+        </p>
+
+    </div>
+
+    <!-- Thẻ thông tin -->
+    <div class="details-card">
+
+        <div class="card-header-custom">
+
+            <div class="icon-box">
+                <span class="glyphicon glyphicon-folder-open"></span>
+            </div>
+
+            <div>
+                <h4 class="card-heading">Thông tin danh mục</h4>
+                <p class="card-subheading">
+                    Thông tin hiện tại của danh mục được chọn.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="card-body-custom">
+
+            <label class="info-label">Tên danh mục</label>
+
+            <div class="info-value-box">
+                <span class="glyphicon glyphicon-tag"></span>
+
+                <span class="category-name">
+                    @Html.DisplayFor(model => model.CategoryName)
+                </span>
+            </div>
+
+            <div class="category-id">
+                Mã danh mục: <strong>@Model.CategoryID</strong>
+            </div>
+
+            <!-- Các nút chức năng -->
+            <div class="form-actions">
+
+                @Html.ActionLink(
+                         "Quay lại danh sách",
+                         "Index",
+                         "Categories",
+                         new { area = "Admin" },
+                         new { @class = "btn btn-back" }
+                     )
+
+                @Html.ActionLink(
+                         "Cập nhật",
+                         "Edit",
+                         new { id = Model.CategoryID },
+                         new { @class = "btn btn-edit" }
+                     )
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
-<p>
-    
-    @Html.ActionLink("Cập nhật", "Edit", new { id = Model.CategoryID }, new { @class = "btn btn-primary" })
-    @Html.ActionLink("Quay lại danh sách", "Index",null,new {@class="btn btn-primary "})
-</p>

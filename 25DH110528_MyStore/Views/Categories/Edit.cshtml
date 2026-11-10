@@ -1,40 +1,253 @@
-﻿@model _25DH110528_MyStore.Models.Category
+﻿
+@model _25DH110528_MyStore.Models.Category
 
 @{
-    ViewBag.Title = "Edit";
+    ViewBag.Title = "Cập nhật danh mục";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h2>Cập nhật danh mục</h2>
+<style>
+    .category-edit-page {
+        padding: 25px 15px 40px;
+        max-width: 950px;
+        margin: 0 auto;
+        color: #263445;
+    }
 
-@using (Html.BeginForm())
-{
-    @Html.AntiForgeryToken()
+        .category-edit-page .page-header-custom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e8edf3;
+        }
 
-    <div class="form-horizontal">
-        <h4>Category</h4>
-        <hr />
+        .category-edit-page .page-title {
+            margin: 0 0 7px;
+            font-size: 27px;
+            font-weight: 700;
+            color: #1e293b;
+        }
 
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        .category-edit-page .page-description {
+            margin: 0;
+            color: #718096;
+            font-size: 14px;
+        }
 
-        @* Nhúng partial view vào form cha *@
-        @Html.Partial("PVCreateEditCategory", Model)
+        .category-edit-page .breadcrumb-custom {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
 
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <button type="submit" class="btn btn-primary">
-                    <span class="glyphicon glyphicon-save"></span>
-                    Cập nhật
-                </button>
+            .category-edit-page .breadcrumb-custom a {
+                color: #2563eb;
+                text-decoration: none;
+            }
 
-                @Html.ActionLink(
-                    "Quay lại",
-                    "Index",
-                    "Categories",
-                    new { area = "Admin" },
-                    new { @class = "btn btn-default" }
-                )
+                .category-edit-page .breadcrumb-custom a:hover {
+                    text-decoration: underline;
+                }
+
+        .category-edit-page .edit-card {
+            background: #fff;
+            border: 1px solid #e5eaf0;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(15, 23, 42, 0.05);
+            overflow: hidden;
+        }
+
+        .category-edit-page .card-header-custom {
+            padding: 20px 25px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e8edf3;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .category-edit-page .icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: #e8f0ff;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .category-edit-page .card-heading {
+            margin: 0 0 5px;
+            font-size: 17px;
+            font-weight: 700;
+            color: #263445;
+        }
+
+        .category-edit-page .card-subheading {
+            margin: 0;
+            font-size: 13px;
+            color: #8491a3;
+        }
+
+        .category-edit-page .card-body-custom {
+            padding: 30px 25px;
+        }
+
+        .category-edit-page .validation-summary-errors {
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            background: #fff1f2;
+            border: 1px solid #fecdd3;
+            border-radius: 8px;
+            color: #be123c;
+        }
+
+            .category-edit-page .validation-summary-errors ul {
+                margin: 5px 0 0;
+                padding-left: 20px;
+            }
+
+        .category-edit-page .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding-top: 22px;
+            margin-top: 25px;
+            border-top: 1px solid #edf0f4;
+        }
+
+        .category-edit-page .btn-update {
+            background: #2563eb;
+            border: 1px solid #2563eb;
+            color: #fff;
+            border-radius: 7px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+            .category-edit-page .btn-update:hover {
+                background: #1d4ed8;
+                border-color: #1d4ed8;
+                color: #fff;
+            }
+
+        .category-edit-page .btn-back {
+            background: #fff;
+            border: 1px solid #d7dee8;
+            color: #475569;
+            border-radius: 7px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+            .category-edit-page .btn-back:hover {
+                background: #f1f5f9;
+                color: #1e293b;
+                text-decoration: none;
+            }
+
+        .category-edit-page .glyphicon {
+            margin-right: 6px;
+        }
+
+    @@media (max-width: 600px) {
+        .category-edit-page {
+            padding: 15px 8px 25px;
+        }
+
+            .category-edit-page .card-body-custom {
+                padding: 20px 15px;
+            }
+
+            .category-edit-page .card-header-custom {
+                padding: 16px;
+            }
+
+            .category-edit-page .form-actions {
+                flex-direction: column;
+            }
+
+                .category-edit-page .form-actions .btn {
+                    width: 100%;
+                }
+    }
+</style>
+
+<div class="category-edit-page">
+
+    <!-- Tiêu đề trang -->
+    <div class="page-header-custom">
+        <div>
+            <div class="breadcrumb-custom">
+                <a href="@Url.Action("Index", "Categories", new { area = "Admin" })">
+                    Quản lý danh mục
+                </a>
+                <span> / </span>
+                <span>Cập nhật</span>
             </div>
+
+            <h2 class="page-title">Cập nhật danh mục</h2>
+
+            <p class="page-description">
+                Chỉnh sửa thông tin danh mục sản phẩm trong hệ thống.
+            </p>
         </div>
     </div>
-}
+
+    <!-- Form cập nhật -->
+    <div class="edit-card">
+
+        <div class="card-header-custom">
+            <div class="icon-box">
+                <span class="glyphicon glyphicon-edit"></span>
+            </div>
+
+            <div>
+                <h4 class="card-heading">Thông tin danh mục</h4>
+                <p class="card-subheading">
+                    Vui lòng kiểm tra thông tin trước khi lưu thay đổi.
+                </p>
+            </div>
+        </div>
+
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="card-body-custom">
+
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                @Html.Partial("PVCreateEditCategory", Model)
+
+                <div class="form-actions">
+
+                    @Html.ActionLink(
+                             "Quay lại",
+                             "Index",
+                             "Categories",
+                             new { area = "Admin" },
+                             new { @class = "btn btn-back" }
+                         )
+
+                    <button type="submit" class="btn btn-update">
+                        <span class="glyphicon glyphicon-save"></span>
+                        Lưu thay đổi
+                    </button>
+
+                </div>
+
+            </div>
+        }
+    </div>
+
+</div>

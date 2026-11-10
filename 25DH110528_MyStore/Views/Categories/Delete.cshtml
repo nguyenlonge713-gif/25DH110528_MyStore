@@ -1,41 +1,334 @@
-﻿@model _25DH110528_MyStore.Models.Category
+﻿
+@model _25DH110528_MyStore.Models.Category
 
 @{
-    ViewBag.Title = "Delete";
+    ViewBag.Title = "Xóa danh mục";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h2 class="bg-success">Xóa danh mục</h2>
+<style>
+    .category-delete-page {
+        max-width: 950px;
+        margin: 0 auto;
+        padding: 25px 15px 40px;
+        color: #263445;
+    }
 
-<h3 class="bg-warning">Bạn có chắc muốn xóa danh mục này không?</h3>
-<div>
-    <h4>Category</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.CategoryName)
-        </dt>
+        .category-delete-page .page-header-custom {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e8edf3;
+        }
 
-        <dd>
-            @*Html.DisplayNameFor(model => model.CategoryName)*@
-            Tên danh mục 
-            
-           @*Hiển thị giá trị của categoryname*@
-            <dd>
-            @Html.DisplayFor(model => model.CategoryName)
-        </dd>
+        .category-delete-page .breadcrumb-custom {
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
 
-    </dl>
-   <hr/>
-    @using (Html.BeginForm()) {
-        @Html.AntiForgeryToken()
-        <div class=" ="form-group>
+            .category-delete-page .breadcrumb-custom a {
+                color: #2563eb;
+                text-decoration: none;
+            }
+
+                .category-delete-page .breadcrumb-custom a:hover {
+                    text-decoration: underline;
+                }
+
+        .category-delete-page .page-title {
+            margin: 0 0 7px;
+            font-size: 27px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .category-delete-page .page-description {
+            margin: 0;
+            font-size: 14px;
+            color: #718096;
+        }
+
+        .category-delete-page .delete-card {
+            overflow: hidden;
+            background: #fff;
+            border: 1px solid #e5eaf0;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(15, 23, 42, 0.05);
+        }
+
+        .category-delete-page .card-header-custom {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 20px 25px;
+            background: #fff8f8;
+            border-bottom: 1px solid #fee2e2;
+        }
+
+        .category-delete-page .icon-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            background: #fee2e2;
+            color: #dc2626;
+            font-size: 21px;
+        }
+
+        .category-delete-page .card-heading {
+            margin: 0 0 5px;
+            font-size: 17px;
+            font-weight: 700;
+            color: #991b1b;
+        }
+
+        .category-delete-page .card-subheading {
+            margin: 0;
+            font-size: 13px;
+            color: #9f6b6b;
+        }
+
+        .category-delete-page .card-body-custom {
+            padding: 30px 25px;
+        }
+
+        .category-delete-page .warning-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 25px;
+            padding: 15px 18px;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 8px;
+            color: #9a3412;
+        }
+
+            .category-delete-page .warning-box .glyphicon {
+                margin-top: 2px;
+                font-size: 19px;
+            }
+
+        .category-delete-page .warning-title {
+            margin: 0 0 5px;
+            font-weight: 700;
+        }
+
+        .category-delete-page .warning-description {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .category-delete-page .info-label {
+            display: block;
+            margin-bottom: 10px;
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .category-delete-page .info-value-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 65px;
+            padding: 15px 18px;
+            background: #f8fafc;
+            border: 1px solid #e5eaf0;
+            border-radius: 8px;
+        }
+
+            .category-delete-page .info-value-box .glyphicon {
+                color: #64748b;
+                font-size: 19px;
+            }
+
+        .category-delete-page .category-name {
+            color: #1e293b;
+            font-size: 17px;
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
+        .category-delete-page .category-id {
+            margin-top: 15px;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .category-delete-page .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 28px;
+            padding-top: 22px;
+            border-top: 1px solid #edf0f4;
+        }
+
+        .category-delete-page .btn-delete {
+            padding: 10px 22px;
+            color: #fff;
+            font-weight: 600;
+            background: #dc2626;
+            border: 1px solid #dc2626;
+            border-radius: 7px;
+            transition: 0.2s;
+        }
+
+            .category-delete-page .btn-delete:hover {
+                color: #fff;
+                background: #b91c1c;
+                border-color: #b91c1c;
+            }
+
+        .category-delete-page .btn-back {
+            padding: 10px 20px;
+            color: #475569;
+            font-weight: 600;
+            background: #fff;
+            border: 1px solid #d7dee8;
+            border-radius: 7px;
+            transition: 0.2s;
+        }
+
+            .category-delete-page .btn-back:hover {
+                color: #1e293b;
+                background: #f1f5f9;
+                text-decoration: none;
+            }
+
+        .category-delete-page .glyphicon {
+            margin-right: 6px;
+        }
+
+    @@media (max-width: 600px) {
+        .category-delete-page {
+            padding: 15px 8px 25px;
+        }
+
+            .category-delete-page .card-header-custom {
+                padding: 16px;
+            }
+
+            .category-delete-page .card-body-custom {
+                padding: 20px 15px;
+            }
+
+            .category-delete-page .form-actions {
+                flex-direction: column;
+            }
+
+                .category-delete-page .form-actions .btn {
+                    width: 100%;
+                    text-align: center;
+                }
+    }
+</style>
+
+<div class="category-delete-page">
+
+    <!-- Tiêu đề trang -->
+    <div class="page-header-custom">
+
+        <div class="breadcrumb-custom">
+            <a href="@Url.Action("Index", "Categories", new { area = "Admin" })">
+                Quản lý danh mục
+            </a>
+            <span> / </span>
+            <span>Xóa danh mục</span>
+        </div>
+
+        <h2 class="page-title">Xóa danh mục</h2>
+
+        <p class="page-description">
+            Xác nhận xóa danh mục khỏi hệ thống quản lý sản phẩm.
+        </p>
+
+    </div>
+
+    <!-- Khung xác nhận xóa -->
+    <div class="delete-card">
+
+        <div class="card-header-custom">
+
+            <div class="icon-box">
+                <span class="glyphicon glyphicon-trash"></span>
+            </div>
+
+            <div>
+                <h4 class="card-heading">Xác nhận xóa danh mục</h4>
+                <p class="card-subheading">
+                    Vui lòng kiểm tra thông tin trước khi thực hiện.
+                </p>
+            </div>
 
         </div>
 
-<div class="form-actions no-color">
-    <input type="submit" value="Xóa" class="btn btn-primary" /> |
-    @Html.ActionLink("Quay lại danh sách", "Index", null, new { @class = "btn btn-primary btn-sm" })
-</div>
-    }
+        <div class="card-body-custom">
+
+            <!-- Cảnh báo -->
+            <div class="warning-box">
+                <span class="glyphicon glyphicon-exclamation-sign"></span>
+
+                <div>
+                    <p class="warning-title">
+                        Bạn có chắc chắn muốn xóa danh mục này không?
+                    </p>
+
+                    <p class="warning-description">
+                        Hành động này có thể ảnh hưởng đến dữ liệu liên quan
+                        và không thể hoàn tác nếu thao tác xóa đã thành công.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Thông tin danh mục -->
+            <label class="info-label">Tên danh mục cần xóa</label>
+
+            <div class="info-value-box">
+                <span class="glyphicon glyphicon-folder-open"></span>
+
+                <span class="category-name">
+                    @Html.DisplayFor(model => model.CategoryName)
+                </span>
+            </div>
+
+            <div class="category-id">
+                Mã danh mục: <strong>@Model.CategoryID</strong>
+            </div>
+
+            <!-- Form xác nhận -->
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-actions">
+
+                    @Html.ActionLink(
+                             "Quay lại danh sách",
+                             "Index",
+                             "Categories",
+                             new { area = "Admin" },
+                             new { @class = "btn btn-back" }
+                         )
+
+                    <button type="submit" class="btn btn-delete"
+                            onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này không?');">
+                        <span class="glyphicon glyphicon-trash"></span>
+                        Xác nhận xóa
+                    </button>
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
 </div>

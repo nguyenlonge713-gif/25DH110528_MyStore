@@ -1,4 +1,5 @@
-﻿@model _25DH110528_MyStore.Models.ViewModel.ProductSearchVM 
+﻿
+@model _25DH110528_MyStore.Models.ViewModel.ProductSearchVM
 
 @{
     ViewBag.Title = "Sản phẩm";
@@ -7,58 +8,280 @@
 
 <link href="~/Content/PagedList.css" rel="stylesheet" />
 
-<div class="panel panel-primary">
+<style>
+    /* Chỉ áp dụng CSS trong trang quản lý sản phẩm */
+    .product-admin-page {
+        padding: 25px;
+        background: #f5f7fb;
+        border-radius: 10px;
+        min-height: 500px;
+        color: #263445;
+    }
 
-    <div class="panel-heading">
-        <h3 class="panel-title">
-            <span class="glyphicon glyphicon-th-list"></span>
-            QUẢN LÝ SẢN PHẨM
-        </h3>
+        .product-admin-page .page-header-custom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 0 0 25px;
+            padding: 0 0 20px;
+            border-bottom: 1px solid #e5eaf1;
+        }
+
+        .product-admin-page .page-title-custom {
+            margin: 0 0 7px;
+            font-size: 27px;
+            font-weight: 700;
+            color: #243b63;
+        }
+
+        .product-admin-page .page-description {
+            margin: 0;
+            color: #8491a5;
+            font-size: 14px;
+        }
+
+        .product-admin-page .btn-add-product {
+            display: inline-block;
+            padding: 11px 19px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all .2s ease;
+        }
+
+            .product-admin-page .btn-add-product:hover {
+                background: #1d4ed8;
+                color: #fff;
+                text-decoration: none;
+                transform: translateY(-1px);
+            }
+
+        .product-admin-page .filter-card {
+            background: #fff;
+            border: 1px solid #e8edf4;
+            border-radius: 10px;
+            padding: 22px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 12px rgba(30, 50, 80, .04);
+        }
+
+        .product-admin-page .filter-title {
+            margin: 0 0 18px;
+            color: #344767;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .product-admin-page .filter-form {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 15px;
+        }
+
+        .product-admin-page .filter-group {
+            flex: 1 1 150px;
+            min-width: 130px;
+        }
+
+            .product-admin-page .filter-group.search-group {
+                flex: 2 1 230px;
+            }
+
+        .product-admin-page .filter-label {
+            display: block;
+            margin-bottom: 7px;
+            color: #53627a;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .product-admin-page .filter-control {
+            width: 100%;
+            height: 42px;
+            padding: 9px 12px;
+            border: 1px solid #dce3ed;
+            border-radius: 6px;
+            background: #fff;
+            color: #344767;
+            font-size: 14px;
+            box-shadow: none;
+        }
+
+            .product-admin-page .filter-control:focus {
+                border-color: #6093f7;
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, .10);
+            }
+
+        .product-admin-page .btn-search-product {
+            height: 42px;
+            padding: 0 20px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+            .product-admin-page .btn-search-product:hover {
+                background: #1d4ed8;
+            }
+
+        .product-admin-page .product-table-card {
+            background: #fff;
+            border: 1px solid #e8edf4;
+            border-radius: 10px;
+            padding: 22px;
+            box-shadow: 0 3px 12px rgba(30, 50, 80, .04);
+        }
+
+        .product-admin-page .table-responsive {
+            border: none;
+        }
+
+        .product-admin-page .table {
+            margin-bottom: 15px;
+            border: 1px solid #e8edf4;
+            border-radius: 7px;
+            overflow: hidden;
+        }
+
+            .product-admin-page .table thead th {
+                padding: 15px 12px;
+                background: #f1f5fb;
+                color: #344767;
+                font-size: 13px;
+                font-weight: 700;
+                border-bottom: 1px solid #e2e8f0;
+                vertical-align: middle;
+            }
+
+            .product-admin-page .table tbody td {
+                padding: 13px 12px;
+                color: #53627a;
+                vertical-align: middle;
+                border-color: #edf1f6;
+            }
+
+            .product-admin-page .table tbody tr:hover {
+                background: #f8faff;
+            }
+
+        .product-admin-page .pagination {
+            margin: 15px 0 5px;
+        }
+
+            .product-admin-page .pagination > li > a,
+            .product-admin-page .pagination > li > span {
+                border-radius: 5px;
+                margin: 0 3px;
+            }
+
+        .product-admin-page .text-center > strong {
+            display: block;
+            margin: 15px 0;
+            color: #53627a;
+        }
+
+    @@media (max-width: 767px) {
+        .product-admin-page {
+            padding: 15px;
+        }
+
+            .product-admin-page .page-title-custom {
+                font-size: 22px;
+            }
+
+            .product-admin-page .filter-card,
+            .product-admin-page .product-table-card {
+                padding: 15px;
+            }
+
+            .product-admin-page .btn-search-product {
+                width: 100%;
+            }
+    }
+</style>
+
+<div class="product-admin-page">
+
+    <!-- Tiêu đề trang -->
+    <div class="page-header-custom">
+        <div>
+            <h2 class="page-title-custom">
+                <span class="glyphicon glyphicon-th-list"></span>
+                Quản lý sản phẩm
+            </h2>
+
+            <p class="page-description">
+                Quản lý danh sách và thông tin sản phẩm trong hệ thống
+            </p>
+        </div>
+
+        @Html.ActionLink(
+        "＋ Thêm sản phẩm",
+        "Create",
+        null,
+        new { @class = "btn-add-product" }
+        )
     </div>
 
-    <div class="panel-body">
+    <!-- Khu vực tìm kiếm và lọc -->
+    <div class="filter-card">
 
-        <p>
-            @Html.ActionLink(
-            "Thêm sản phẩm",
-            "Create",
-            null,
-            new { @class = "btn btn-success" }
-            )
-        </p>
+        <h4 class="filter-title">
+            <span class="glyphicon glyphicon-filter"></span>
+            Tìm kiếm và lọc sản phẩm
+        </h4>
 
         @using (Html.BeginForm(
         "Index",
         "Products",
         FormMethod.Get,
-        new { @class = "form-inline" }))
+        new { @class = "filter-form" }))
         {
-        <div class="form-group">
+        <div class="filter-group search-group">
+            <label class="filter-label">Tên hoặc mô tả sản phẩm</label>
+
             <input type="text"
                    name="searchTerm"
                    value="@Model.SearchTerm"
-                   class="form-control"
-                   placeholder="Tên, mô tả, danh mục..." />
+                   class="filter-control"
+                   placeholder="Nhập tên, mô tả, danh mục..." />
         </div>
 
-        <div class="form-group">
+        <div class="filter-group">
+            <label class="filter-label">Giá từ (VNĐ)</label>
+
             <input type="number"
                    name="minPrice"
                    value="@Model.MinPrice"
-                   class="form-control"
-                   placeholder="Giá từ" />
+                   class="filter-control"
+                   placeholder="Giá thấp nhất" />
         </div>
 
-        <div class="form-group">
+        <div class="filter-group">
+            <label class="filter-label">Giá đến (VNĐ)</label>
+
             <input type="number"
                    name="maxPrice"
                    value="@Model.MaxPrice"
-                   class="form-control"
-                   placeholder="Giá đến" />
+                   class="filter-control"
+                   placeholder="Giá cao nhất" />
         </div>
 
-        <div class="form-group">
-            <select name="sortOrder" class="form-control">
+        <div class="filter-group">
+            <label class="filter-label">Sắp xếp theo</label>
+
+            <select name="sortOrder" class="filter-control">
 
                 @if (Model.SortOrder == "name_asc")
                 {
@@ -68,9 +291,7 @@
                 }
                 else
                 {
-                <option value="name_asc">
-                    Tên A → Z
-                </option>
+                <option value="name_asc">Tên A → Z</option>
                 }
 
                 @if (Model.SortOrder == "name_desc")
@@ -81,9 +302,7 @@
                 }
                 else
                 {
-                <option value="name_desc">
-                    Tên Z → A
-                </option>
+                <option value="name_desc">Tên Z → A</option>
                 }
 
                 @if (Model.SortOrder == "price_asc")
@@ -94,9 +313,7 @@
                 }
                 else
                 {
-                <option value="price_asc">
-                    Giá tăng dần
-                </option>
+                <option value="price_asc">Giá tăng dần</option>
                 }
 
                 @if (Model.SortOrder == "price_desc")
@@ -107,23 +324,32 @@
                 }
                 else
                 {
-                <option value="price_desc">
-                    Giá giảm dần
-                </option>
+                <option value="price_desc">Giá giảm dần</option>
                 }
 
             </select>
         </div>
 
-        <button type="submit" class="btn btn-primary">
-            <span class="glyphicon glyphicon-search"></span>
-            Tìm kiếm
-        </button>
+        <div>
+            <button type="submit" class="btn-search-product">
+                <span class="glyphicon glyphicon-search"></span>
+                Tìm kiếm
+            </button>
+        </div>
         }
 
-        <br />
+    </div>
+
+    <!-- Danh sách sản phẩm -->
+    <div class="product-table-card">
+
+        <h4 class="filter-title">
+            <span class="glyphicon glyphicon-list"></span>
+            Danh sách sản phẩm
+        </h4>
 
         @Html.Partial("PVListProduct", Model)
 
     </div>
+
 </div>

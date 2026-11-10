@@ -1,76 +1,547 @@
-﻿@model IEnumerable<_25DH110528_MyStore.Models.Category>
+﻿
+@model IEnumerable<_25DH110528_MyStore.Models.Category>
 
 @{
-    ViewBag.Title = "Danh sách danh mục";
+    ViewBag.Title = "Quản lý danh mục";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    var categories = Model != null
+        ? Model.ToList()
+        : new List<_25DH110528_MyStore.Models.Category>();
+
+    int totalCategories = categories.Count;
 }
 
-<h2 class="bg-success text-white p-2 rounded">Danh sách danh mục</h2>
+<style>
+    /* ===== CATEGORY MANAGEMENT ===== */
 
-@if (TempData["DeleteError"] != null)
-{
-    <div class="alert alert-danger">
-        <span class="glyphicon glyphicon-warning-sign"></span>
-        <strong>Không thể xóa!</strong>
-        @TempData["DeleteError"]
-    </div>
-}
+    .category-page {
+        padding: 25px;
+        color: #263449;
+        font-family: "Segoe UI", Arial, sans-serif;
+    }
 
-<p class="my-3">
-    @Html.ActionLink(
-        "Thêm mới danh mục",
-        "Create",
-        null,
-        new { @class = "btn btn-primary" }
-    )
-</p>
+    .category-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
 
-<table class="table table-bordered table-hover">
-    <thead class="thead-dark">
-        <tr>
-            <th>TÊN DANH MỤC</th>
-            <th style="width: 250px; text-align: center;">HÀNH ĐỘNG</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model != null && Model.Any())
-        {
-            foreach (var item in Model)
-            {
-                <tr>
-                    <td class="align-middle">
-                        <strong>@Html.DisplayFor(modelItem => item.CategoryName)</strong>
-                    </td>
-                    <td class="text-center align-middle">
-                        @Html.ActionLink(
-                            "Cập nhật",
-                            "Edit",
-                            new { id = item.CategoryID },
-                            new { @class = "btn btn-warning btn-sm" }
-                        )
+    .category-heading h2 {
+        font-size: 27px;
+        font-weight: 700;
+        color: #172b4d;
+        margin: 0 0 8px;
+    }
 
-                        @Html.ActionLink(
-                            "Chi tiết",
-                            "Details",
-                            new { id = item.CategoryID },
-                            new { @class = "btn btn-info btn-sm" }
-                        )
+    .category-heading p {
+        color: #8492a6;
+        font-size: 14px;
+        margin: 0;
+    }
 
-                        @Html.ActionLink(
-                            "Xóa",
-                            "Delete",
-                            new { id = item.CategoryID },
-                            new { @class = "btn btn-danger btn-sm" }
-                        )
-                    </td>
-                </tr>
+    .btn-add-category {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 12px 20px;
+        background: #2563eb;
+        color: white !important;
+        border-radius: 9px;
+        text-decoration: none !important;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+        .btn-add-category:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 16px rgba(37, 99, 235, 0.3);
+        }
+
+    /* ===== STATISTICS ===== */
+
+    .category-stat-card {
+        background: #fff;
+        border: 1px solid #edf0f5;
+        border-radius: 13px;
+        padding: 22px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        box-shadow: 0 3px 12px rgba(20, 40, 80, 0.04);
+        max-width: 350px;
+    }
+
+    .category-stat-icon {
+        width: 55px;
+        height: 55px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #eaf1ff;
+        color: #2563eb;
+        font-size: 25px;
+        flex-shrink: 0;
+    }
+
+    .category-stat-info span {
+        display: block;
+        color: #8492a6;
+        font-size: 13px;
+        margin-bottom: 5px;
+    }
+
+    .category-stat-info strong {
+        font-size: 25px;
+        color: #172b4d;
+        font-weight: 700;
+    }
+
+    /* ===== ALERT ===== */
+
+    .category-alert {
+        border: none;
+        border-radius: 9px;
+        padding: 15px 18px;
+        margin-bottom: 22px;
+        background: #fff1f0;
+        color: #c0392b;
+        border-left: 4px solid #e74c3c;
+    }
+
+    /* ===== TABLE CONTAINER ===== */
+
+    .category-table-card {
+        background: #fff;
+        border-radius: 13px;
+        border: 1px solid #edf0f5;
+        box-shadow: 0 3px 15px rgba(20, 40, 80, 0.05);
+        overflow: hidden;
+    }
+
+    .category-table-header {
+        padding: 20px 23px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        border-bottom: 1px solid #edf0f5;
+    }
+
+        .category-table-header h4 {
+            margin: 0;
+            font-size: 17px;
+            color: #172b4d;
+            font-weight: 700;
+        }
+
+        .category-table-header p {
+            margin: 5px 0 0;
+            color: #94a0b2;
+            font-size: 13px;
+        }
+
+    .category-search {
+        position: relative;
+        width: 270px;
+        max-width: 100%;
+    }
+
+        .category-search input {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 13px 8px 38px;
+            outline: none;
+            font-size: 13px;
+            transition: border 0.2s;
+        }
+
+            .category-search input:focus {
+                border-color: #2563eb;
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
             }
+
+        .category-search span {
+            position: absolute;
+            left: 13px;
+            top: 11px;
+            color: #94a3b8;
         }
-        else
-        {
-            <tr>
-                <td colspan="2" class="text-center text-muted">Chưa có danh mục nào.</td>
-            </tr>
+
+    /* ===== TABLE ===== */
+
+    .category-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .category-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+        min-width: 600px;
+    }
+
+        .category-table thead {
+            background: #f8fafc;
         }
-    </tbody>
-</table>
+
+        .category-table th {
+            padding: 16px 23px;
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        .category-table td {
+            padding: 17px 23px;
+            border-bottom: 1px solid #f0f2f6;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .category-table tbody tr {
+            transition: background 0.2s;
+        }
+
+            .category-table tbody tr:hover {
+                background: #f8faff;
+            }
+
+            .category-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+    .category-id {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 35px;
+        height: 30px;
+        padding: 0 8px;
+        background: #eff4ff;
+        color: #2563eb;
+        border-radius: 7px;
+        font-weight: 700;
+        font-size: 12px;
+    }
+
+    .category-name {
+        font-weight: 600;
+        color: #263449;
+    }
+
+    /* ===== ACTION BUTTONS ===== */
+
+    .category-actions {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 7px;
+        flex-wrap: wrap;
+    }
+
+        .category-actions a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 7px 11px;
+            border-radius: 7px;
+            text-decoration: none !important;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+    .btn-edit-category {
+        color: #2563eb !important;
+        background: #eff6ff;
+    }
+
+        .btn-edit-category:hover {
+            background: #2563eb;
+            color: #fff !important;
+        }
+
+    .btn-detail-category {
+        color: #0891b2 !important;
+        background: #ecfeff;
+    }
+
+        .btn-detail-category:hover {
+            background: #0891b2;
+            color: #fff !important;
+        }
+
+    .btn-delete-category {
+        color: #dc2626 !important;
+        background: #fef2f2;
+    }
+
+        .btn-delete-category:hover {
+            background: #dc2626;
+            color: #fff !important;
+        }
+
+    /* ===== EMPTY STATE ===== */
+
+    .category-empty {
+        text-align: center;
+        padding: 55px 20px !important;
+        color: #94a3b8;
+    }
+
+    .category-empty-icon {
+        font-size: 42px;
+        margin-bottom: 12px;
+        display: block;
+    }
+
+    .category-empty strong {
+        display: block;
+        color: #475569;
+        font-size: 16px;
+        margin-bottom: 6px;
+    }
+
+    .category-empty p {
+        margin: 0;
+        font-size: 13px;
+    }
+
+    .category-footer {
+        padding: 15px 23px;
+        border-top: 1px solid #edf0f5;
+        color: #94a3b8;
+        font-size: 13px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+
+    @@media (max-width: 768px) {
+        .category-page {
+            padding: 15px;
+        }
+
+        .category-header {
+            align-items: flex-start;
+        }
+
+        .category-heading h2 {
+            font-size: 22px;
+        }
+
+        .category-table-header {
+            align-items: flex-start;
+        }
+
+        .category-search {
+            width: 100%;
+        }
+
+        .category-stat-card {
+            max-width: 100%;
+        }
+    }
+</style>
+
+<div class="category-page">
+
+    <!-- HEADER -->
+    <div class="category-header">
+
+        <div class="category-heading">
+            <h2>Quản lý danh mục</h2>
+            <p>Quản lý và theo dõi các danh mục sản phẩm trong cửa hàng.</p>
+        </div>
+
+        @Html.ActionLink(
+                 "＋ Thêm danh mục",
+                 "Create",
+                 null,
+                 new { @class = "btn-add-category" }
+             )
+
+    </div>
+
+    <!-- DELETE ERROR -->
+    @if (TempData["DeleteError"] != null)
+    {
+        <div class="category-alert">
+            <strong>Không thể xóa danh mục!</strong>
+            <span>@TempData["DeleteError"]</span>
+        </div>
+    }
+
+    <!-- STATISTICS -->
+    <div class="category-stat-card">
+
+        <div class="category-stat-icon">
+            <span>▦</span>
+        </div>
+
+        <div class="category-stat-info">
+            <span>Tổng số danh mục</span>
+            <strong>@totalCategories</strong>
+        </div>
+
+    </div>
+
+    <!-- CATEGORY TABLE -->
+    <div class="category-table-card">
+
+        <div class="category-table-header">
+
+            <div>
+                <h4>Danh sách danh mục</h4>
+                <p>Thông tin các danh mục hiện có trong hệ thống.</p>
+            </div>
+
+            <div class="category-search">
+                <span>⌕</span>
+                <input type="text"
+                       id="categorySearch"
+                       placeholder="Tìm kiếm danh mục..." />
+            </div>
+
+        </div>
+
+        <div class="category-table-wrapper">
+
+            <table class="category-table">
+
+                <thead>
+                    <tr>
+                        <th style="width: 100px;">Mã danh mục</th>
+                        <th>Tên danh mục</th>
+                        <th style="width: 280px; text-align: center;">Hành động</th>
+                    </tr>
+                </thead>
+
+                <tbody id="categoryTableBody">
+
+                    @if (categories.Any())
+                    {
+                        foreach (var item in categories)
+                        {
+                            <tr class="category-row">
+
+                                <td>
+                                    <span class="category-id">
+                                        #@item.CategoryID
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="category-name">
+                                        @item.CategoryName
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="category-actions">
+
+                                        @Html.ActionLink(
+                                                 "✎ Sửa",
+                                                 "Edit",
+                                                 new { id = item.CategoryID },
+                                                 new { @class = "btn-edit-category" }
+                                             )
+
+                                        @Html.ActionLink(
+                                                 "◉ Chi tiết",
+                                                 "Details",
+                                                 new { id = item.CategoryID },
+                                                 new { @class = "btn-detail-category" }
+                                             )
+
+                                        @Html.ActionLink(
+                                                 "✕ Xóa",
+                                                 "Delete",
+                                                 new { id = item.CategoryID },
+                                                 new { @class = "btn-delete-category" }
+                                             )
+
+                                    </div>
+                                </td>
+
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="3" class="category-empty">
+                                <span class="category-empty-icon">▦</span>
+                                <strong>Chưa có danh mục nào</strong>
+                                <p>Hãy thêm danh mục mới để bắt đầu quản lý.</p>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="category-footer">
+            Hiển thị <strong id="visibleCategoryCount">@totalCategories</strong>
+            / @totalCategories danh mục
+        </div>
+
+    </div>
+
+</div>
+
+<script>document.addEventListener("DOMContentLoaded", function () {
+
+        var searchInput = document.getElementById("categorySearch");
+        var rows = document.querySelectorAll(".category-row");
+        var countDisplay = document.getElementById("visibleCategoryCount");
+
+        if (searchInput) {
+
+            searchInput.addEventListener("input", function () {
+
+                var keyword = this.value.toLowerCase().trim();
+                var visibleCount = 0;
+
+                rows.forEach(function (row) {
+
+                    var categoryName = row.querySelector(".category-name");
+
+                    var name = categoryName
+                        ? categoryName.textContent.toLowerCase().trim()
+                        : "";
+
+                    if (name.includes(keyword)) {
+                        row.style.display = "";
+                        visibleCount++;
+                    } else {
+                        row.style.display = "none";
+                    }
+
+                });
+
+                countDisplay.textContent = visibleCount;
+
+            });
+
+        }
+
+    });</script>
