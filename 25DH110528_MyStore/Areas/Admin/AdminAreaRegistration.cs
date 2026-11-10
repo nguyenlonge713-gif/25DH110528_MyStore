@@ -1,4 +1,5 @@
-﻿using System.Web.Mvc;
+﻿
+using System.Web.Mvc;
 
 namespace _25DH110528_MyStore.Areas.Admin
 {
@@ -19,10 +20,14 @@ namespace _25DH110528_MyStore.Areas.Admin
                 "Admin/{controller}/{action}/{id}",
                 new
                 {
+                    controller = "Home",
                     action = "Index",
                     id = UrlParameter.Optional
                 },
-                namespaces: new[] { "_25DH110528_MyStore.Areas.Admin.Controllers" }
+                namespaces: new[]
+                {
+                    "_25DH110528_MyStore.Areas.Admin.Controllers"
+                }
             );
         }
     }

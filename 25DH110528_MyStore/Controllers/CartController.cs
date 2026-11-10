@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
@@ -66,6 +67,20 @@ namespace _25DH110528_MyStore.Controllers
             return cart;
         }
 
+        // Lưu và đồng bộ giỏ hàng
+        private void SaveCart(List<CartItem> cart)
+        {
+            Session["Cart"] = cart;
+            Session["CartCount"] = cart.Sum(item => item.Quantity);
+
+            string username = Session["Username"] as string;
+
+            if (!string.IsNullOrEmpty(username))
+            {
+                UserCarts[username] = cart;
+            }
+        }
+
         // 1. TRANG XEM GIỎ HÀNG
         public ActionResult Index()
         {
@@ -76,14 +91,25 @@ namespace _25DH110528_MyStore.Controllers
             return View(cart);
         }
 
-        // 2. THÊM SẢN PHẨM VÀO GIỎ HÀNG
+        // 2. THÊM SẢN PHẨM VÀO GIỎ HÀNG BẰNG AJAX
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AddToCart(int id, int quantity = 1)
         {
             var product = db.Products.Find(id);
 
             if (product == null)
             {
-                return HttpNotFound();
+                return Json(new
+                {
+                    success = false,
+                    message = "Không tìm thấy sản phẩm."
+                });
+            }
+
+            if (quantity < 1)
+            {
+                quantity = 1;
             }
 
             List<CartItem> cart = GetCart();
@@ -106,31 +132,22 @@ namespace _25DH110528_MyStore.Controllers
                 item.Quantity += quantity;
             }
 
-            Session["Cart"] = cart;
+            SaveCart(cart);
 
-            string username = Session["Username"] as string;
-
-            if (!string.IsNullOrEmpty(username))
+            return Json(new
             {
-                UserCarts[username] = cart;
-            }
-
-            GetCart();
-
-            return RedirectToAction("Index");
+                success = true,
+                message = "Đã thêm sản phẩm vào giỏ hàng thành công!",
+                cartCount = cart.Sum(p => p.Quantity),
+                productCount = cart.Count
+            });
         }
 
         // 3. CẬP NHẬT SỐ LƯỢNG SẢN PHẨM
         [HttpPost]
         public ActionResult UpdateCart(int id, int quantity)
         {
-            List<CartItem> cart = Session["Cart"] as List<CartItem>;
-            string username = Session["Username"] as string;
-
-            if (cart == null)
-            {
-                cart = GetCart();
-            }
+            List<CartItem> cart = GetCart();
 
             CartItem item = cart.FirstOrDefault(p => p.ProductID == id);
 
@@ -146,13 +163,7 @@ namespace _25DH110528_MyStore.Controllers
                 }
             }
 
-            Session["Cart"] = cart;
-            Session["CartCount"] = cart.Sum(i => i.Quantity);
-
-            if (!string.IsNullOrEmpty(username))
-            {
-                UserCarts[username] = cart;
-            }
+            SaveCart(cart);
 
             return RedirectToAction("Index");
         }
@@ -169,16 +180,7 @@ namespace _25DH110528_MyStore.Controllers
                 cart.Remove(item);
             }
 
-            Session["Cart"] = cart;
-
-            string username = Session["Username"] as string;
-
-            if (!string.IsNullOrEmpty(username))
-            {
-                UserCarts[username] = cart;
-            }
-
-            GetCart();
+            SaveCart(cart);
 
             return RedirectToAction("Index");
         }
@@ -250,10 +252,7 @@ namespace _25DH110528_MyStore.Controllers
                 TotalAmount = cart.Sum(i => i.TotalPrice),
                 AddressDelivery = addressDelivery,
 
-                // Trạng thái xử lý đơn hàng
                 OrderStatus = "Chờ xác nhận",
-
-                // Trạng thái thanh toán
                 PaymentStatus = "Chưa thanh toán"
             };
 

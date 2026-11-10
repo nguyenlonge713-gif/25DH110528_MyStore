@@ -1,0 +1,198 @@
+﻿
+@model IEnumerable<_25DH110528_MyStore.Models.User>
+
+@{
+    ViewBag.Title = "Quản lý tài khoản";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    string search = ViewBag.Search as string;
+    string role = ViewBag.Role as string;
+}
+
+<div class="container-fluid" style="padding: 20px;">
+
+    <h2 style="margin-bottom: 25px;">
+        <i class="glyphicon glyphicon-user"></i>
+        Quản lý tài khoản
+    </h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <!-- Thống kê -->
+    <div class="row" style="margin-bottom: 20px;">
+
+        <div class="col-md-4">
+            <div class="panel panel-primary">
+                <div class="panel-body">
+                    <h4>Tổng tài khoản</h4>
+                    <h2>@Model.Count()</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="panel panel-success">
+                <div class="panel-body">
+                    <h4>Quản trị viên</h4>
+                    <h2>@Model.Count(u => u.UserRole.Trim() == "A")</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="panel panel-info">
+                <div class="panel-body">
+                    <h4>Khách hàng</h4>
+                    <h2>@Model.Count(u => u.UserRole.Trim() == "C")</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Tìm kiếm và lọc -->
+    @using (Html.BeginForm("Index", "Users", FormMethod.Get,
+        new { area = "Admin", @class = "form-inline", style = "margin-bottom: 20px;" }))
+    {
+        <div class="form-group" style="margin-right: 10px;">
+            <input type="text"
+                   name="search"
+                   value="@search"
+                   class="form-control"
+                   placeholder="Nhập Username..." />
+        </div>
+
+        <div class="form-group" style="margin-right: 10px;">
+            <select name="role" class="form-control">
+                <option value="">Tất cả vai trò</option>
+
+                <option value="A" @(role == "A" ? "selected" : "")>
+                    Admin
+                </option>
+
+                <option value="C" @(role == "C" ? "selected" : "")>
+                    Customer
+                </option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            <i class="glyphicon glyphicon-search"></i>
+            Tìm kiếm
+        </button>
+
+        <a href="@Url.Action("Index", "Users", new { area = "Admin" })"
+           class="btn btn-default">
+            Làm mới
+        </a>
+    }
+
+    <!-- Danh sách tài khoản -->
+    <div class="panel panel-default">
+
+        <div class="panel-heading">
+            <strong>Danh sách tài khoản</strong>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover"
+                   style="margin-bottom: 0;">
+
+                <thead>
+                    <tr style="background: #f5f5f5;">
+                        <th style="width: 60px;">STT</th>
+                        <th>Username</th>
+                        <th style="width: 150px;">Vai trò</th>
+                        <th style="width: 280px;">Thao tác</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        int stt = 1;
+
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@stt</td>
+
+                                <td>
+                                    <strong>@item.Username</strong>
+                                </td>
+
+                                <td>
+                                    @if (item.UserRole.Trim() == "A")
+                                    {
+                                        <span class="label label-primary">
+                                            Admin
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="label label-info">
+                                            Customer
+                                        </span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (!string.Equals(
+                                        item.Username,
+                                        (Session["Username"] ?? "").ToString(),
+                                        StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <a href="@Url.Action("EditRole", "Users",
+                                            new { area = "Admin", username = item.Username })"
+                                           class="btn btn-warning btn-sm">
+                                            <i class="glyphicon glyphicon-edit"></i>
+                                            Phân quyền
+                                        </a>
+
+                                        <a href="@Url.Action("ResetPassword", "Users",
+                                            new { area = "Admin", username = item.Username })"
+                                           class="btn btn-danger btn-sm">
+                                            <i class="glyphicon glyphicon-lock"></i>
+                                            Đặt lại mật khẩu
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">
+                                            Tài khoản đang đăng nhập
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+
+                            stt++;
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center">
+                                Không tìm thấy tài khoản nào.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+
+</div>

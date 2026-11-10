@@ -4,48 +4,252 @@
     ViewBag.Title = "Sửa sản phẩm";
 }
 
-<div class="panel panel-warning">
+<style>
+    .edit-product-page {
+        padding: 25px;
+        color: #263445;
+    }
 
-    <div class="panel-heading">
-        <h3 class="panel-title">
-            <span class="glyphicon glyphicon-edit"></span>
-            CẬP NHẬT SẢN PHẨM
-        </h3>
-    </div>
+    .edit-product-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
 
-    <div class="panel-body">
-
-        @using (Html.BeginForm(
-        "Edit",
-        "Products",
-        FormMethod.Post,
-        new { enctype = "multipart/form-data" }))
-        {
-        @Html.AntiForgeryToken()
-
-        @Html.HiddenFor(model => model.ProductID)
-
-        @Html.Partial("PVCreateEditProduct", Model)
-
-        <hr />
-
-        <div class="text-center">
-
-            <button type="submit" class="btn btn-warning">
-                <span class="glyphicon glyphicon-save"></span>
-                Cập nhật sản phẩm
-            </button>
-
-            @Html.ActionLink(
-            "Quay lại",
-            "Index",
-            null,
-            new { @class = "btn btn-default" })
-
-        </div>
+        .edit-product-header h2 {
+            margin: 0;
+            font-size: 25px;
+            font-weight: 700;
+            color: #263445;
         }
 
+        .edit-product-header p {
+            margin: 8px 0 0;
+            color: #8993a4;
+            font-size: 14px;
+        }
+
+    .edit-product-breadcrumb {
+        margin-bottom: 20px;
+        color: #8993a4;
+        font-size: 13px;
+    }
+
+        .edit-product-breadcrumb a {
+            color: #4776e6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+            .edit-product-breadcrumb a:hover {
+                color: #2855bd;
+                text-decoration: underline;
+            }
+
+    .edit-product-card {
+        background: #fff;
+        border: 1px solid #edf0f5;
+        border-radius: 14px;
+        box-shadow: 0 5px 20px rgba(30, 50, 80, 0.05);
+        overflow: hidden;
+    }
+
+    .edit-product-card-header {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 22px 25px;
+        border-bottom: 1px solid #edf0f5;
+    }
+
+    .edit-product-icon {
+        width: 43px;
+        height: 43px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: #fff4df;
+        color: #e59a19;
+        font-size: 19px;
+        flex-shrink: 0;
+    }
+
+    .edit-product-card-header h3 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: #263445;
+    }
+
+    .edit-product-card-header p {
+        margin: 5px 0 0;
+        font-size: 13px;
+        color: #929baa;
+    }
+
+    .edit-product-card-body {
+        padding: 25px;
+    }
+
+    .edit-product-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        padding: 20px 25px;
+        margin: 25px -25px -25px;
+        background: #fafbfd;
+        border-top: 1px solid #edf0f5;
+    }
+
+        .edit-product-actions .btn {
+            min-width: 145px;
+            padding: 10px 18px;
+            border-radius: 7px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .edit-product-actions .btn-warning {
+            background: #e9a23b;
+            border-color: #e9a23b;
+            color: #fff;
+        }
+
+            .edit-product-actions .btn-warning:hover {
+                background: #d88d24;
+                border-color: #d88d24;
+            }
+
+        .edit-product-actions .btn-default {
+            background: #fff;
+            border: 1px solid #dce1e9;
+            color: #596579;
+        }
+
+            .edit-product-actions .btn-default:hover {
+                background: #f1f3f6;
+            }
+
+    @@media (max-width: 768px) {
+        .edit-product-page {
+            padding: 12px;
+        }
+
+        .edit-product-card-body {
+            padding: 16px;
+        }
+
+        .edit-product-card-header {
+            padding: 18px;
+        }
+
+        .edit-product-actions {
+            padding: 16px;
+            margin: 20px -16px -16px;
+        }
+
+            .edit-product-actions .btn {
+                flex: 1;
+                min-width: 120px;
+            }
+    }
+</style>
+
+<div class="edit-product-page">
+
+    <!-- Đường dẫn điều hướng -->
+    <div class="edit-product-breadcrumb">
+        @Html.ActionLink(
+        "Quản lý sản phẩm",
+        "Index",
+        "Products",
+        new { area = "Admin" },
+        null
+        )
+
+        <span> / </span>
+
+        <span>Chỉnh sửa sản phẩm</span>
     </div>
+
+    <!-- Tiêu đề trang -->
+    <div class="edit-product-header">
+        <div>
+            <h2>
+                <span class="glyphicon glyphicon-edit"
+                      style="color: #e9a23b; margin-right: 8px;"></span>
+                Chỉnh sửa sản phẩm
+            </h2>
+
+            <p>Cập nhật thông tin và hình ảnh sản phẩm trong cửa hàng.</p>
+        </div>
+
+        <div>
+            <span style="color: #8993a4; font-size: 13px;">
+                Mã sản phẩm:
+                <strong style="color: #263445;">
+                    #@Model.ProductID
+                </strong>
+            </span>
+        </div>
+    </div>
+
+    <!-- Form chỉnh sửa sản phẩm -->
+    <div class="edit-product-card">
+
+        <div class="edit-product-card-header">
+            <div class="edit-product-icon">
+                <span class="glyphicon glyphicon-pencil"></span>
+            </div>
+
+            <div>
+                <h3>Thông tin sản phẩm</h3>
+                <p>Điều chỉnh các thông tin cần thiết trước khi lưu.</p>
+            </div>
+        </div>
+
+        <div class="edit-product-card-body">
+
+            @using (Html.BeginForm(
+            "Edit",
+            "Products",
+            FormMethod.Post,
+            new { enctype = "multipart/form-data" }))
+            {
+            @Html.AntiForgeryToken()
+
+            @Html.HiddenFor(model => model.ProductID)
+
+            @Html.Partial("PVCreateEditProduct", Model)
+
+            <!-- Các nút thao tác -->
+            <div class="edit-product-actions">
+
+                @Html.ActionLink(
+                "Quay lại",
+                "Index",
+                null,
+                new { @class = "btn btn-default" }
+                )
+
+                <button type="submit" class="btn btn-warning">
+                    <span class="glyphicon glyphicon-floppy-disk"
+                          style="margin-right: 5px;"></span>
+                    Cập nhật sản phẩm
+                </button>
+
+            </div>
+            }
+
+        </div>
+    </div>
+
 </div>
 
 @section Scripts {

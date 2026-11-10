@@ -1,0 +1,179 @@
+﻿
+@model _25DH110528_MyStore.Models.Customer
+
+@{
+    ViewBag.Title = "Chỉnh sửa khách hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .customer-edit-page {
+        padding: 25px 0;
+    }
+
+    .customer-edit-card {
+        max-width: 850px;
+        background: #fff;
+        border: 1px solid #e5eaf0;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .customer-edit-heading {
+        padding: 20px 25px;
+        background: #f1f5f9;
+        border-bottom: 1px solid #e5eaf0;
+    }
+
+        .customer-edit-heading h2 {
+            margin: 0;
+            color: #243247;
+            font-weight: 700;
+        }
+
+    .customer-edit-body {
+        padding: 25px;
+    }
+
+        .customer-edit-body label {
+            font-weight: 600;
+            color: #344054;
+        }
+
+        .customer-edit-body .form-control {
+            height: 42px;
+            border-radius: 7px;
+        }
+
+        .customer-edit-body textarea.form-control {
+            height: auto;
+        }
+
+    .account-readonly {
+        background: #f8fafc;
+        border: 1px solid #e5eaf0;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+        .account-readonly label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .account-readonly p {
+            margin: 0;
+            color: #667085;
+        }
+</style>
+
+<div class="customer-edit-page">
+
+    <div class="customer-edit-card">
+
+        <div class="customer-edit-heading">
+            <h2>Chỉnh sửa khách hàng</h2>
+            <p class="text-muted" style="margin: 7px 0 0;">
+                Cập nhật thông tin khách hàng trong hệ thống
+            </p>
+        </div>
+
+        <div class="customer-edit-body">
+
+            @using (Html.BeginForm("Edit", "Customers", new { area = "Admin" }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                @Html.HiddenFor(m => m.CustomerID)
+
+                @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+
+                <div class="account-readonly">
+                    <label>Mã khách hàng</label>
+                    <p>#@Model.CustomerID</p>
+
+                    <hr />
+
+                    <label>Username</label>
+                    <p>
+                        @(string.IsNullOrWhiteSpace(Model.Username)
+                            ? "Chưa liên kết tài khoản"
+                            : Model.Username)
+                    </p>
+
+                    <small class="text-muted">
+                        Username không thể thay đổi tại trang này.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.CustomerName, "Họ và tên")
+                    @Html.TextBoxFor(m => m.CustomerName, new
+                    {
+                        @class = "form-control",
+                        placeholder = "Nhập họ và tên"
+                    })
+                    @Html.ValidationMessageFor(m => m.CustomerName)
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.CustomerPhone, "Số điện thoại")
+                            @Html.TextBoxFor(m => m.CustomerPhone, new
+                            {
+                                @class = "form-control",
+                                placeholder = "Nhập số điện thoại"
+                            })
+                            @Html.ValidationMessageFor(m => m.CustomerPhone)
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.CustomerEmail, "Email")
+                            @Html.TextBoxFor(m => m.CustomerEmail, new
+                            {
+                                @class = "form-control",
+                                type = "email",
+                                placeholder = "Nhập email"
+                            })
+                            @Html.ValidationMessageFor(m => m.CustomerEmail)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.CustomerAddress, "Địa chỉ")
+                    @Html.TextAreaFor(m => m.CustomerAddress, 3, 10, new
+                    {
+                        @class = "form-control",
+                        placeholder = "Nhập địa chỉ"
+                    })
+                    @Html.ValidationMessageFor(m => m.CustomerAddress)
+                </div>
+
+                <hr />
+
+                <div class="text-right">
+
+                    @Html.ActionLink(
+                             "Quay lại",
+                             "Index",
+                             "Customers",
+                             new { area = "Admin" },
+                             new { @class = "btn btn-default" }
+                         )
+
+                    <button type="submit" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-floppy-disk"></span>
+                        Lưu thay đổi
+                    </button>
+
+                </div>
+            }
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,210 @@
+﻿
+@model _25DH110528_MyStore.Models.Customer
+
+@{
+    ViewBag.Title = "Thêm khách hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .customer-create-page {
+        padding: 25px 0;
+    }
+
+    .customer-create-card {
+        background: #fff;
+        border: 1px solid #e5eaf0;
+        border-radius: 12px;
+        overflow: hidden;
+        max-width: 850px;
+    }
+
+    .customer-create-heading {
+        padding: 20px 25px;
+        background: #f1f5f9;
+        border-bottom: 1px solid #e5eaf0;
+    }
+
+        .customer-create-heading h2 {
+            margin: 0;
+            color: #243247;
+            font-weight: 700;
+        }
+
+    .customer-create-body {
+        padding: 25px;
+    }
+
+        .customer-create-body label {
+            font-weight: 600;
+            color: #344054;
+        }
+
+        .customer-create-body .form-control {
+            height: 42px;
+            border-radius: 7px;
+        }
+
+        .customer-create-body textarea.form-control {
+            height: auto;
+        }
+
+    .account-section {
+        margin-top: 15px;
+        padding: 20px;
+        background: #f8fafc;
+        border: 1px solid #e5eaf0;
+        border-radius: 10px;
+    }
+
+        .account-section h4 {
+            color: #344054;
+            font-weight: 700;
+            margin-top: 0;
+        }
+
+    .field-validation-error {
+        color: #dc3545;
+        font-size: 13px;
+    }
+
+    .validation-summary-errors {
+        color: #dc3545;
+        margin-bottom: 15px;
+    }
+</style>
+
+<div class="customer-create-page">
+
+    <div class="customer-create-card">
+
+        <div class="customer-create-heading">
+            <h2>Thêm khách hàng</h2>
+            <p class="text-muted" style="margin: 7px 0 0;">
+                Nhập thông tin khách hàng và tạo tài khoản đăng nhập
+            </p>
+        </div>
+
+        <div class="customer-create-body">
+
+            @using (Html.BeginForm("Create", "Customers", new { area = "Admin" }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+
+                <h4>Thông tin cá nhân</h4>
+                <hr />
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.CustomerName, "Họ và tên")
+                    @Html.TextBoxFor(m => m.CustomerName, new
+                    {
+                        @class = "form-control",
+                        placeholder = "Nhập họ và tên khách hàng"
+                    })
+                    @Html.ValidationMessageFor(m => m.CustomerName)
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.CustomerPhone, "Số điện thoại")
+                            @Html.TextBoxFor(m => m.CustomerPhone, new
+                            {
+                                @class = "form-control",
+                                placeholder = "Nhập số điện thoại"
+                            })
+                            @Html.ValidationMessageFor(m => m.CustomerPhone)
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.CustomerEmail, "Email")
+                            @Html.TextBoxFor(m => m.CustomerEmail, new
+                            {
+                                @class = "form-control",
+                                type = "email",
+                                placeholder = "example@gmail.com"
+                            })
+                            @Html.ValidationMessageFor(m => m.CustomerEmail)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.CustomerAddress, "Địa chỉ")
+                    @Html.TextAreaFor(m => m.CustomerAddress, 3, 10, new
+                    {
+                        @class = "form-control",
+                        placeholder = "Nhập địa chỉ khách hàng"
+                    })
+                    @Html.ValidationMessageFor(m => m.CustomerAddress)
+                </div>
+
+                <div class="account-section">
+
+                    <h4>
+                        <span class="glyphicon glyphicon-lock"></span>
+                        Thông tin tài khoản
+                    </h4>
+
+                    <p class="text-muted">
+                        Tài khoản được tạo để khách hàng có thể đăng nhập vào hệ thống.
+                    </p>
+
+                    <div class="form-group">
+                        <label for="Username">Tên đăng nhập (Username)</label>
+                        <input type="text"
+                               id="Username"
+                               name="Username"
+                               class="form-control"
+                               value="@ViewBag.Username"
+                               placeholder="Nhập tên đăng nhập"
+                               required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Password">Mật khẩu</label>
+                        <input type="password"
+                               id="Password"
+                               name="Password"
+                               class="form-control"
+                               placeholder="Nhập mật khẩu"
+                               required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ConfirmPassword">Xác nhận mật khẩu</label>
+                        <input type="password"
+                               id="ConfirmPassword"
+                               name="ConfirmPassword"
+                               class="form-control"
+                               placeholder="Nhập lại mật khẩu"
+                               required />
+                    </div>
+
+                </div>
+
+                <hr />
+
+                <div class="text-right">
+                    @Html.ActionLink(
+                             "Quay lại",
+                             "Index",
+                             "Customers",
+                             new { area = "Admin" },
+                             new { @class = "btn btn-default" }
+                         )
+
+                    <button type="submit" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-plus"></span>
+                        Thêm khách hàng
+                    </button>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>

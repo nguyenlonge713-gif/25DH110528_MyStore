@@ -1,65 +1,401 @@
-﻿@model _25DH110528_MyStore.Models.Customer
+﻿
+@model _25DH110528_MyStore.Models.Customer
 
 @{
     ViewBag.Title = "Đăng ký tài khoản";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="row" style="margin-top: 30px; margin-bottom: 30px;">
-    <!-- Thêm margin: 0 auto; float: none; để ép khung căn chính giữa màn hình -->
-    <div class="col-md-6 col-md-offset-3" style="margin: 0 auto; float: none; max-width: 600px;">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h3 class="panel-title text-center">
-                    <span class="glyphicon glyphicon-user"></span> ĐĂNG KÝ TÀI KHOẢN KHÁCH HÀNG
-                </h3>
-            </div>
-            <div class="panel-body">
-                @using (Html.BeginForm("Register", "User", FormMethod.Post))
+<style>
+    .register-container {
+        max-width: 600px;
+        margin: 35px auto;
+    }
+
+    .register-panel {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+        border: none;
+    }
+
+        .register-panel .panel-heading {
+            background: linear-gradient(135deg, #1677d2, #0755a5);
+            color: white;
+            padding: 18px;
+            border: none;
+        }
+
+        .register-panel .panel-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .register-panel .panel-body {
+            padding: 28px;
+        }
+
+        .register-panel .form-group {
+            margin-bottom: 18px;
+        }
+
+        .register-panel label {
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+        .register-panel .form-control {
+            height: 44px;
+            border-radius: 7px;
+            box-shadow: none;
+        }
+
+            .register-panel .form-control:focus {
+                border-color: #1677d2;
+                box-shadow: 0 0 5px rgba(22, 119, 210, 0.25);
+            }
+
+    .register-divider {
+        margin: 25px 0;
+        border-top: 1px solid #e5e5e5;
+    }
+
+    .register-btn {
+        height: 46px;
+        border-radius: 7px;
+        font-size: 16px;
+        font-weight: bold;
+        background: #198754;
+        border: none;
+    }
+
+        .register-btn:hover {
+            background: #146c43;
+        }
+
+    .field-error {
+        color: #dc3545;
+        font-size: 13px;
+        display: block;
+        margin-top: 5px;
+    }
+
+    .validation-summary-errors {
+        color: #dc3545;
+        background: #fff1f0;
+        border: 1px solid #ffcccc;
+        border-radius: 7px;
+        padding: 12px 15px;
+        margin-bottom: 18px;
+    }
+
+        .validation-summary-errors ul {
+            margin-bottom: 0;
+            padding-left: 20px;
+        }
+
+    .register-hint {
+        color: #777;
+        font-size: 12px;
+        margin-top: 5px;
+        display: block;
+    }
+</style>
+
+<div class="container register-container">
+
+    <div class="panel panel-primary register-panel">
+
+        <div class="panel-heading">
+            <h3 class="panel-title text-center">
+                <span class="glyphicon glyphicon-user"></span>
+                ĐĂNG KÝ TÀI KHOẢN KHÁCH HÀNG
+            </h3>
+        </div>
+
+        <div class="panel-body">
+
+            @using (Html.BeginForm(
+                "Register",
+                "User",
+                FormMethod.Post,
+                new
                 {
-                    @Html.AntiForgeryToken()
-                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    id = "registerForm",
+                    autocomplete = "on"
+                }))
+            {
+                @Html.AntiForgeryToken()
 
-                    <!-- Phần thông tin tài khoản (bảng User) -->
-                    <div class="form-group">
-                        <label>Tên đăng nhập:</label>
-                        <input type="text" name="Username" class="form-control" placeholder="Nhập tên đăng nhập..." required />
-                    </div>
+                @Html.ValidationSummary(
+                         false,
+                         "",
+                         new { @class = "text-danger" })
 
-                    <div class="form-group">
-                        <label>Mật khẩu:</label>
-                        <input type="password" name="Password" class="form-control" placeholder="Nhập mật khẩu..." required />
-                    </div>
+                <!-- THONG TIN TAI KHOAN -->
 
-                    <hr />
+                <h4>
+                    <span class="glyphicon glyphicon-lock"></span>
+                    Thông tin tài khoản
+                </h4>
 
-                    <!-- Phần thông tin khách hàng (bảng Customer) -->
-                    <div class="form-group">
-                        <label>Họ tên khách hàng:</label>
-                        @Html.TextBoxFor(m => m.CustomerName, new { @class = "form-control", placeholder = "Nhập họ tên đầy đủ..." })
-                        @Html.ValidationMessageFor(m => m.CustomerName, "", new { @class = "text-danger" })
-                    </div>
+                <div class="form-group">
+                    <label for="Username">Tên đăng nhập:</label>
 
-                    <div class="form-group">
-                        <label>Số điện thoại:</label>
-                        @Html.TextBoxFor(m => m.CustomerPhone, new { @class = "form-control", placeholder = "Nhập số điện thoại..." })
-                    </div>
+                    <input type="text"
+                           id="Username"
+                           name="Username"
+                           class="form-control"
+                           placeholder="Nhập tên đăng nhập..."
+                           value="@ViewBag.RegisterUsername"
+                           autocomplete="username"
+                           autocapitalize="none"
+                           spellcheck="false"
+                           minlength="4"
+                           maxlength="20"
+                           pattern="[A-Za-z0-9._]{4,20}"
+                           title="Username gồm 4-20 ký tự, chỉ dùng chữ không dấu, số, dấu chấm và dấu gạch dưới."
+                           required />
 
-                    <div class="form-group">
-                        <label>Email:</label>
-                        @Html.TextBoxFor(m => m.CustomerEmail, new { @class = "form-control", placeholder = "Nhập email..." })
-                    </div>
+                    <small class="register-hint">
+                        Từ 4-20 ký tự, không dấu, không khoảng trắng.
+                    </small>
 
-                    <div class="form-group">
-                        <label>Địa chỉ:</label>
-                        @Html.TextBoxFor(m => m.CustomerAddress, new { @class = "form-control", placeholder = "Nhập địa chỉ..." })
-                    </div>
+                    @Html.ValidationMessage(
+                             "Username",
+                             "",
+                             new { @class = "field-error" })
+                </div>
 
-                    <button type="submit" class="btn btn-success btn-block">
-                        <span class="glyphicon glyphicon-ok"></span> Đăng ký ngay
-                    </button>
-                }
+                <div class="form-group">
+                    <label for="Password">Mật khẩu:</label>
+
+                    <input type="password"
+                           id="Password"
+                           name="Password"
+                           class="form-control"
+                           placeholder="Nhập mật khẩu..."
+                           autocomplete="new-password"
+                           minlength="8"
+                           maxlength="30"
+                           required />
+
+                    <small class="register-hint">
+                        Từ 8-30 ký tự, gồm chữ hoa, chữ thường,
+                        chữ số và ký tự đặc biệt.
+                    </small>
+
+                    @Html.ValidationMessage(
+                             "Password",
+                             "",
+                             new { @class = "field-error" })
+                </div>
+
+                <div class="form-group">
+                    <label for="ConfirmPassword">Xác nhận mật khẩu:</label>
+
+                    <input type="password"
+                           id="ConfirmPassword"
+                           name="ConfirmPassword"
+                           class="form-control"
+                           placeholder="Nhập lại mật khẩu..."
+                           autocomplete="new-password"
+                           minlength="8"
+                           maxlength="30"
+                           required />
+
+                    <span id="confirmPasswordError"
+                          class="field-error"></span>
+
+                    @Html.ValidationMessage(
+                             "ConfirmPassword",
+                             "",
+                             new { @class = "field-error" })
+                </div>
+
+                <hr class="register-divider" />
+
+                <!-- THONG TIN KHACH HANG -->
+
+                <h4>
+                    <span class="glyphicon glyphicon-user"></span>
+                    Thông tin khách hàng
+                </h4>
+
+                <div class="form-group">
+                    @Html.LabelFor(
+                             m => m.CustomerName,
+                             "Họ tên khách hàng:")
+
+                    @Html.TextBoxFor(
+                             m => m.CustomerName,
+                             new
+                             {
+                                 @class = "form-control",
+                                 placeholder = "Nhập họ tên đầy đủ...",
+                                 autocomplete = "name",
+                                 minlength = "2",
+                                 maxlength = "60",
+                                 required = "required"
+                             })
+
+                    <small class="register-hint">
+                        Từ 2-60 ký tự, không nhập số điện thoại hoặc ký tự lạ.
+                    </small>
+
+                    @Html.ValidationMessageFor(
+                             m => m.CustomerName,
+                             "",
+                             new { @class = "field-error" })
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(
+                             m => m.CustomerPhone,
+                             "Số điện thoại:")
+
+                    @Html.TextBoxFor(
+                             m => m.CustomerPhone,
+                             new
+                             {
+                                 @class = "form-control",
+                                 placeholder = "Ví dụ: 0901234567",
+                                 autocomplete = "tel",
+                                 inputmode = "numeric",
+                                 type = "tel",
+                                 minlength = "10",
+                                 maxlength = "10",
+                                 pattern = "(032|033|034|035|036|037|038|039|052|055|056|058|059|070|076|077|078|079|081|082|083|084|085|086|087|088|089|090|091|092|093|094|096|097|098|099)[0-9]{7}",
+                                 title = "Nhập đúng 10 chữ số, bắt đầu bằng đầu số di động Việt Nam hợp lệ.",
+                                 required = "required"
+                             })
+
+                    <small class="register-hint">
+                        Chỉ chấp nhận số di động Việt Nam gồm đúng 10 chữ số.
+                    </small>
+
+                    @Html.ValidationMessageFor(
+                             m => m.CustomerPhone,
+                             "",
+                             new { @class = "field-error" })
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(
+                             m => m.CustomerEmail,
+                             "Email:")
+
+                    @Html.TextBoxFor(
+                             m => m.CustomerEmail,
+                             new
+                             {
+                                 @class = "form-control",
+                                 placeholder = "Nhập địa chỉ email...",
+                                 autocomplete = "email",
+                                 type = "email",
+                                 maxlength = "100",
+                                 required = "required"
+                             })
+
+                    @Html.ValidationMessageFor(
+                             m => m.CustomerEmail,
+                             "",
+                             new { @class = "field-error" })
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(
+                             m => m.CustomerAddress,
+                             "Địa chỉ:")
+
+                    @Html.TextBoxFor(
+                             m => m.CustomerAddress,
+                             new
+                             {
+                                 @class = "form-control",
+                                 placeholder = "Nhập địa chỉ...",
+                                 autocomplete = "street-address",
+                                 maxlength = "250"
+                             })
+
+                    @Html.ValidationMessageFor(
+                             m => m.CustomerAddress,
+                             "",
+                             new { @class = "field-error" })
+                </div>
+
+                <button type="submit"
+                        class="btn btn-success btn-block register-btn">
+
+                    <span class="glyphicon glyphicon-ok"></span>
+                    ĐĂNG KÝ NGAY
+
+                </button>
+            }
+
+            <hr />
+
+            <div class="text-center">
+                Đã có tài khoản?
+
+                @Html.ActionLink(
+                         "Đăng nhập ngay",
+                         "Login",
+                         "User",
+                         null,
+                         new { @class = "text-primary" })
             </div>
+
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        var form = document.getElementById("registerForm");
+        var password = document.getElementById("Password");
+        var confirmPassword = document.getElementById("ConfirmPassword");
+        var confirmError = document.getElementById("confirmPasswordError");
+
+        if (!form || !password || !confirmPassword) {
+            return;
+        }
+
+        function checkConfirmPassword() {
+
+            if (confirmPassword.value === "") {
+                confirmError.textContent = "";
+                confirmPassword.setCustomValidity("");
+                return true;
+            }
+
+            if (password.value !== confirmPassword.value) {
+                confirmError.textContent =
+                    "Mật khẩu xác nhận không trùng khớp.";
+
+                confirmPassword.setCustomValidity(
+                    "Mật khẩu xác nhận không trùng khớp."
+                );
+
+                return false;
+            }
+
+            confirmError.textContent = "";
+            confirmPassword.setCustomValidity("");
+
+            return true;
+        }
+
+        password.addEventListener("input", checkConfirmPassword);
+        confirmPassword.addEventListener("input", checkConfirmPassword);
+
+        form.addEventListener("submit", function (event) {
+
+            if (!checkConfirmPassword()) {
+                event.preventDefault();
+                confirmPassword.reportValidity();
+            }
+        });
+    });
+</script>

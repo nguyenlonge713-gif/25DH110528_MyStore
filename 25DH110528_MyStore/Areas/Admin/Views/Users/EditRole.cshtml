@@ -1,0 +1,88 @@
+﻿
+@model _25DH110528_MyStore.Models.User
+
+@{
+    ViewBag.Title = "Phân quyền tài khoản";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid" style="padding: 20px;">
+
+    <h2>Phân quyền tài khoản</h2>
+
+    <div class="panel panel-default" style="max-width: 600px; margin-top: 25px;">
+
+        <div class="panel-heading">
+            <strong>Thông tin tài khoản</strong>
+        </div>
+
+        <div class="panel-body">
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">
+                    @TempData["Error"]
+                </div>
+            }
+
+            @using (Html.BeginForm("EditRole", "Users",
+                new { area = "Admin" }, FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                @Html.Hidden("username", Model.Username)
+
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text"
+                           class="form-control"
+                           value="@Model.Username"
+                           readonly />
+                </div>
+
+                <div class="form-group">
+                    <label>Vai trò hiện tại</label>
+
+                    <input type="text"
+                           class="form-control"
+                           value="@(Model.UserRole.Trim() == "A" ? "Admin" : "Customer")"
+                           readonly />
+                </div>
+
+                <div class="form-group">
+                    <label>Vai trò mới</label>
+
+                    <select name="userRole" class="form-control" required>
+
+                        <option value="C"
+                                @(Model.UserRole.Trim() == "C" ? "selected" : "")>
+                            Customer
+                        </option>
+
+                        <option value="A"
+                                @(Model.UserRole.Trim() == "A" ? "selected" : "")>
+                            Admin
+                        </option>
+
+                    </select>
+                </div>
+
+                <div class="alert alert-warning">
+                    <strong>Lưu ý:</strong>
+                    Thay đổi vai trò sẽ ảnh hưởng đến quyền truy cập
+                    của tài khoản.
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Lưu thay đổi
+                </button>
+
+                <a href="@Url.Action("Index", "Users", new { area = "Admin" })"
+                   class="btn btn-default">
+                    Quay lại
+                </a>
+            }
+
+        </div>
+    </div>
+</div>

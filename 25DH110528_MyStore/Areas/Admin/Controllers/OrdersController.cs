@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
@@ -7,7 +8,7 @@ using _25DH110528_MyStore.Models;
 
 namespace _25DH110528_MyStore.Areas.Admin.Controllers
 {
-    public class OrdersController : Controller
+    public class OrdersController : AdminBaseController
     {
         private MyStoreEntities db = new MyStoreEntities();
 
@@ -52,7 +53,40 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult UpdateStatus(int id, string orderStatus)
         {
-            // Các trạng thái đơn hàng được phép sử dụng
+            // Tìm đơn hàng
+            var order = db.Orders.Find(id);
+
+            if (order == null)
+            {
+                return HttpNotFound();
+            }
+
+            // Lấy trạng thái hiện tại
+            string currentStatus =
+                (order.OrderStatus ?? "").Trim();
+
+            // Kiểm tra đơn hàng đã kết thúc chưa
+            bool isCompleted =
+                string.Equals(
+                    currentStatus,
+                    "Đã giao",
+                    StringComparison.OrdinalIgnoreCase)
+                ||
+                string.Equals(
+                    currentStatus,
+                    "Đã hủy",
+                    StringComparison.OrdinalIgnoreCase);
+
+            // Không cho phép cập nhật đơn hàng đã kết thúc
+            if (isCompleted)
+            {
+                TempData["Error"] =
+                    "Đơn hàng đã giao hoặc đã hủy. Không thể thay đổi trạng thái nữa.";
+
+                return RedirectToAction("Index");
+            }
+
+            // Các trạng thái hợp lệ
             string[] validStatuses =
             {
                 "Chờ xác nhận",
@@ -62,9 +96,9 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
                 "Đã hủy"
             };
 
-            // Kiểm tra trạng thái được gửi lên
+            // Kiểm tra trạng thái mới
             if (string.IsNullOrWhiteSpace(orderStatus) ||
-                !validStatuses.Contains(orderStatus))
+                !validStatuses.Contains(orderStatus.Trim()))
             {
                 TempData["Error"] =
                     "Trạng thái đơn hàng không hợp lệ.";
@@ -72,28 +106,10 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Tìm đơn hàng theo mã
-            var order = db.Orders.Find(id);
+            // Cập nhật trạng thái
+            order.OrderStatus = orderStatus.Trim();
 
-            if (order == null)
-            {
-                return HttpNotFound();
-            }
-
-            // Không cho phép thay đổi đơn hàng đã kết thúc
-            if (order.OrderStatus == "Đã giao" ||
-                order.OrderStatus == "Đã hủy")
-            {
-                TempData["Error"] =
-                    "Đơn hàng đã giao hoặc đã hủy, không thể cập nhật.";
-
-                return RedirectToAction("Index");
-            }
-
-            // Cập nhật trạng thái mới
-            order.OrderStatus = orderStatus;
-
-            // Lưu thay đổi vào cơ sở dữ liệu
+            // Lưu vào Database
             db.SaveChanges();
 
             TempData["Success"] =
@@ -102,7 +118,7 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
-        // 4. GIẢI PHÓNG KẾT NỐI CƠ SỞ DỮ LIỆU
+        // 4. GIẢI PHÓNG KẾT NỐI DATABASE
         protected override void Dispose(bool disposing)
         {
             if (disposing)

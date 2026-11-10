@@ -1,4 +1,5 @@
-﻿﻿@model _25DH110528_MyStore.Models.Product
+﻿
+@model _25DH110528_MyStore.Models.Product
 
 @{
     ViewBag.Title = Model.ProductName;
@@ -6,87 +7,276 @@
     var relatedProducts = ViewBag.RelatedProducts as List<_25DH110528_MyStore.Models.Product>;
 }
 
+@Html.AntiForgeryToken()
+
+<!-- THÔNG BÁO THÊM GIỎ HÀNG -->
+<div id="cart-notification"
+     class="alert alert-success shadow"
+     style="display:none;
+            position:fixed;
+            top:20px;
+            right:20px;
+            z-index:9999;
+            min-width:300px;
+            max-width:90%;
+            border-radius:8px;">
+
+    <i class="fas fa-check-circle me-2"></i>
+    <span id="cart-notification-message"></span>
+</div>
+
 <div class="container mt-4 mb-5">
+
+    <!-- BREADCRUMB -->
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb bg-light p-3 rounded">
-            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">Trang chủ</a></li>
-            <li class="breadcrumb-item active" aria-current="page">@Model.ProductName</li>
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Home")">Trang chủ</a>
+            </li>
+
+            <li class="breadcrumb-item active" aria-current="page">
+                @Model.ProductName
+            </li>
         </ol>
     </nav>
 
     <div class="row mt-4">
-        <!-- Ảnh sản phẩm -->
+
+        <!-- ẢNH SẢN PHẨM -->
         <div class="col-md-5 mb-4 text-center">
+
             <div class="border rounded p-3 shadow-sm bg-white">
-                <img src="@Url.Content(string.IsNullOrEmpty(Model.ProductImage) ? "~/Content/images/default.png" : Model.ProductImage)"
+
+                <img src="@Url.Content(string.IsNullOrEmpty(Model.ProductImage)
+                    ? "~/Content/images/default.png"
+                    : Model.ProductImage)"
                      alt="@Model.ProductName"
                      class="img-fluid rounded"
-                     style="max-height: 380px; object-fit: contain;" />
+                     style="max-height:380px; object-fit:contain;" />
+
             </div>
         </div>
 
-        <!-- Thông tin chi tiết -->
+        <!-- THÔNG TIN CHI TIẾT -->
         <div class="col-md-7">
-            <h2 class="font-weight-bold text-dark">@Model.ProductName</h2>
+
+            <h2 class="font-weight-bold text-dark">
+                @Model.ProductName
+            </h2>
+
             <hr />
+
             <h3 class="text-danger font-weight-bold mb-3">
                 @(Convert.ToDecimal(Model.ProductPrice).ToString("N0")) VNĐ
             </h3>
 
-            <p class="text-muted"><strong>Trạng thái:</strong> <span class="badge bg-success">Còn hàng</span></p>
+            <p class="text-muted">
+                <strong>Trạng thái:</strong>
+                <span class="badge bg-success">Còn hàng</span>
+            </p>
 
+            <!-- MÔ TẢ -->
             <div class="mb-4">
-                <h5 class="font-weight-bold">Mô tả sản phẩm:</h5>
-                <p class="text-secondary" style="line-height: 1.6;">
-                    @(string.IsNullOrEmpty(Model.ProductDescription) ? "Đang cập nhật thông tin chi tiết cho sản phẩm này." : Model.ProductDescription)
+
+                <h5 class="font-weight-bold">
+                    Mô tả sản phẩm:
+                </h5>
+
+                <p class="text-secondary" style="line-height:1.6;">
+                    @(string.IsNullOrEmpty(Model.ProductDescription)
+                        ? "Đang cập nhật thông tin chi tiết cho sản phẩm này."
+                        : Model.ProductDescription)
                 </p>
+
             </div>
 
-            <!-- Form Thêm vào giỏ hàng với số lượng chọn -->
-            @using (Html.BeginForm("AddToCart", "Cart", FormMethod.Post, new { @class = "form-inline" }))
-            {
-                <input type="hidden" name="id" value="@Model.ProductID" />
-                <div class="d-flex align-items-center mb-4">
-                    <label class="me-3 font-weight-bold">Số lượng:</label>
-                    <input type="number" name="quantity" value="1" min="1" class="form-control text-center me-3" style="width: 80px;" />
-                    <button type="submit" class="btn btn-warning text-white btn-lg font-weight-bold px-4">
-                        <i class="fas fa-cart-plus me-2"></i> Thêm vào giỏ
+            <!-- FORM THÊM VÀO GIỎ HÀNG -->
+            <div class="mb-4">
+
+                <div class="d-flex align-items-center flex-wrap">
+
+                    <label for="product-quantity"
+                           class="me-3 font-weight-bold">
+
+                        Số lượng:
+                    </label>
+
+                    <input type="number"
+                           id="product-quantity"
+                           value="1"
+                           min="1"
+                           step="1"
+                           class="form-control text-center me-3 mb-2"
+                           style="width:80px;" />
+
+                    <button type="button"
+                            id="btn-add-detail-cart"
+                            class="btn btn-warning text-white btn-lg font-weight-bold px-4 mb-2"
+                            data-id="@Model.ProductID">
+
+                        <i class="fas fa-cart-plus me-2"></i>
+                        Thêm vào giỏ
                     </button>
-                </div>
-            }
 
-            <div class="mt-3">
-                <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách sản phẩm
-                </a>
+                </div>
+
+                <small class="text-muted">
+                    Vui lòng chọn số lượng sản phẩm muốn mua.
+                </small>
+
             </div>
+
+            <!-- QUAY LẠI -->
+            <div class="mt-3">
+
+                <a href="@Url.Action("Index", "Home")"
+                   class="btn btn-outline-secondary">
+
+                    <i class="fas fa-arrow-left me-1"></i>
+                    Quay lại danh sách sản phẩm
+                </a>
+
+            </div>
+
         </div>
     </div>
 
-    <!-- Sản phẩm liên quan -->
+    <!-- SẢN PHẨM LIÊN QUAN -->
     @if (relatedProducts != null && relatedProducts.Any())
     {
         <hr class="my-5" />
-        <h4 class="mb-4 font-weight-bold text-primary">Sản phẩm cùng danh mục</h4>
+
+        <h4 class="mb-4 font-weight-bold text-primary">
+            Sản phẩm cùng danh mục
+        </h4>
+
         <div class="row">
+
             @foreach (var item in relatedProducts)
             {
                 <div class="col-md-3 col-sm-6 mb-4">
+
                     <div class="card h-100 shadow-sm">
-                        <img src="@Url.Content(string.IsNullOrEmpty(item.ProductImage) ? "~/Content/images/default.png" : item.ProductImage)"
+
+                        <img src="@Url.Content(string.IsNullOrEmpty(item.ProductImage)
+                            ? "~/Content/images/default.png"
+                            : item.ProductImage)"
                              class="card-img-top p-3"
                              alt="@item.ProductName"
-                             style="height: 180px; object-fit: contain;" />
+                             style="height:180px; object-fit:contain;" />
+
                         <div class="card-body d-flex flex-column">
-                            <h6 class="card-title text-truncate font-weight-bold">@item.ProductName</h6>
+
+                            <h6 class="card-title text-truncate font-weight-bold">
+                                @item.ProductName
+                            </h6>
+
                             <p class="card-text text-danger font-weight-bold mt-auto">
                                 @(Convert.ToDecimal(item.ProductPrice).ToString("N0")) VNĐ
                             </p>
-                            <a href="@Url.Action("ProductDetail", "Home", new { id = item.ProductID })" class="btn btn-outline-primary btn-sm btn-block">Xem chi tiết</a>
+
+                            <a href="@Url.Action("ProductDetail", "Home", new { id = item.ProductID })"
+                               class="btn btn-outline-primary btn-sm btn-block">
+
+                                Xem chi tiết
+                            </a>
+
                         </div>
                     </div>
                 </div>
             }
+
         </div>
     }
+
 </div>
+
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+
+            $('#btn-add-detail-cart').click(function () {
+
+                var button = $(this);
+                var productId = button.data('id');
+
+                var quantity = parseInt($('#product-quantity').val(), 10);
+
+                // Kiểm tra số lượng
+                if (isNaN(quantity) || quantity < 1) {
+
+                    alert('Vui lòng nhập số lượng hợp lệ.');
+
+                    $('#product-quantity').val(1);
+
+                    return;
+                }
+
+                // Tránh nhấn liên tục khi đang xử lý
+                if (button.prop('disabled')) {
+                    return;
+                }
+
+                button.prop('disabled', true);
+
+                $.ajax({
+
+                    url: '@Url.Action("AddToCart", "Cart")',
+
+                    type: 'POST',
+
+                    data: {
+                        id: productId,
+                        quantity: quantity,
+                        __RequestVerificationToken:
+                            $('input[name="__RequestVerificationToken"]').val()
+                    },
+
+                    success: function (response) {
+
+                        if (response.success) {
+
+                            // Hiển thị thông báo
+                            $('#cart-notification-message')
+                                .text(response.message);
+
+                            $('#cart-notification')
+                                .stop(true, true)
+                                .fadeIn(200);
+
+                            // Tự động ẩn sau 2.5 giây
+                            setTimeout(function () {
+
+                                $('#cart-notification').fadeOut(300);
+
+                            }, 2500);
+
+                            // Cập nhật số lượng giỏ hàng trên Header
+                            $('#cart-count').text(response.cartCount);
+
+                        } else {
+
+                            alert(response.message);
+                        }
+                    },
+
+                    error: function (xhr) {
+
+                        alert('Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng. Vui lòng thử lại.');
+
+                        console.error(xhr.responseText);
+                    },
+
+                    complete: function () {
+
+                        button.prop('disabled', false);
+                    }
+
+                });
+
+            });
+
+        });
+    </script>
+}

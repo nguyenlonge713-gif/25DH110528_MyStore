@@ -7,7 +7,7 @@ using _25DH110528_MyStore.Models;
 
 namespace _25DH110528_MyStore.Areas.Admin.Controllers
 {
-    public class CategoriesController : Controller
+    public class CategoriesController : AdminBaseController
     {
         private MyStoreEntities db = new MyStoreEntities();
 

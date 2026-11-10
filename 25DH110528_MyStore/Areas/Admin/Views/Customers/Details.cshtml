@@ -1,0 +1,235 @@
+﻿
+@model _25DH110528_MyStore.Models.Customer
+
+@{
+    ViewBag.Title = "Chi tiết khách hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .customer-details {
+        padding: 25px 0;
+    }
+
+        .customer-details .page-heading {
+            margin-bottom: 25px;
+        }
+
+            .customer-details .page-heading h2 {
+                color: #243247;
+                font-weight: 700;
+            }
+
+    .customer-info-card,
+    .customer-orders-card {
+        background: #fff;
+        border: 1px solid #e5eaf0;
+        border-radius: 12px;
+        margin-bottom: 22px;
+        overflow: hidden;
+    }
+
+    .customer-card-heading {
+        padding: 17px 20px;
+        background: #f1f5f9;
+        border-bottom: 1px solid #e5eaf0;
+        font-weight: 700;
+        color: #344054;
+    }
+
+    .customer-card-body {
+        padding: 20px;
+    }
+
+    .customer-field {
+        margin-bottom: 20px;
+    }
+
+        .customer-field label {
+            display: block;
+            color: #667085;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .customer-field .value {
+            color: #243247;
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
+    .customer-orders-card table th {
+        background: #f8fafc;
+        color: #344054;
+    }
+
+    .customer-orders-card table th,
+    .customer-orders-card table td {
+        padding: 13px;
+        vertical-align: middle;
+    }
+
+    .customer-no-data {
+        text-align: center;
+        color: #98a2b3;
+        padding: 30px;
+    }
+</style>
+
+<div class="customer-details">
+
+    <div class="page-heading">
+        <h2>Chi tiết khách hàng</h2>
+        <p class="text-muted">Thông tin cá nhân và lịch sử đơn hàng</p>
+    </div>
+
+    <div class="customer-info-card">
+
+        <div class="customer-card-heading">
+            <span class="glyphicon glyphicon-user"></span>
+            Thông tin khách hàng
+        </div>
+
+        <div class="customer-card-body">
+
+            <div class="row">
+
+                <div class="col-md-6 customer-field">
+                    <label>Mã khách hàng</label>
+                    <div class="value">#@Model.CustomerID</div>
+                </div>
+
+                <div class="col-md-6 customer-field">
+                    <label>Họ và tên</label>
+                    <div class="value">@Model.CustomerName</div>
+                </div>
+
+                <div class="col-md-6 customer-field">
+                    <label>Số điện thoại</label>
+                    <div class="value">
+                        @(string.IsNullOrWhiteSpace(Model.CustomerPhone)
+                            ? "Chưa cập nhật"
+                            : Model.CustomerPhone)
+                    </div>
+                </div>
+
+                <div class="col-md-6 customer-field">
+                    <label>Email</label>
+                    <div class="value">
+                        @(string.IsNullOrWhiteSpace(Model.CustomerEmail)
+                            ? "Chưa cập nhật"
+                            : Model.CustomerEmail)
+                    </div>
+                </div>
+
+                <div class="col-md-6 customer-field">
+                    <label>Địa chỉ</label>
+                    <div class="value">
+                        @(string.IsNullOrWhiteSpace(Model.CustomerAddress)
+                            ? "Chưa cập nhật"
+                            : Model.CustomerAddress)
+                    </div>
+                </div>
+
+                <div class="col-md-6 customer-field">
+                    <label>Username</label>
+                    <div class="value">
+                        @(string.IsNullOrWhiteSpace(Model.Username)
+                            ? "Chưa liên kết tài khoản"
+                            : Model.Username)
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="text-right">
+                @Html.ActionLink(
+                         "Chỉnh sửa thông tin",
+                         "Edit",
+                         new { id = Model.CustomerID },
+                         new { @class = "btn btn-warning" }
+                     )
+
+                @Html.ActionLink(
+                         "Quay lại danh sách",
+                         "Index",
+                         null,
+                         new { @class = "btn btn-default" }
+                     )
+            </div>
+
+        </div>
+    </div>
+
+    <div class="customer-orders-card">
+
+        <div class="customer-card-heading">
+            <span class="glyphicon glyphicon-shopping-cart"></span>
+            Lịch sử đơn hàng
+            <span class="badge">@Model.Orders.Count</span>
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table table-hover">
+
+                <thead>
+                    <tr>
+                        <th>Mã đơn hàng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái đơn hàng</th>
+                        <th>Thanh toán</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @if (Model.Orders != null && Model.Orders.Any())
+                    {
+                        foreach (var order in Model.Orders.OrderByDescending(o => o.OrderDate))
+                        {
+                            <tr>
+                                <td>#@order.OrderID</td>
+
+                                <td>
+                                    @order.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                                </td>
+
+                                <td>
+                                    @String.Format("{0:N0} VNĐ", order.TotalAmount)
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(order.OrderStatus)
+                                        ? "Chưa cập nhật"
+                                        : order.OrderStatus)
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(order.PaymentStatus)
+                                        ? "Chưa cập nhật"
+                                        : order.PaymentStatus)
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5">
+                                <div class="customer-no-data">
+                                    Khách hàng chưa có đơn hàng nào.
+                                </div>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,292 @@
+﻿    
+@model IEnumerable<_25DH110528_MyStore.Models.Customer>
+
+@{
+    ViewBag.Title = "Quản lý khách hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .customer-page {
+        padding: 25px 0;
+    }
+
+    .customer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+        .customer-header h2 {
+            color: #243247;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .customer-header p {
+            color: #7b8794;
+            margin: 7px 0 0;
+        }
+
+    .customer-filter {
+        background: #fff;
+        padding: 20px;
+        border: 1px solid #e5eaf0;
+        border-radius: 12px;
+        margin-bottom: 22px;
+    }
+
+        .customer-filter label {
+            font-weight: 600;
+            color: #344054;
+            margin-bottom: 8px;
+        }
+
+        .customer-filter .form-control {
+            height: 42px;
+            border-radius: 7px;
+        }
+
+    .customer-table-card {
+        background: #fff;
+        border: 1px solid #e5eaf0;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .customer-table {
+        margin-bottom: 0;
+    }
+
+        .customer-table thead {
+            background: #f1f5f9;
+        }
+
+        .customer-table th {
+            color: #344054;
+            font-weight: 700;
+            padding: 15px 12px;
+            white-space: nowrap;
+            vertical-align: middle !important;
+        }
+
+        .customer-table td {
+            padding: 14px 12px;
+            vertical-align: middle !important;
+            color: #475467;
+        }
+
+        .customer-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+    .customer-name {
+        font-weight: 600;
+        color: #243247;
+    }
+
+    .customer-username {
+        color: #667085;
+        font-size: 12px;
+    }
+
+    .customer-actions {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+        .customer-actions .btn {
+            border-radius: 6px;
+        }
+
+    .customer-count {
+        padding: 15px 18px;
+        color: #667085;
+        border-bottom: 1px solid #e5eaf0;
+    }
+
+    .customer-empty {
+        padding: 35px;
+        text-align: center;
+        color: #98a2b3;
+    }
+
+    @@media (max-width: 767px) {
+        .customer-header {
+            align-items: flex-start;
+        }
+
+            .customer-header .btn {
+                width: 100%;
+            }
+    }
+</style>
+
+<div class="customer-page">
+
+    <div class="customer-header">
+        <div>
+            <h2>Quản lý khách hàng</h2>
+            <p>Quản lý thông tin và tài khoản khách hàng của My Store</p>
+        </div>
+
+        @Html.ActionLink(
+                 "+ Thêm khách hàng",
+                 "Create",
+                 "Customers",
+                 new { area = "Admin" },
+                 new { @class = "btn btn-primary" }
+             )
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <div class="customer-filter">
+        @using (Html.BeginForm("Index", "Customers", new { area = "Admin" }, FormMethod.Get))
+        {
+            <div class="row align-items-end">
+
+                <div class="col-md-9 mb-2">
+                    <label>Tìm kiếm khách hàng</label>
+
+                    <input type="text"
+                           name="searchString"
+                           class="form-control"
+                           value="@ViewBag.SearchString"
+                           placeholder="Nhập tên, số điện thoại, email hoặc Username..." />
+                </div>
+
+                <div class="col-md-3 mb-2">
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span class="glyphicon glyphicon-search"></span>
+                        Tìm kiếm
+                    </button>
+                </div>
+
+            </div>
+        }
+    </div>
+
+    <div class="customer-table-card">
+
+        <div class="customer-count">
+            Tổng số khách hàng:
+            <strong>@Model.Count()</strong>
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table table-hover customer-table">
+
+                <thead>
+                    <tr>
+                        <th style="width: 65px;">ID</th>
+                        <th>Khách hàng</th>
+                        <th>Số điện thoại</th>
+                        <th>Email</th>
+                        <th>Địa chỉ</th>
+                        <th>Tài khoản</th>
+                        <th style="min-width: 190px;" class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @if (Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.CustomerID</td>
+
+                                <td>
+                                    <div class="customer-name">
+                                        @item.CustomerName
+                                    </div>
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(item.CustomerPhone)
+                                        ? "Chưa cập nhật"
+                                        : item.CustomerPhone)
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(item.CustomerEmail)
+                                        ? "Chưa cập nhật"
+                                        : item.CustomerEmail)
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(item.CustomerAddress)
+                                        ? "Chưa cập nhật"
+                                        : item.CustomerAddress)
+                                </td>
+
+                                <td>
+                                    <span class="customer-username">
+                                        @(string.IsNullOrWhiteSpace(item.Username)
+                                            ? "Chưa liên kết"
+                                            : item.Username)
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="customer-actions">
+
+                                        @Html.ActionLink(
+                                                 "Xem",
+                                                 "Details",
+                                                 new { id = item.CustomerID },
+                                                 new { @class = "btn btn-info btn-sm" }
+                                             )
+
+                                        @Html.ActionLink(
+                                                 "Sửa",
+                                                 "Edit",
+                                                 new { id = item.CustomerID },
+                                                 new { @class = "btn btn-warning btn-sm" }
+                                             )
+
+                                        @Html.ActionLink(
+                                                 "Xóa",
+                                                 "Delete",
+                                                 new { id = item.CustomerID },
+                                                 new { @class = "btn btn-danger btn-sm" }
+                                             )
+
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7">
+                                <div class="customer-empty">
+                                    <h4>Không tìm thấy khách hàng</h4>
+                                    <p>Hãy thử tìm kiếm với thông tin khác.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,256 @@
+﻿﻿@model _25DH110528_MyStore.Models.Customer
+
+@{
+    ViewBag.Title = "Xóa khách hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    bool hasAccount = !string.IsNullOrWhiteSpace(Model.Username);
+
+    int orderCount = ViewBag.OrderCount == null
+        ? 0
+        : (int)ViewBag.OrderCount;
+
+    // Cho phep xoa neu khach hang chua co don hang
+    bool canDelete = orderCount == 0;
+}
+
+<style>
+    .customer-delete-page {
+        padding: 25px 0;
+    }
+
+    .customer-delete-card {
+        max-width: 800px;
+        background: #fff;
+        border: 1px solid #e5eaf0;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .customer-delete-heading {
+        padding: 20px 25px;
+        background: #fff5f5;
+        border-bottom: 1px solid #f3d5d5;
+    }
+
+        .customer-delete-heading h2 {
+            color: #b42318;
+            font-weight: 700;
+            margin: 0;
+        }
+
+    .customer-delete-body {
+        padding: 25px;
+    }
+
+    .customer-delete-info {
+        background: #f8fafc;
+        border: 1px solid #e5eaf0;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+
+        .customer-delete-info .field {
+            margin-bottom: 16px;
+        }
+
+        .customer-delete-info label {
+            display: block;
+            color: #667085;
+            font-size: 13px;
+        }
+
+        .customer-delete-info strong {
+            color: #243247;
+            overflow-wrap: anywhere;
+        }
+
+    .customer-delete-warning {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+        .customer-delete-warning.blocked {
+            background: #fff1f0;
+            border: 1px solid #f5c2c0;
+            color: #b42318;
+        }
+
+        .customer-delete-warning.allowed {
+            background: #fff8e6;
+            border: 1px solid #f2dfaa;
+            color: #8a6100;
+        }
+</style>
+
+<div class="customer-delete-page">
+
+    <div class="customer-delete-card">
+
+        <div class="customer-delete-heading">
+            <h2>
+                <span class="glyphicon glyphicon-trash"></span>
+                Xóa khách hàng
+            </h2>
+
+            <p class="text-muted" style="margin: 7px 0 0;">
+                Kiểm tra thông tin trước khi thực hiện thao tác
+            </p>
+        </div>
+
+        <div class="customer-delete-body">
+
+            @if (TempData["DeleteError"] != null)
+            {
+                <div class="alert alert-danger">
+                    @TempData["DeleteError"]
+                </div>
+            }
+
+            <div class="customer-delete-info">
+
+                <div class="row">
+
+                    <div class="col-sm-6 field">
+                        <label>Mã khách hàng</label>
+                        <strong>#@Model.CustomerID</strong>
+                    </div>
+
+                    <div class="col-sm-6 field">
+                        <label>Họ và tên</label>
+                        <strong>@Model.CustomerName</strong>
+                    </div>
+
+                    <div class="col-sm-6 field">
+                        <label>Số điện thoại</label>
+                        <strong>
+                            @(string.IsNullOrWhiteSpace(Model.CustomerPhone)
+                                ? "Chưa cập nhật"
+                                : Model.CustomerPhone)
+                        </strong>
+                    </div>
+
+                    <div class="col-sm-6 field">
+                        <label>Email</label>
+                        <strong>
+                            @(string.IsNullOrWhiteSpace(Model.CustomerEmail)
+                                ? "Chưa cập nhật"
+                                : Model.CustomerEmail)
+                        </strong>
+                    </div>
+
+                    <div class="col-sm-6 field">
+                        <label>Username</label>
+                        <strong>
+                            @(string.IsNullOrWhiteSpace(Model.Username)
+                                ? "Chưa liên kết"
+                                : Model.Username)
+                        </strong>
+                    </div>
+
+                    <div class="col-sm-6 field">
+                        <label>Số đơn hàng</label>
+                        <strong>@orderCount</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+            @if (orderCount > 0)
+            {
+                <div class="customer-delete-warning blocked">
+
+                    <strong>
+                        <span class="glyphicon glyphicon-ban-circle"></span>
+                        Không thể xóa khách hàng này.
+                    </strong>
+
+                    <p style="margin: 8px 0 0;">
+                        Khách hàng đã có đơn hàng.
+                        Hệ thống không cho phép xóa để bảo toàn
+                        dữ liệu lịch sử mua hàng.
+                    </p>
+
+                </div>
+            }
+            else
+            {
+                <div class="customer-delete-warning allowed">
+
+                    <strong>
+                        <span class="glyphicon glyphicon-warning-sign"></span>
+                        Bạn có chắc chắn muốn xóa khách hàng này?
+                    </strong>
+
+                    <p style="margin: 8px 0 0;">
+                        @if (hasAccount)
+                        {
+                            <span>
+                                Khách hàng đang liên kết với tài khoản
+                                <strong>@Model.Username</strong>.
+                                Khi xác nhận, hệ thống sẽ xóa cả hồ sơ
+                                khách hàng và tài khoản đăng nhập tương ứng.
+                            </span>
+                        }
+                        else
+                        {
+                            <span>
+                                Hồ sơ khách hàng sẽ bị xóa khỏi hệ thống.
+                            </span>
+                        }
+                    </p>
+
+                    <p style="margin: 8px 0 0;">
+                        Thao tác này không thể hoàn tác.
+                    </p>
+
+                </div>
+            }
+
+            <div class="text-right">
+
+                @Html.ActionLink(
+                         "Quay lại",
+                         "Index",
+                         "Customers",
+                         new { area = "Admin" },
+                         new { @class = "btn btn-default" }
+                     )
+
+                @if (canDelete)
+                {
+                    using (Html.BeginForm(
+                        "Delete",
+                        "Customers",
+                        new
+                        {
+                            id = Model.CustomerID,
+                            area = "Admin"
+                        },
+                        FormMethod.Post,
+                        new
+                        {
+                            style = "display:inline-block;"
+                        }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <button type="submit"
+                                class="btn btn-danger"
+                                onclick="return confirm('Bạn có chắc chắn muốn xóa khách hàng và tài khoản đăng nhập liên kết không?');">
+
+                            <span class="glyphicon glyphicon-trash"></span>
+                            Xác nhận xóa
+
+                        </button>
+                    }
+                }
+
+            </div>
+
+        </div>
+    </div>
+</div>
