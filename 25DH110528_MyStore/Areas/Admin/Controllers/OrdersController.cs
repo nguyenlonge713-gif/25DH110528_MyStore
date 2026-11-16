@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
@@ -12,8 +13,6 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
     {
         private MyStoreEntities db = new MyStoreEntities();
 
-        // 1. HIỂN THỊ DANH SÁCH ĐƠN HÀNG
-        // GET: Admin/Orders
         public ActionResult Index()
         {
             var orders = db.Orders
@@ -24,15 +23,10 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
             return View(orders);
         }
 
-        // 2. HIỂN THỊ CHI TIẾT ĐƠN HÀNG
-        // GET: Admin/Orders/Details/5
         public ActionResult Details(int? id)
         {
             if (id == null)
-            {
-                return new HttpStatusCodeResult(
-                    HttpStatusCode.BadRequest);
-            }
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
             var order = db.Orders
                 .Include(o => o.Customer)
@@ -40,53 +34,15 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
                 .FirstOrDefault(o => o.OrderID == id);
 
             if (order == null)
-            {
                 return HttpNotFound();
-            }
 
             return View(order);
         }
 
-        // 3. CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG
-        // POST: Admin/Orders/UpdateStatus
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult UpdateStatus(int id, string orderStatus)
         {
-            // Tìm đơn hàng
-            var order = db.Orders.Find(id);
-
-            if (order == null)
-            {
-                return HttpNotFound();
-            }
-
-            // Lấy trạng thái hiện tại
-            string currentStatus =
-                (order.OrderStatus ?? "").Trim();
-
-            // Kiểm tra đơn hàng đã kết thúc chưa
-            bool isCompleted =
-                string.Equals(
-                    currentStatus,
-                    "Đã giao",
-                    StringComparison.OrdinalIgnoreCase)
-                ||
-                string.Equals(
-                    currentStatus,
-                    "Đã hủy",
-                    StringComparison.OrdinalIgnoreCase);
-
-            // Không cho phép cập nhật đơn hàng đã kết thúc
-            if (isCompleted)
-            {
-                TempData["Error"] =
-                    "Đơn hàng đã giao hoặc đã hủy. Không thể thay đổi trạng thái nữa.";
-
-                return RedirectToAction("Index");
-            }
-
-            // Các trạng thái hợp lệ
             string[] validStatuses =
             {
                 "Chờ xác nhận",
@@ -96,35 +52,142 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
                 "Đã hủy"
             };
 
-            // Kiểm tra trạng thái mới
             if (string.IsNullOrWhiteSpace(orderStatus) ||
                 !validStatuses.Contains(orderStatus.Trim()))
             {
-                TempData["Error"] =
-                    "Trạng thái đơn hàng không hợp lệ.";
-
+                TempData["Error"] = "Trạng thái đơn hàng không hợp lệ.";
                 return RedirectToAction("Index");
             }
 
-            // Cập nhật trạng thái
-            order.OrderStatus = orderStatus.Trim();
+            orderStatus = orderStatus.Trim();
 
-            // Lưu vào Database
-            db.SaveChanges();
+            using (var transaction =
+                db.Database.BeginTransaction(IsolationLevel.Serializable))
+            {
+                try
+                {
+                    var order = db.Orders
+                        .FirstOrDefault(o => o.OrderID == id);
 
-            TempData["Success"] =
-                "Cập nhật trạng thái đơn hàng thành công.";
+                    if (order == null)
+                    {
+                        transaction.Rollback();
+                        return HttpNotFound();
+                    }
 
-            return RedirectToAction("Index");
+                    string currentStatus = (order.OrderStatus ?? "").Trim();
+
+                    // Không cho thay đổi đơn hàng đã giao hoặc đã hủy
+                    if (currentStatus == "Đã giao" ||
+                        currentStatus == "Đã hủy")
+                    {
+                        transaction.Rollback();
+
+                        TempData["Error"] =
+                            "Đơn hàng đã giao hoặc đã hủy, không thể thay đổi trạng thái.";
+
+                        return RedirectToAction("Index");
+                    }
+
+                    // Chỉ kiểm tra và trừ kho khi chuyển sang Đã giao
+                    if (orderStatus == "Đã giao")
+                    {
+                        var orderDetails = db.OrderDetails
+                            .Where(d => d.OrderID == id)
+                            .ToList();
+
+                        if (!orderDetails.Any())
+                        {
+                            transaction.Rollback();
+
+                            TempData["Error"] =
+                                "Đơn hàng không có sản phẩm.";
+
+                            return RedirectToAction("Index");
+                        }
+
+                        // Gộp số lượng theo ProductID
+                        var productQuantities = orderDetails
+                            .GroupBy(d => d.ProductID)
+                            .Select(g => new
+                            {
+                                ProductID = g.Key,
+                                Quantity = g.Sum(x => x.Quantity)
+                            })
+                            .ToList();
+
+                        // Kiểm tra toàn bộ tồn kho trước khi trừ
+                        foreach (var item in productQuantities)
+                        {
+                            var product = db.Products
+                                .FirstOrDefault(p =>
+                                    p.ProductID == item.ProductID);
+
+                            if (product == null)
+                            {
+                                transaction.Rollback();
+
+                                TempData["Error"] =
+                                    "Không tìm thấy sản phẩm trong đơn hàng.";
+
+                                return RedirectToAction("Index");
+                            }
+
+                            if (item.Quantity <= 0 ||
+                                product.StockQuantity < item.Quantity)
+                            {
+                                transaction.Rollback();
+
+                                TempData["Error"] =
+                                    "Sản phẩm \"" + product.ProductName +
+                                    "\" không đủ tồn kho. Tồn kho hiện tại: " +
+                                    product.StockQuantity +
+                                    ", số lượng cần giao: " + item.Quantity;
+
+                                return RedirectToAction("Index");
+                            }
+                        }
+
+                        // Tất cả sản phẩm đủ hàng mới bắt đầu trừ kho
+                        foreach (var item in productQuantities)
+                        {
+                            var product = db.Products
+                                .First(p => p.ProductID == item.ProductID);
+
+                            product.StockQuantity -= item.Quantity;
+                        }
+                    }
+
+                    // Cập nhật trạng thái đơn hàng
+                    order.OrderStatus = orderStatus;
+
+                    db.SaveChanges();
+
+                    transaction.Commit();
+
+                    TempData["Success"] =
+                        orderStatus == "Đã giao"
+                            ? "Đã giao hàng và cập nhật tồn kho thành công."
+                            : "Cập nhật trạng thái đơn hàng thành công.";
+
+                    return RedirectToAction("Index");
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+
+                    TempData["Error"] =
+                        "Có lỗi xảy ra khi cập nhật đơn hàng. Vui lòng thử lại.";
+
+                    return RedirectToAction("Index");
+                }
+            }
         }
 
-        // 4. GIẢI PHÓNG KẾT NỐI DATABASE
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 db.Dispose();
-            }
 
             base.Dispose(disposing);
         }

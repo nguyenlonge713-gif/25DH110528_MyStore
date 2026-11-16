@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Data;
+using System.Data.Entity;
 using System.Web.Mvc;
 using _25DH110528_MyStore.Models;
 
@@ -112,9 +114,34 @@ namespace _25DH110528_MyStore.Controllers
                 quantity = 1;
             }
 
+            // Kiểm tra sản phẩm còn hàng không
+            if (product.StockQuantity <= 0)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Sản phẩm hiện đã hết hàng."
+                });
+            }
+
             List<CartItem> cart = GetCart();
 
             CartItem item = cart.FirstOrDefault(p => p.ProductID == id);
+
+            // Tính tổng số lượng sau khi thêm
+            int currentQuantity = item != null ? item.Quantity : 0;
+            int newQuantity = currentQuantity + quantity;
+
+            // Không cho phép vượt quá tồn kho
+            if (newQuantity > product.StockQuantity)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Số lượng vượt quá tồn kho. Hiện chỉ còn "
+                        + product.StockQuantity + " sản phẩm."
+                });
+            }
 
             if (item == null)
             {
@@ -129,7 +156,7 @@ namespace _25DH110528_MyStore.Controllers
             }
             else
             {
-                item.Quantity += quantity;
+                item.Quantity = newQuantity;
             }
 
             SaveCart(cart);
@@ -155,6 +182,26 @@ namespace _25DH110528_MyStore.Controllers
             {
                 if (quantity > 0)
                 {
+                    var product = db.Products.Find(id);
+
+                    if (product == null)
+                    {
+                        TempData["CartError"] =
+                            "Sản phẩm không còn tồn tại.";
+
+                        return RedirectToAction("Index");
+                    }
+
+                    // Kiểm tra số lượng cập nhật có vượt tồn kho không
+                    if (quantity > product.StockQuantity)
+                    {
+                        TempData["CartError"] =
+                            "Số lượng yêu cầu vượt quá tồn kho. Hiện chỉ còn "
+                            + product.StockQuantity + " sản phẩm.";
+
+                        return RedirectToAction("Index");
+                    }
+
                     item.Quantity = quantity;
                 }
                 else
@@ -201,6 +248,25 @@ namespace _25DH110528_MyStore.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
+            // Kiểm tra tồn kho khi mở trang thanh toán
+            foreach (var item in cart)
+            {
+                var product = db.Products.Find(item.ProductID);
+
+                if (product == null || product.StockQuantity < item.Quantity)
+                {
+                    ViewBag.StockError =
+                        "Sản phẩm " + item.ProductName
+                        + " không còn đủ số lượng trong kho. "
+                        + "Vui lòng quay lại giỏ hàng để cập nhật.";
+
+                    ViewBag.TotalAmount =
+                        cart.Sum(i => i.TotalPrice);
+
+                    return View(cart);
+                }
+            }
+
             ViewBag.TotalAmount = cart.Sum(item => item.TotalPrice);
 
             return View(cart);
@@ -223,8 +289,9 @@ namespace _25DH110528_MyStore.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            Customer currentCustomer = Session["Customer"] as Customer;
             string username = Session["Username"].ToString();
+
+            Customer currentCustomer = Session["Customer"] as Customer;
 
             if (currentCustomer == null)
             {
@@ -232,59 +299,156 @@ namespace _25DH110528_MyStore.Controllers
                     .FirstOrDefault(c => c.Username == username);
             }
 
+            if (currentCustomer == null)
+            {
+                ViewBag.StockError =
+                    "Không tìm thấy thông tin khách hàng.";
+
+                ViewBag.TotalAmount =
+                    cart.Sum(i => i.TotalPrice);
+
+                return View("Checkout", cart);
+            }
+
             // Lấy địa chỉ giao hàng
             string addressDelivery = collection["AddressDelivery"];
 
-            if (string.IsNullOrWhiteSpace(addressDelivery) &&
-                currentCustomer != null)
+            if (string.IsNullOrWhiteSpace(addressDelivery))
             {
                 addressDelivery = currentCustomer.CustomerAddress;
             }
 
-            // 7. TẠO ĐƠN HÀNG MỚI
-            Order order = new Order
+            if (string.IsNullOrWhiteSpace(addressDelivery))
             {
-                CustomerID = currentCustomer != null
-                    ? currentCustomer.CustomerID
-                    : 0,
+                ViewBag.StockError =
+                    "Vui lòng nhập địa chỉ giao hàng.";
 
-                OrderDate = DateTime.Now,
-                TotalAmount = cart.Sum(i => i.TotalPrice),
-                AddressDelivery = addressDelivery,
+                ViewBag.TotalAmount =
+                    cart.Sum(i => i.TotalPrice);
 
-                OrderStatus = "Chờ xác nhận",
-                PaymentStatus = "Chưa thanh toán"
-            };
+                return View("Checkout", cart);
+            }
 
-            db.Orders.Add(order);
-            db.SaveChanges();
-
-            // 8. TẠO CHI TIẾT ĐƠN HÀNG
-            foreach (var item in cart)
+            using (var transaction =
+                db.Database.BeginTransaction(IsolationLevel.Serializable))
             {
-                OrderDetail detail = new OrderDetail
+                try
                 {
-                    OrderID = order.OrderID,
-                    ProductID = item.ProductID,
-                    Quantity = item.Quantity,
-                    UnitPrice = item.UnitPrice
-                };
+                    // Lấy danh sách sản phẩm mới nhất từ database
+                    List<int> productIds = cart
+                        .Select(i => i.ProductID)
+                        .Distinct()
+                        .ToList();
 
-                db.OrderDetails.Add(detail);
+                    var products = db.Products
+                        .Where(p => productIds.Contains(p.ProductID))
+                        .ToList();
+
+                    // Kiểm tra từng sản phẩm trước khi đặt hàng
+                    foreach (var item in cart)
+                    {
+                        var product = products.FirstOrDefault(
+                            p => p.ProductID == item.ProductID);
+
+                        if (product == null)
+                        {
+                            transaction.Rollback();
+
+                            ViewBag.StockError =
+                                "Sản phẩm " + item.ProductName
+                                + " không còn tồn tại.";
+
+                            ViewBag.TotalAmount =
+                                cart.Sum(i => i.TotalPrice);
+
+                            return View("Checkout", cart);
+                        }
+
+                        if (product.StockQuantity < item.Quantity)
+                        {
+                            transaction.Rollback();
+
+                            ViewBag.StockError =
+                                "Sản phẩm " + product.ProductName
+                                + " không đủ số lượng trong kho. "
+                                + "Số lượng hiện còn: "
+                                + product.StockQuantity + ".";
+
+                            ViewBag.TotalAmount =
+                                cart.Sum(i => i.TotalPrice);
+
+                            return View("Checkout", cart);
+                        }
+
+                        // Cập nhật thông tin mới nhất vào giỏ hàng
+                        item.ProductName = product.ProductName;
+                        item.ProductImage = product.ProductImage;
+                        item.UnitPrice =
+                            Convert.ToDecimal(product.ProductPrice);
+                    }
+
+                    // Tính lại tổng tiền theo giá mới nhất
+                    decimal totalAmount =
+                        cart.Sum(i => i.TotalPrice);
+
+                    // 7. TẠO ĐƠN HÀNG MỚI
+                    Order order = new Order
+                    {
+                        CustomerID = currentCustomer.CustomerID,
+                        OrderDate = DateTime.Now,
+                        TotalAmount = totalAmount,
+                        AddressDelivery = addressDelivery,
+                        OrderStatus = "Chờ xác nhận",
+                        PaymentStatus = "Chưa thanh toán"
+                    };
+
+                    db.Orders.Add(order);
+                    db.SaveChanges();
+
+                    // 8. TẠO CHI TIẾT ĐƠN HÀNG
+                    foreach (var item in cart)
+                    {
+                        OrderDetail detail = new OrderDetail
+                        {
+                            OrderID = order.OrderID,
+                            ProductID = item.ProductID,
+                            Quantity = item.Quantity,
+                            UnitPrice = item.UnitPrice
+                        };
+
+                        db.OrderDetails.Add(detail);
+                    }
+
+                    db.SaveChanges();
+
+                    // Lưu đơn hàng và chi tiết đơn hàng
+                    transaction.Commit();
+
+                    // 9. XÓA GIỎ HÀNG SAU KHI ĐẶT HÀNG THÀNH CÔNG
+                    Session["Cart"] = null;
+                    Session["CartCount"] = 0;
+
+                    if (UserCarts.ContainsKey(username))
+                    {
+                        UserCarts.Remove(username);
+                    }
+
+                    return View("OrderSuccess", order);
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+
+                    ViewBag.StockError =
+                        "Đã xảy ra lỗi khi đặt hàng. "
+                        + "Vui lòng thử lại.";
+
+                    ViewBag.TotalAmount =
+                        cart.Sum(i => i.TotalPrice);
+
+                    return View("Checkout", cart);
+                }
             }
-
-            db.SaveChanges();
-
-            // 9. XÓA GIỎ HÀNG SAU KHI ĐẶT HÀNG THÀNH CÔNG
-            Session["Cart"] = null;
-            Session["CartCount"] = 0;
-
-            if (UserCarts.ContainsKey(username))
-            {
-                UserCarts.Remove(username);
-            }
-
-            return View("OrderSuccess", order);
         }
 
         // Giải phóng kết nối cơ sở dữ liệu

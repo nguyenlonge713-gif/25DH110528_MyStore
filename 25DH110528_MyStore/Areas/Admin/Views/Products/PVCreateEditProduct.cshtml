@@ -259,25 +259,29 @@
         </div>
     </div>
 
-    <!-- PHẦN 2: GIÁ BÁN -->
+
+    <!-- PHẦN 2: GIÁ BÁN VÀ TỒN KHO -->
     <div class="mp-section">
 
         <div class="mp-section-heading">
             <div class="mp-section-icon">
                 <span class="glyphicon glyphicon-usd"></span>
             </div>
-            <h4>Thông tin giá bán</h4>
+            <h4>Thông tin giá bán và tồn kho</h4>
         </div>
 
         <div class="row">
 
+            <!-- GIÁ SẢN PHẨM -->
             <div class="col-md-6 mp-field">
                 @Html.Label("Giá sản phẩm")
 
                 @Html.EditorFor(
                 model => model.ProductPrice,
-                new {
-                htmlAttributes = new {
+                new
+                {
+                htmlAttributes = new
+                {
                 @class = "mp-control",
                 placeholder = "Nhập giá sản phẩm..."
                 }
@@ -293,8 +297,35 @@
                 </small>
             </div>
 
+            <!-- SỐ LƯỢNG TỒN KHO -->
+            <div class="col-md-6 mp-field">
+                @Html.Label("Số lượng tồn kho")
+
+                @Html.TextBoxFor(
+                model => model.StockQuantity,
+                new
+                {
+                @class = "mp-control",
+                type = "number",
+                min = "0",
+                step = "1",
+                placeholder = "Nhập số lượng tồn kho..."
+                })
+
+                @Html.ValidationMessageFor(
+                model => model.StockQuantity,
+                "",
+                new { @class = "text-danger mp-validation" })
+
+                <small class="mp-hint">
+                    Nhập số lượng sản phẩm hiện có trong kho.
+                    Không được nhập số âm.
+                </small>
+            </div>
+
         </div>
     </div>
+
 
     <!-- PHẦN 3: HÌNH ẢNH -->
     <div class="mp-section">

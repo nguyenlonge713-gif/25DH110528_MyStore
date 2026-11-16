@@ -121,7 +121,15 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(Product product, HttpPostedFileBase ImageFile)
+
         {
+            if (product.StockQuantity < 0)
+            {
+                ModelState.AddModelError(
+                    "StockQuantity",
+                    "Số lượng tồn kho không được nhỏ hơn 0."
+                );
+            }
             if (ModelState.IsValid)
             {
                 // Xử lý upload ảnh khi thêm mới
@@ -174,6 +182,13 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(Product product, HttpPostedFileBase ImageFile)
         {
+            if (product.StockQuantity < 0)
+            {
+                ModelState.AddModelError(
+                    "StockQuantity",
+                    "Số lượng tồn kho không được nhỏ hơn 0."
+                );
+            }
             if (ModelState.IsValid)
             {
                 // Xử lý upload ảnh khi chỉnh sửa

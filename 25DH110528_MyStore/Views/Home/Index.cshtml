@@ -165,10 +165,13 @@
                 {
                     foreach (var item in Model)
                     {
+                        bool isOutOfStock = item.StockQuantity <= 0;
+
                         <div class="col-md-4 mb-4">
 
                             <div class="card h-100 shadow-sm border rounded bg-white">
 
+                                <!-- HÌNH ẢNH SẢN PHẨM -->
                                 <div class="text-center p-3 bg-light border-bottom">
 
                                     <img src="@Url.Content(string.IsNullOrEmpty(item.ProductImage)
@@ -182,21 +185,44 @@
 
                                 <div class="card-body d-flex flex-column">
 
+                                    <!-- GIÁ SẢN PHẨM -->
                                     <h5 class="card-title text-primary fw-bold">
                                         @item.ProductPrice.ToString("N0") VNĐ
                                     </h5>
 
+                                    <!-- TÊN SẢN PHẨM -->
                                     <h6 class="card-title text-truncate fw-bold text-dark mb-2"
                                         title="@item.ProductName">
 
                                         @item.ProductName
                                     </h6>
 
-                                    <p class="card-text text-muted small mb-3">
+                                    <!-- DANH MỤC -->
+                                    <p class="card-text text-muted small mb-2">
                                         @(item.Category != null
                                             ? item.Category.CategoryName
                                             : "Sản phẩm")
                                     </p>
+
+                                    <!-- SỐ LƯỢNG TỒN KHO -->
+                                    @if (isOutOfStock)
+                                    {
+                                        <div class="mb-3">
+                                            <span class="text-danger fw-bold small">
+                                                <i class="fas fa-times-circle me-1"></i>
+                                                Hết hàng
+                                            </span>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="mb-3">
+                                            <span class="text-success fw-bold small">
+                                                <i class="fas fa-box-open me-1"></i>
+                                                Còn @item.StockQuantity sản phẩm
+                                            </span>
+                                        </div>
+                                    }
 
                                     <div class="mt-auto">
 
@@ -213,14 +239,27 @@
                                                      })
 
                                             <!-- NÚT THÊM VÀO GIỎ -->
-                                            <button type="button"
-                                                    class="btn btn-warning btn-sm text-dark fw-bold rounded-pill btn-add-cart"
-                                                    data-id="@item.ProductID"
-                                                    style="background-color:#f39c12; border:none;">
+                                            @if (isOutOfStock)
+                                            {
+                                                <button type="button"
+                                                        class="btn btn-secondary btn-sm fw-bold rounded-pill"
+                                                        disabled>
 
-                                                <i class="fas fa-cart-plus me-1"></i>
-                                                Thêm vào giỏ
-                                            </button>
+                                                    <i class="fas fa-ban me-1"></i>
+                                                    Hết hàng
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button type="button"
+                                                        class="btn btn-warning btn-sm text-dark fw-bold rounded-pill btn-add-cart"
+                                                        data-id="@item.ProductID"
+                                                        style="background-color:#f39c12; border:none;">
+
+                                                    <i class="fas fa-cart-plus me-1"></i>
+                                                    Thêm vào giỏ
+                                                </button>
+                                            }
 
                                         </div>
                                     </div>
@@ -410,3 +449,4 @@
         });
     </script>
 }
+
