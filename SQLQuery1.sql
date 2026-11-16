@@ -64,3 +64,32 @@ GO
 
 SELECT ProductID, ProductName, StockQuantity
 FROM dbo.Product;
+
+USE MyStore;
+GO
+
+UPDATE dbo.Product
+SET StockQuantity = 10;
+GO
+
+-- Kiểm tra kết quả
+SELECT ProductID, ProductName, StockQuantity
+FROM dbo.Product
+ORDER BY ProductID;
+GO
+
+
+USE MyStore;
+GO
+
+SELECT
+    u.Username,
+    u.UserRole,
+    c.CustomerID,
+    c.CustomerName,
+    c.Username AS CustomerUsername
+FROM dbo.[User] u
+LEFT JOIN dbo.Customer c
+    ON u.Username = c.Username
+ORDER BY u.Username;
+GO
