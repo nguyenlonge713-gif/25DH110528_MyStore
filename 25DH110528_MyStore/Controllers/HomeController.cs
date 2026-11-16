@@ -11,31 +11,76 @@ namespace _25DH110528_MyStore.Controllers
     {
         private MyStoreEntities db = new MyStoreEntities(); // Khởi tạo kết nối cơ sở dữ liệu
 
+
         // GET: Home/Index
-        public ActionResult Index(int? categoryId, string searchTerm)
+        public ActionResult Index(int? categoryId, string searchTerm, int page = 1)
         {
+            // So san pham hien thi tren moi trang
+            int pageSize = 8;
+
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            // Truy van san pham
             var products = db.Products.AsQueryable();
 
-            // 1. Lọc theo danh mục nếu người dùng chọn danh mục bên sidebar
+            // 1. Loc theo danh muc
             if (categoryId.HasValue)
             {
-                products = products.Where(p => p.CategoryID == categoryId.Value);
+                products = products.Where(
+                    p => p.CategoryID == categoryId.Value);
+
                 ViewBag.SelectedCategory = categoryId.Value;
             }
 
-            // 2. Lọc theo từ khóa tìm kiếm (nếu có nhập)
-            if (!string.IsNullOrEmpty(searchTerm))
+            // 2. Tim kiem san pham
+            if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                products = products.Where(p => p.ProductName.Contains(searchTerm) || p.ProductDescription.Contains(searchTerm));
-                ViewBag.SearchTerm = searchTerm;
+                searchTerm = searchTerm.Trim();
+
+                products = products.Where(p =>
+                    (p.ProductName != null &&
+                     p.ProductName.Contains(searchTerm)) ||
+
+                    (p.ProductDescription != null &&
+                     p.ProductDescription.Contains(searchTerm)));
             }
 
-            // 3. Lấy danh sách danh mục để hiển thị menu bên trái trang chủ
+            // 3. Lay danh sach danh muc
             ViewBag.Categories = db.Categories.ToList();
 
-            // Trả về danh sách sản phẩm sau khi lọc/tìm kiếm
-            return View(products.OrderByDescending(p => p.ProductID).ToList());
+            // 4. Dem tong so san pham sau khi loc
+            int totalProducts = products.Count();
+
+            // 5. Tinh tong so trang
+            int totalPages = (int)Math.Ceiling(
+                (double)totalProducts / pageSize);
+
+            // Dam bao trang hien tai hop le
+            if (totalPages > 0 && page > totalPages)
+            {
+                page = totalPages;
+            }
+
+            // 6. Lay san pham cua trang hien tai
+            var productList = products
+                .OrderByDescending(p => p.ProductID)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // 7. Truyen thong tin sang View
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalProducts = totalProducts;
+            ViewBag.PageSize = pageSize;
+
+            return View(productList);
         }
+
 
         // GET: Home/Details/5
         public ActionResult Details(int? id)

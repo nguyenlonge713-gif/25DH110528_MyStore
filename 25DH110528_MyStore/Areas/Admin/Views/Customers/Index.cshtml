@@ -1,9 +1,20 @@
-﻿    
+﻿
 @model IEnumerable<_25DH110528_MyStore.Models.Customer>
 
 @{
     ViewBag.Title = "Quản lý khách hàng";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    int currentPage = ViewBag.CurrentPage != null
+        ? (int)ViewBag.CurrentPage : 1;
+
+    int totalPages = ViewBag.TotalPages != null
+        ? (int)ViewBag.TotalPages : 0;
+
+    int totalCustomers = ViewBag.TotalCustomers != null
+        ? (int)ViewBag.TotalCustomers : Model.Count();
+
+    string searchString = ViewBag.SearchString as string;
 }
 
 <style>
@@ -108,12 +119,62 @@
         padding: 15px 18px;
         color: #667085;
         border-bottom: 1px solid #e5eaf0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
     }
+
+        .customer-count strong {
+            color: #243247;
+        }
 
     .customer-empty {
         padding: 35px;
         text-align: center;
         color: #98a2b3;
+    }
+
+    /* PHAN TRANG */
+    .customer-pagination {
+        margin-top: 25px;
+        text-align: center;
+    }
+
+        .customer-pagination .pagination {
+            margin: 0;
+        }
+
+            .customer-pagination .pagination > li > a,
+            .customer-pagination .pagination > li > span {
+                color: #344054;
+                border-color: #e5eaf0;
+                padding: 9px 15px;
+                border-radius: 6px;
+                margin: 0 3px;
+            }
+
+            .customer-pagination .pagination > .active > span {
+                background: #2563eb;
+                border-color: #2563eb;
+                color: #fff;
+            }
+
+            .customer-pagination .pagination > .disabled > span {
+                color: #adb5bd;
+                background: #f8fafc;
+            }
+
+            .customer-pagination .pagination > li > a:hover {
+                background: #eff6ff;
+                color: #2563eb;
+            }
+
+    .customer-page-info {
+        color: #667085;
+        font-size: 13px;
+        margin-top: 12px;
     }
 
     @@media (max-width: 767px) {
@@ -124,11 +185,23 @@
             .customer-header .btn {
                 width: 100%;
             }
+
+        .customer-count {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .customer-pagination .pagination > li > a,
+        .customer-pagination .pagination > li > span {
+            padding: 7px 10px;
+            margin: 0 1px;
+        }
     }
 </style>
 
 <div class="customer-page">
 
+    <!-- TIEU DE -->
     <div class="customer-header">
         <div>
             <h2>Quản lý khách hàng</h2>
@@ -144,6 +217,7 @@
              )
     </div>
 
+    <!-- THONG BAO -->
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success">
@@ -151,8 +225,21 @@
         </div>
     }
 
+    @if (TempData["DeleteError"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["DeleteError"]
+        </div>
+    }
+
+    <!-- TIM KIEM -->
     <div class="customer-filter">
-        @using (Html.BeginForm("Index", "Customers", new { area = "Admin" }, FormMethod.Get))
+
+        @using (Html.BeginForm(
+            "Index",
+            "Customers",
+            new { area = "Admin" },
+            FormMethod.Get))
         {
             <div class="row align-items-end">
 
@@ -162,12 +249,14 @@
                     <input type="text"
                            name="searchString"
                            class="form-control"
-                           value="@ViewBag.SearchString"
+                           value="@searchString"
                            placeholder="Nhập tên, số điện thoại, email hoặc Username..." />
                 </div>
 
                 <div class="col-md-3 mb-2">
-                    <button type="submit" class="btn btn-primary btn-block">
+                    <button type="submit"
+                            class="btn btn-primary btn-block">
+
                         <span class="glyphicon glyphicon-search"></span>
                         Tìm kiếm
                     </button>
@@ -177,11 +266,24 @@
         }
     </div>
 
+    <!-- DANH SACH KHACH HANG -->
     <div class="customer-table-card">
 
         <div class="customer-count">
-            Tổng số khách hàng:
-            <strong>@Model.Count()</strong>
+
+            <div>
+                Tổng số khách hàng:
+                <strong>@totalCustomers</strong>
+            </div>
+
+            @if (totalPages > 0)
+            {
+                <div>
+                    Trang <strong>@currentPage</strong>
+                    / <strong>@totalPages</strong>
+                </div>
+            }
+
         </div>
 
         <div class="table-responsive">
@@ -196,17 +298,21 @@
                         <th>Email</th>
                         <th>Địa chỉ</th>
                         <th>Tài khoản</th>
-                        <th style="min-width: 190px;" class="text-center">Thao tác</th>
+                        <th style="min-width: 190px;"
+                            class="text-center">
+                            Thao tác
+                        </th>
                     </tr>
                 </thead>
 
                 <tbody>
 
-                    @if (Model.Any())
+                    @if (Model != null && Model.Any())
                     {
                         foreach (var item in Model)
                         {
                             <tr>
+
                                 <td>@item.CustomerID</td>
 
                                 <td>
@@ -267,6 +373,7 @@
 
                                     </div>
                                 </td>
+
                             </tr>
                         }
                     }
@@ -288,5 +395,94 @@
 
         </div>
     </div>
+
+    <!-- PHAN TRANG -->
+    @if (totalPages > 1)
+    {
+        <div class="customer-pagination">
+
+            <ul class="pagination">
+
+                <!-- TRANG TRUOC -->
+                @if (currentPage > 1)
+                {
+                    <li>
+                        @Html.ActionLink(
+                                 "« Trước",
+                                 "Index",
+                                 new
+                                 {
+                                     area = "Admin",
+                                     searchString = searchString,
+                                     page = currentPage - 1
+                                 }
+                             )
+                    </li>
+                }
+                else
+                {
+                    <li class="disabled">
+                        <span>« Trước</span>
+                    </li>
+                }
+
+                <!-- CAC SO TRANG -->
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    if (i == currentPage)
+                    {
+                        <li class="active">
+                            <span>@i</span>
+                        </li>
+                    }
+                    else
+                    {
+                        <li>
+                            @Html.ActionLink(
+                                     i.ToString(),
+                                     "Index",
+                                     new
+                                     {
+                                         area = "Admin",
+                                         searchString = searchString,
+                                         page = i
+                                     }
+                                 )
+                        </li>
+                    }
+                }
+
+                <!-- TRANG SAU -->
+                @if (currentPage < totalPages)
+                {
+                    <li>
+                        @Html.ActionLink(
+                                 "Sau »",
+                                 "Index",
+                                 new
+                                 {
+                                     area = "Admin",
+                                     searchString = searchString,
+                                     page = currentPage + 1
+                                 }
+                             )
+                    </li>
+                }
+                else
+                {
+                    <li class="disabled">
+                        <span>Sau »</span>
+                    </li>
+                }
+
+            </ul>
+
+            <div class="customer-page-info">
+                Đang hiển thị @Model.Count() khách hàng
+                trên tổng số @totalCustomers khách hàng
+            </div>
+
+        </div>
+    }
 
 </div>

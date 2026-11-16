@@ -6,43 +6,289 @@
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h2>Thêm danh mục</h2>
+<style>
+    .category-create-page {
+        max-width: 850px;
+        margin: 35px auto;
+        color: #263445;
+    }
 
-@using (Html.BeginForm(
-    "Create",
-    "Categories",
-    new { area = "Admin" },
-    FormMethod.Post))
-{
-    @Html.AntiForgeryToken()
-
-    <div class="form-horizontal">
-        <hr />
-
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-
-        @if (ViewBag.CreateError != null)
-        {
-            <div class="alert alert-danger">
-                @ViewBag.CreateError
-            </div>
+        .category-create-page * {
+            box-sizing: border-box;
         }
 
-        @Html.Partial("PVCreateEditCategory", Model)
+    .category-create-header {
+        margin-bottom: 25px;
+    }
 
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit"
-                       value="Thêm danh mục"
-                       class="btn btn-success" />
+        .category-create-header h2 {
+            font-size: 27px;
+            font-weight: 750;
+            color: #202b3c;
+            margin: 0 0 8px;
+        }
 
-                @Html.ActionLink(
-                    "Quay lại danh sách",
-                    "Index",
-                    "Categories",
-                    new { area = "Admin" },
-                    null)
+        .category-create-header p {
+            color: #778397;
+            font-size: 14px;
+            margin: 0;
+        }
+
+    .category-create-card {
+        background: #fff;
+        border: 1px solid #e7eaf0;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(30, 41, 59, 0.06);
+    }
+
+    .category-create-card-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 23px 26px;
+        background: #f5f8ff;
+        border-bottom: 1px solid #e5eaf5;
+    }
+
+    .category-create-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #dbeafe;
+        color: #2563eb;
+        font-size: 21px;
+        flex-shrink: 0;
+    }
+
+    .category-create-card-header h3 {
+        font-size: 18px;
+        font-weight: 750;
+        color: #1e3a8a;
+        margin: 0 0 5px;
+    }
+
+    .category-create-card-header p {
+        font-size: 13px;
+        color: #64748b;
+        margin: 0;
+    }
+
+    .category-create-body {
+        padding: 28px;
+    }
+
+    .category-create-intro {
+        margin-bottom: 25px;
+    }
+
+        .category-create-intro h4 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #263445;
+            margin: 0 0 7px;
+        }
+
+        .category-create-intro p {
+            color: #778397;
+            font-size: 13px;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+    .category-create-form {
+        background: #fafbfc;
+        border: 1px solid #e9edf2;
+        border-radius: 10px;
+        padding: 22px;
+    }
+
+        .category-create-form .form-group {
+            margin: 0;
+        }
+
+        .category-create-form label,
+        .category-create-form .control-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 650;
+            color: #334155;
+            margin-bottom: 10px;
+        }
+
+        .category-create-form .form-control {
+            width: 100%;
+            height: 46px;
+            border: 1px solid #d8dee8;
+            border-radius: 8px;
+            padding: 10px 13px;
+            font-size: 14px;
+            box-shadow: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+            .category-create-form .form-control:focus {
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, .12);
+                outline: none;
+            }
+
+        .category-create-form .text-danger {
+            display: block;
+            margin-top: 7px;
+            font-size: 12px;
+        }
+
+    .category-create-error {
+        padding: 13px 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .category-create-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding-top: 23px;
+        margin-top: 25px;
+        border-top: 1px solid #edf0f4;
+    }
+
+        .category-create-actions .btn {
+            min-width: 155px;
+            padding: 11px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 650;
+            transition: all .2s ease;
+        }
+
+        .category-create-actions .btn-success {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+
+            .category-create-actions .btn-success:hover {
+                background: #1d4ed8;
+                border-color: #1d4ed8;
+                transform: translateY(-1px);
+            }
+
+        .category-create-actions .btn-default {
+            background: #fff;
+            border: 1px solid #d8dee8;
+            color: #475569;
+        }
+
+            .category-create-actions .btn-default:hover {
+                background: #f1f5f9;
+            }
+
+    @@media (max-width: 600px) {
+        .category-create-page {
+            margin: 20px 10px;
+        }
+
+        .category-create-body {
+            padding: 18px;
+        }
+
+        .category-create-card-header {
+            padding: 18px;
+        }
+
+        .category-create-form {
+            padding: 16px;
+        }
+
+        .category-create-actions {
+            flex-direction: column-reverse;
+        }
+
+            .category-create-actions .btn {
+                width: 100%;
+            }
+    }
+</style>
+
+<div class="category-create-page">
+
+    <div class="category-create-header">
+        <h2>Thêm danh mục</h2>
+        <p>Quản lý danh mục / Thêm danh mục mới</p>
+    </div>
+
+    <div class="category-create-card">
+
+        <div class="category-create-card-header">
+            <div class="category-create-icon">
+                <span class="glyphicon glyphicon-folder-open"></span>
+            </div>
+
+            <div>
+                <h3>Tạo danh mục mới</h3>
+                <p>Điền thông tin để thêm danh mục vào hệ thống.</p>
             </div>
         </div>
+
+        <div class="category-create-body">
+
+            <div class="category-create-intro">
+                <h4>Thông tin danh mục</h4>
+                <p>
+                    Tên danh mục sẽ được sử dụng để phân loại
+                    và quản lý các sản phẩm trong cửa hàng.
+                </p>
+            </div>
+
+            @using (Html.BeginForm(
+                "Create",
+                "Categories",
+                new { area = "Admin" },
+                FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="category-create-form">
+
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                    @if (ViewBag.CreateError != null)
+                    {
+                        <div class="alert alert-danger category-create-error">
+                            <span class="glyphicon glyphicon-exclamation-sign"></span>
+                            @ViewBag.CreateError
+                        </div>
+                    }
+
+                    @Html.Partial("PVCreateEditCategory", Model)
+
+                </div>
+
+                <div class="category-create-actions">
+
+                    @Html.ActionLink(
+                             "Quay lại danh sách",
+                             "Index",
+                             "Categories",
+                             new { area = "Admin" },
+                             new { @class = "btn btn-default" })
+
+                    <button type="submit" class="btn btn-success">
+                        <span class="glyphicon glyphicon-plus"></span>
+                        Thêm danh mục
+                    </button>
+
+                </div>
+            }
+
+        </div>
     </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
 }

@@ -1,54 +1,292 @@
-﻿@model _25DH110528_MyStore.Models.Product
+﻿
+@model _25DH110528_MyStore.Models.Product
 
-<div class="form-horizontal">
+<style>
+    .product-form {
+        color: #334155;
+    }
+
+    .product-section {
+        margin-bottom: 28px;
+    }
+
+    .product-section-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #1e293b;
+        padding-bottom: 13px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #edf0f5;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .product-section-title .glyphicon {
+            color: #2563eb;
+            font-size: 16px;
+        }
+
+    .product-field {
+        margin-bottom: 21px;
+    }
+
+        .product-field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 9px;
+        }
+
+            .product-field label .required {
+                color: #ef4444;
+                margin-left: 3px;
+            }
+
+        .product-field .form-control {
+            height: 43px;
+            border: 1px solid #dce3ec;
+            border-radius: 7px;
+            box-shadow: none;
+            padding: 10px 13px;
+            font-size: 13px;
+            transition: .2s;
+            width: 100%;
+        }
+
+        .product-field textarea.form-control {
+            height: 125px;
+            resize: vertical;
+        }
+
+        .product-field .form-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,.10);
+        }
+
+        .product-field input[type="file"].form-control {
+            height: auto;
+            padding: 10px;
+            background: #f8fafc;
+        }
+
+    .product-hint {
+        display: block;
+        color: #94a3b8;
+        font-size: 11px;
+        margin-top: 7px;
+    }
+
+    .product-validation {
+        display: block;
+        font-size: 12px;
+        margin-top: 6px;
+    }
+
+    .product-image-preview {
+        margin-top: 15px;
+        padding: 15px;
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        border-radius: 9px;
+        display: inline-block;
+    }
+
+        .product-image-preview img {
+            max-width: 180px;
+            max-height: 160px;
+            object-fit: contain;
+            border-radius: 7px;
+            background: white;
+        }
+
+    .product-image-label {
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .product-form .row {
+        margin-left: -10px;
+        margin-right: -10px;
+    }
+
+        .product-form .row > div {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+    @@media (max-width: 767px) {
+        .product-field {
+            margin-bottom: 17px;
+        }
+
+        .product-section-title {
+            font-size: 14px;
+        }
+    }
+</style>
+
+<div class="product-form">
+
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
     @Html.HiddenFor(model => model.ProductImage)
 
-    <div class="form-group mb-3">
-        @Html.Label("Danh mục", htmlAttributes: new { @class = "control-label col-md-2 fw-bold" })
-        <div class="col-md-10">
-            @Html.DropDownList("CategoryID", null, htmlAttributes: new { @class = "form-control" })
-            @Html.ValidationMessageFor(model => model.CategoryID, "", new { @class = "text-danger" })
+    <!-- THÔNG TIN CƠ BẢN -->
+    <div class="product-section">
+
+        <div class="product-section-title">
+            <span class="glyphicon glyphicon-info-sign"></span>
+            THÔNG TIN CƠ BẢN
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-12 product-field">
+                @Html.Label("Danh mục")
+
+                @Html.DropDownList(
+                         "CategoryID",
+                         null,
+                         htmlAttributes: new
+                         {
+                             @class = "form-control"
+                         })
+
+                @Html.ValidationMessageFor(
+                         model => model.CategoryID,
+                         "",
+                         new { @class = "text-danger product-validation" })
+            </div>
+
+            <div class="col-md-12 product-field">
+                @Html.Label("Tên sản phẩm")
+
+                @Html.EditorFor(
+                         model => model.ProductName,
+                         new
+                         {
+                             htmlAttributes = new
+                             {
+                                 @class = "form-control",
+                                 placeholder = "Nhập tên sản phẩm..."
+                             }
+                         })
+
+                @Html.ValidationMessageFor(
+                         model => model.ProductName,
+                         "",
+                         new { @class = "text-danger product-validation" })
+
+                <small class="product-hint">
+                    Nhập tên sản phẩm rõ ràng, dễ nhận biết.
+                </small>
+            </div>
+
+            <div class="col-md-12 product-field">
+                @Html.Label("Mô tả sản phẩm")
+
+                @Html.EditorFor(
+                         model => model.ProductDescription,
+                         new
+                         {
+                             htmlAttributes = new
+                             {
+                                 @class = "form-control",
+                                 placeholder = "Nhập mô tả chi tiết về sản phẩm..."
+                             }
+                         })
+
+                @Html.ValidationMessageFor(
+                         model => model.ProductDescription,
+                         "",
+                         new { @class = "text-danger product-validation" })
+
+                <small class="product-hint">
+                    Cung cấp thông tin giúp khách hàng hiểu rõ sản phẩm.
+                </small>
+            </div>
+
         </div>
     </div>
 
-    <div class="form-group mb-3">
-        @Html.Label("Tên sản phẩm", htmlAttributes: new { @class = "control-label col-md-2 fw-bold" })
-        <div class="col-md-10">
-            @Html.EditorFor(model => model.ProductName, new { htmlAttributes = new { @class = "form-control" } })
-            @Html.ValidationMessageFor(model => model.ProductName, "", new { @class = "text-danger" })
+    <!-- THÔNG TIN GIÁ -->
+    <div class="product-section">
+
+        <div class="product-section-title">
+            <span class="glyphicon glyphicon-usd"></span>
+            THÔNG TIN GIÁ BÁN
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-6 product-field">
+                @Html.Label("Giá sản phẩm")
+
+                @Html.EditorFor(
+                         model => model.ProductPrice,
+                         new
+                         {
+                             htmlAttributes = new
+                             {
+                                 @class = "form-control",
+                                 placeholder = "Nhập giá sản phẩm..."
+                             }
+                         })
+
+                @Html.ValidationMessageFor(
+                         model => model.ProductPrice,
+                         "",
+                         new { @class = "text-danger product-validation" })
+
+                <small class="product-hint">
+                    Nhập giá bán theo đơn vị tiền tệ hiện tại của cửa hàng.
+                </small>
+            </div>
+
         </div>
     </div>
 
-    <div class="form-group mb-3">
-        @Html.Label("Mô tả", htmlAttributes: new { @class = "control-label col-md-2 fw-bold" })
-        <div class="col-md-10">
-            @Html.EditorFor(model => model.ProductDescription, new { htmlAttributes = new { @class = "form-control" } })
-            @Html.ValidationMessageFor(model => model.ProductDescription, "", new { @class = "text-danger" })
-        </div>
-    </div>
+    <!-- HÌNH ẢNH -->
+    <div class="product-section">
 
-    <div class="form-group mb-3">
-        @Html.Label("Giá", htmlAttributes: new { @class = "control-label col-md-2 fw-bold" })
-        <div class="col-md-10">
-            @Html.EditorFor(model => model.ProductPrice, new { htmlAttributes = new { @class = "form-control" } })
-            @Html.ValidationMessageFor(model => model.ProductPrice, "", new { @class = "text-danger" })
+        <div class="product-section-title">
+            <span class="glyphicon glyphicon-picture"></span>
+            HÌNH ẢNH SẢN PHẨM
         </div>
-    </div>
 
-    <div class="form-group mb-3">
-        @Html.Label("Hình ảnh", htmlAttributes: new { @class = "control-label col-md-2 fw-bold" })
-        <div class="col-md-10">
-            <!-- Đã đổi name="UploadImg" thành name="ImageFile" khớp chuẩn với ProductsController -->
-            <input type="file" name="ImageFile" class="form-control" />
+        <div class="product-field">
+
+            @Html.Label("Chọn hình ảnh")
+
+            <input type="file"
+                   name="ImageFile"
+                   class="form-control"
+                   accept="image/*" />
+
+            <small class="product-hint">
+                Chọn hình ảnh đại diện cho sản phẩm.
+            </small>
 
             @if (Model != null && !string.IsNullOrEmpty(Model.ProductImage))
             {
-            <div class="mt-2">
-                <small class="text-muted d-block mb-1">Ảnh hiện tại:</small>
-                <img src="@Url.Content(Model.ProductImage)" width="120" class="img-thumbnail rounded shadow-sm" alt="Ảnh sản phẩm" />
-            </div>
+                <div class="product-image-preview">
+
+                    <div class="product-image-label">
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                        Ảnh hiện tại
+                    </div>
+
+                    <img src="@Url.Content(Model.ProductImage)"
+                         alt="Ảnh sản phẩm" />
+
+                </div>
             }
+
         </div>
     </div>
+
 </div>

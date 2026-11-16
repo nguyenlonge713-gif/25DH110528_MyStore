@@ -1,54 +1,348 @@
 ﻿@model _25DH110528_MyStore.Models.Product
 
-<div class="form-horizontal">
+<style>
+    /* CSS riêng cho Partial View thêm sản phẩm */
+    .mp-product-form {
+        color: #334155;
+    }
+
+        .mp-product-form .mp-section {
+            margin-bottom: 29px;
+        }
+
+            .mp-product-form .mp-section:last-child {
+                margin-bottom: 0;
+            }
+
+        .mp-product-form .mp-section-heading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 13px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #edf1f6;
+        }
+
+        .mp-product-form .mp-section-icon {
+            width: 33px;
+            height: 33px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: #eff6ff;
+            color: #2563eb;
+            font-size: 14px;
+        }
+
+        .mp-product-form .mp-section-heading h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .mp-product-form .mp-field {
+            margin-bottom: 20px;
+        }
+
+            .mp-product-form .mp-field:last-child {
+                margin-bottom: 0;
+            }
+
+            .mp-product-form .mp-field label {
+                display: block;
+                margin-bottom: 9px;
+                color: #475569;
+                font-size: 13px;
+                font-weight: 650;
+            }
+
+        .mp-product-form .mp-control {
+            display: block;
+            width: 100%;
+            min-height: 44px;
+            padding: 11px 13px;
+            border: 1px solid #dce4ee;
+            border-radius: 8px;
+            background: #fff;
+            color: #334155;
+            font-size: 13px;
+            box-shadow: none;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+            .mp-product-form .mp-control:focus {
+                border-color: #60a5fa;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, .10);
+            }
+
+        .mp-product-form textarea.mp-control {
+            min-height: 135px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .mp-product-form select.mp-control {
+            cursor: pointer;
+        }
+
+        .mp-product-form input[type="file"].mp-control {
+            min-height: auto;
+            padding: 12px;
+            background: #f8fafc;
+            cursor: pointer;
+        }
+
+        .mp-product-form .mp-hint {
+            display: block;
+            margin-top: 7px;
+            color: #94a3b8;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .mp-product-form .mp-validation {
+            display: block;
+            margin-top: 6px;
+            font-size: 12px;
+        }
+
+        .mp-product-form .validation-summary-errors {
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            background: #fef2f2;
+            color: #b91c1c;
+            font-size: 13px;
+        }
+
+        .mp-product-form .input-validation-error {
+            border-color: #ef4444 !important;
+            background: #fffafa;
+        }
+
+        .mp-product-form .mp-image-upload {
+            padding: 19px;
+            border: 1px dashed #bfcee0;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+
+        .mp-product-form .mp-upload-icon {
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            background: #eff6ff;
+            color: #2563eb;
+            font-size: 18px;
+        }
+
+        .mp-product-form .mp-image-preview {
+            display: inline-block;
+            margin-top: 17px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 9px;
+            background: #fff;
+        }
+
+            .mp-product-form .mp-image-preview img {
+                display: block;
+                max-width: 190px;
+                max-height: 170px;
+                object-fit: contain;
+                border-radius: 6px;
+            }
+
+        .mp-product-form .mp-preview-caption {
+            margin-bottom: 10px;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+    @@media (max-width: 767px) {
+        .mp-product-form .mp-field {
+            margin-bottom: 17px;
+        }
+
+        .mp-product-form .mp-section {
+            margin-bottom: 24px;
+        }
+    }
+</style>
+
+<div class="mp-product-form">
+
     @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
     @Html.HiddenFor(model => model.ProductImage)
 
-    <div class="form-group mb-3">
-        @Html.Label("Danh mục", htmlAttributes: new { @class = "control-label col-md-2 fw-bold" })
-        <div class="col-md-10">
-            @Html.DropDownList("CategoryID", null, htmlAttributes: new { @class = "form-control" })
-            @Html.ValidationMessageFor(model => model.CategoryID, "", new { @class = "text-danger" })
-        </div>
-    </div>
+    <!-- PHẦN 1: THÔNG TIN CƠ BẢN -->
+    <div class="mp-section">
 
-    <div class="form-group mb-3">
-        @Html.Label("Tên sản phẩm", htmlAttributes: new { @class = "control-label col-md-2 fw-bold" })
-        <div class="col-md-10">
-            @Html.EditorFor(model => model.ProductName, new { htmlAttributes = new { @class = "form-control" } })
-            @Html.ValidationMessageFor(model => model.ProductName, "", new { @class = "text-danger" })
-        </div>
-    </div>
-
-    <div class="form-group mb-3">
-        @Html.Label("Mô tả", htmlAttributes: new { @class = "control-label col-md-2 fw-bold" })
-        <div class="col-md-10">
-            @Html.EditorFor(model => model.ProductDescription, new { htmlAttributes = new { @class = "form-control" } })
-            @Html.ValidationMessageFor(model => model.ProductDescription, "", new { @class = "text-danger" })
-        </div>
-    </div>
-
-    <div class="form-group mb-3">
-        @Html.Label("Giá", htmlAttributes: new { @class = "control-label col-md-2 fw-bold" })
-        <div class="col-md-10">
-            @Html.EditorFor(model => model.ProductPrice, new { htmlAttributes = new { @class = "form-control" } })
-            @Html.ValidationMessageFor(model => model.ProductPrice, "", new { @class = "text-danger" })
-        </div>
-    </div>
-
-    <div class="form-group mb-3">
-        @Html.Label("Hình ảnh", htmlAttributes: new { @class = "control-label col-md-2 fw-bold" })
-        <div class="col-md-10">
-            <!-- Đã đổi name="UploadImg" thành name="ImageFile" khớp chuẩn với ProductsController -->
-            <input type="file" name="ImageFile" class="form-control" />
-
-            @if (Model != null && !string.IsNullOrEmpty(Model.ProductImage))
-            {
-            <div class="mt-2">
-                <small class="text-muted d-block mb-1">Ảnh hiện tại:</small>
-                <img src="@Url.Content(Model.ProductImage)" width="120" class="img-thumbnail rounded shadow-sm" alt="Ảnh sản phẩm" />
+        <div class="mp-section-heading">
+            <div class="mp-section-icon">
+                <span class="glyphicon glyphicon-list-alt"></span>
             </div>
-            }
+            <h4>Thông tin cơ bản</h4>
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-12 mp-field">
+                @Html.Label("Danh mục")
+
+                @Html.DropDownList(
+                "CategoryID",
+                null,
+                htmlAttributes: new {
+                @class = "mp-control"
+                })
+
+                @Html.ValidationMessageFor(
+                model => model.CategoryID,
+                "",
+                new { @class = "text-danger mp-validation" })
+            </div>
+
+            <div class="col-md-12 mp-field">
+                @Html.Label("Tên sản phẩm")
+
+                @Html.EditorFor(
+                model => model.ProductName,
+                new {
+                htmlAttributes = new {
+                @class = "mp-control",
+                placeholder = "Ví dụ: Áo thể thao nam..."
+                }
+                })
+
+                @Html.ValidationMessageFor(
+                model => model.ProductName,
+                "",
+                new { @class = "text-danger mp-validation" })
+
+                <small class="mp-hint">
+                    Đặt tên sản phẩm ngắn gọn, dễ hiểu và đúng với sản phẩm thực tế.
+                </small>
+            </div>
+
+            <div class="col-md-12 mp-field">
+                @Html.Label("Mô tả sản phẩm")
+
+                @Html.TextAreaFor(
+                model => model.ProductDescription,
+                new {
+                @class = "mp-control",
+                placeholder = "Nhập thông tin chi tiết về sản phẩm...",
+                required = "required"
+                })
+
+                @Html.ValidationMessageFor(
+                model => model.ProductDescription,
+                "",
+                new { @class = "text-danger mp-validation" })
+
+                <small class="mp-hint">
+                    Mô tả chất liệu, đặc điểm, công dụng và những thông tin hữu ích khác.
+                </small>
+            </div>
+
         </div>
     </div>
+
+    <!-- PHẦN 2: GIÁ BÁN -->
+    <div class="mp-section">
+
+        <div class="mp-section-heading">
+            <div class="mp-section-icon">
+                <span class="glyphicon glyphicon-usd"></span>
+            </div>
+            <h4>Thông tin giá bán</h4>
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-6 mp-field">
+                @Html.Label("Giá sản phẩm")
+
+                @Html.EditorFor(
+                model => model.ProductPrice,
+                new {
+                htmlAttributes = new {
+                @class = "mp-control",
+                placeholder = "Nhập giá sản phẩm..."
+                }
+                })
+
+                @Html.ValidationMessageFor(
+                model => model.ProductPrice,
+                "",
+                new { @class = "text-danger mp-validation" })
+
+                <small class="mp-hint">
+                    Nhập giá bán theo đơn vị tiền tệ đang sử dụng.
+                </small>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- PHẦN 3: HÌNH ẢNH -->
+    <div class="mp-section">
+
+        <div class="mp-section-heading">
+            <div class="mp-section-icon">
+                <span class="glyphicon glyphicon-picture"></span>
+            </div>
+            <h4>Hình ảnh sản phẩm</h4>
+        </div>
+
+        <div class="mp-field">
+
+            @Html.Label("Ảnh đại diện sản phẩm")
+
+            <div class="mp-image-upload">
+
+                <div class="mp-upload-icon">
+                    <span class="glyphicon glyphicon-cloud-upload"></span>
+                </div>
+
+                <input type="file"
+                       name="ImageFile"
+                       class="mp-control"
+                       accept="image/*" />
+
+                <small class="mp-hint">
+                    Chọn hình ảnh từ máy tính để tải lên sản phẩm.
+                </small>
+
+                @if (Model != null && !string.IsNullOrEmpty(Model.ProductImage))
+                {
+                <div class="mp-image-preview">
+
+                    <div class="mp-preview-caption">
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                        Ảnh hiện tại
+                    </div>
+
+                    <img src="@Url.Content(Model.ProductImage)"
+                         alt="Ảnh sản phẩm" />
+
+                </div>
+                }
+
+            </div>
+        </div>
+
+    </div>
+
 </div>

@@ -557,6 +557,81 @@ namespace _25DH110528_MyStore.Controllers
         }
 
         // ==========================================
+        // DOI MAT KHAU
+        // ==========================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ChangePassword(
+            string CurrentPassword,
+            string NewPassword,
+            string ConfirmNewPassword)
+        {
+            if (Session["Username"] == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            string username = Session["Username"].ToString();
+
+            var user = db.Users.FirstOrDefault(
+                u => u.Username == username);
+
+            if (user == null)
+            {
+                return HttpNotFound();
+            }
+
+            // Kiểm tra mật khẩu hiện tại
+            if (string.IsNullOrWhiteSpace(CurrentPassword) ||
+                user.Password.Trim() != CurrentPassword.Trim())
+            {
+                TempData["PasswordError"] =
+                    "Mật khẩu hiện tại không chính xác.";
+
+                return RedirectToAction("Profile");
+            }
+            
+
+            // Kiểm tra mật khẩu mới
+            if (!IsValidPassword(NewPassword))
+            {
+                TempData["PasswordError"] =
+                    "Mật khẩu mới phải có 8-30 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.";
+
+                return RedirectToAction("Profile");
+            }
+
+            // Không cho sử dụng lại mật khẩu cũ
+            if (NewPassword.Trim() == CurrentPassword.Trim())
+            {
+                TempData["PasswordError"] =
+                    "Mật khẩu mới phải khác mật khẩu hiện tại.";
+
+                return RedirectToAction("Profile");
+            }
+
+            // Kiểm tra xác nhận mật khẩu
+            if (string.IsNullOrWhiteSpace(ConfirmNewPassword) ||
+    NewPassword != ConfirmNewPassword)
+            {
+                TempData["PasswordError"] =
+                    "Mật khẩu xác nhận không khớp.";
+
+                return RedirectToAction("Profile");
+            }
+
+            // Cập nhật mật khẩu
+            user.Password = NewPassword;
+
+            db.SaveChanges();
+
+            TempData["PasswordSuccess"] =
+                "Đổi mật khẩu thành công!";
+
+            return RedirectToAction("Profile");
+        }
+        // ==========================================
         // 7. LICH SU DON HANG
         // ==========================================
 

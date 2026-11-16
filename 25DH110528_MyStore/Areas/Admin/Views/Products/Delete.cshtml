@@ -4,56 +4,284 @@
     ViewBag.Title = "Xóa sản phẩm";
 }
 
-<div class="panel panel-danger">
+<style>
+    /* Chỉ áp dụng cho trang Delete sản phẩm */
+    .delete-product-page {
+        max-width: 900px;
+        margin: 35px auto;
+        color: #263445;
+    }
 
-    <div class="panel-heading">
-        <h3 class="panel-title">
-            <span class="glyphicon glyphicon-trash"></span>
-            XÁC NHẬN XÓA SẢN PHẨM
-        </h3>
-    </div>
-
-    <div class="panel-body">
-
-        <div class="alert alert-danger">
-            <span class="glyphicon glyphicon-warning-sign"></span>
-            <strong>Cảnh báo!</strong>
-            Bạn có chắc chắn muốn xóa sản phẩm này không?
-            Hành động này không thể hoàn tác.
-        </div>
-
-        @Html.Partial("PVProductInfo", Model)
-
-        <hr />
-
-        @using (Html.BeginForm(
-        "Delete",
-        "Products",
-        new
-        {
-        area = "Admin",
-        id = Model.ProductID
-        },
-        FormMethod.Post))
-        {
-        @Html.AntiForgeryToken()
-
-        <div class="text-center">
-
-            <button type="submit" class="btn btn-danger">
-                <span class="glyphicon glyphicon-trash"></span>
-                Xóa sản phẩm
-            </button>
-
-            @Html.ActionLink(
-            "Quay lại",
-            "Index",
-            "Products",
-            new { area = "Admin" },
-            new { @class = "btn btn-default" })
-
-        </div>
+        .delete-product-page * {
+            box-sizing: border-box;
         }
 
+    .delete-header {
+        margin-bottom: 25px;
+    }
+
+        .delete-header h2 {
+            font-size: 26px;
+            font-weight: 750;
+            margin: 0 0 8px;
+            color: #202b3c;
+        }
+
+        .delete-header p {
+            color: #778397;
+            margin: 0;
+            font-size: 14px;
+        }
+
+    .delete-card {
+        background: #fff;
+        border: 1px solid #e7eaf0;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(30, 41, 59, 0.06);
+    }
+
+    .delete-card-header {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 22px 26px;
+        background: #fff8f8;
+        border-bottom: 1px solid #f4dddd;
+    }
+
+    .delete-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        background: #fee2e2;
+        color: #dc2626;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 21px;
+        flex-shrink: 0;
+    }
+
+    .delete-card-header h3 {
+        font-size: 18px;
+        font-weight: 750;
+        color: #991b1b;
+        margin: 0 0 5px;
+    }
+
+    .delete-card-header p {
+        font-size: 13px;
+        color: #9b5555;
+        margin: 0;
+    }
+
+    .delete-card-body {
+        padding: 26px;
+    }
+
+    .delete-warning {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        padding: 16px 18px;
+        margin-bottom: 25px;
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        border-radius: 10px;
+        color: #9a3412;
+    }
+
+        .delete-warning .glyphicon {
+            font-size: 20px;
+            margin-top: 2px;
+        }
+
+        .delete-warning strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .delete-warning p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+    .delete-section-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #263445;
+        margin: 0 0 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+    /* Làm đẹp nội dung từ Partial PVProductInfo */
+    .delete-product-info {
+        background: #fafbfc;
+        border: 1px solid #e9edf2;
+        border-radius: 10px;
+        padding: 20px;
+    }
+
+        .delete-product-info table {
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+            .delete-product-info table td,
+            .delete-product-info table th {
+                padding: 12px 14px !important;
+                border-color: #e9edf2 !important;
+                vertical-align: middle;
+            }
+
+        .delete-product-info img {
+            max-width: 150px;
+            height: auto;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #fff;
+            padding: 5px;
+            border: 1px solid #e5e7eb;
+        }
+
+    .delete-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 22px;
+        border-top: 1px solid #edf0f4;
+    }
+
+        .delete-actions .btn {
+            min-width: 145px;
+            padding: 11px 18px;
+            border-radius: 8px;
+            font-weight: 650;
+            font-size: 14px;
+            transition: all .2s ease;
+        }
+
+        .delete-actions .btn-danger {
+            background: #dc2626;
+            border-color: #dc2626;
+        }
+
+            .delete-actions .btn-danger:hover {
+                background: #b91c1c;
+                border-color: #b91c1c;
+                transform: translateY(-1px);
+            }
+
+        .delete-actions .btn-default {
+            background: #fff;
+            border: 1px solid #d8dee8;
+            color: #475569;
+        }
+
+            .delete-actions .btn-default:hover {
+                background: #f1f5f9;
+            }
+
+    @@media (max-width: 600px) {
+        .delete-product-page {
+            margin: 20px 10px;
+        }
+
+        .delete-card-body {
+            padding: 18px;
+        }
+
+        .delete-card-header {
+            padding: 18px;
+        }
+
+        .delete-actions {
+            flex-direction: column-reverse;
+        }
+
+            .delete-actions .btn {
+                width: 100%;
+            }
+    }
+</style>
+
+<div class="delete-product-page">
+
+    <div class="delete-header">
+        <h2>Xóa sản phẩm</h2>
+        <p>Quản lý sản phẩm / Xác nhận xóa</p>
+    </div>
+
+    <div class="delete-card">
+
+        <div class="delete-card-header">
+            <div class="delete-icon">
+                <span class="glyphicon glyphicon-trash"></span>
+            </div>
+
+            <div>
+                <h3>Xác nhận xóa sản phẩm</h3>
+                <p>Vui lòng kiểm tra thông tin trước khi thực hiện.</p>
+            </div>
+        </div>
+
+        <div class="delete-card-body">
+
+            <div class="delete-warning">
+                <span class="glyphicon glyphicon-warning-sign"></span>
+                <div>
+                    <strong>Cảnh báo: Hành động này không thể hoàn tác!</strong>
+                    <p>
+                        Bạn đang chuẩn bị xóa sản phẩm khỏi hệ thống.
+                        Hãy kiểm tra kỹ thông tin bên dưới trước khi xác nhận.
+                    </p>
+                </div>
+            </div>
+
+            <h4 class="delete-section-title">
+                <span class="glyphicon glyphicon-info-sign"></span>
+                Thông tin sản phẩm cần xóa
+            </h4>
+
+            <div class="delete-product-info">
+                @Html.Partial("PVProductInfo", Model)
+            </div>
+
+            @using (Html.BeginForm(
+            "Delete",
+            "Products",
+            new
+            {
+            area = "Admin",
+            id = Model.ProductID
+            },
+            FormMethod.Post))
+            {
+            @Html.AntiForgeryToken()
+
+            <div class="delete-actions">
+
+                @Html.ActionLink(
+                "Quay lại danh sách",
+                "Index",
+                "Products",
+                new { area = "Admin" },
+                new { @class = "btn btn-default" })
+
+                <button type="submit" class="btn btn-danger">
+                    <span class="glyphicon glyphicon-trash"></span>
+                    Xác nhận xóa
+                </button>
+
+            </div>
+            }
+
+        </div>
     </div>
 </div>

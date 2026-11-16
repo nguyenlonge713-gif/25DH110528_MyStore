@@ -1,4 +1,5 @@
-﻿@model _25DH110528_MyStore.Models.Customer
+﻿
+@model _25DH110528_MyStore.Models.Customer
 
 @{
     ViewBag.Title = "Thông tin tài khoản";
@@ -6,11 +7,17 @@
 }
 
 <div class="container mt-4 mb-5" style="max-width: 600px;">
-    <div class="card shadow-sm">
+
+    <!-- THÔNG TIN TÀI KHOẢN -->
+    <div class="card shadow-sm mb-4">
         <div class="card-header bg-primary text-white">
-            <h4 class="mb-0"><i class="fas fa-id-card me-2"></i> Thông tin tài khoản</h4>
+            <h4 class="mb-0">
+                <i class="fas fa-id-card me-2"></i> Thông tin tài khoản
+            </h4>
         </div>
+
         <div class="card-body">
+
             @if (ViewBag.SuccessMessage != null)
             {
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -26,37 +33,50 @@
 
                 <div class="mb-3">
                     <label class="form-label font-weight-bold">Tên đăng nhập</label>
-                    <input type="text" class="form-control bg-light" value="@Model.Username" disabled />
+                    <input type="text" class="form-control bg-light"
+                           value="@Model.Username" disabled />
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label font-weight-bold">Họ và tên</label>
-                    @Html.TextBoxFor(m => m.CustomerName, new { @class = "form-control", required = "required" })
-                    @Html.ValidationMessageFor(m => m.CustomerName, "", new { @class = "text-danger" })
+                    @Html.TextBoxFor(m => m.CustomerName,
+                             new { @class = "form-control", required = "required" })
+                    @Html.ValidationMessageFor(m => m.CustomerName, "",
+                             new { @class = "text-danger" })
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label font-weight-bold">Số điện thoại</label>
-                    @Html.TextBoxFor(m => m.CustomerPhone, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(m => m.CustomerPhone, "", new { @class = "text-danger" })
+                    @Html.TextBoxFor(m => m.CustomerPhone,
+                             new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.CustomerPhone, "",
+                             new { @class = "text-danger" })
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label font-weight-bold">Email</label>
-                    @Html.TextBoxFor(m => m.CustomerEmail, new { @class = "form-control", type = "email" })
-                    @Html.ValidationMessageFor(m => m.CustomerEmail, "", new { @class = "text-danger" })
+                    @Html.TextBoxFor(m => m.CustomerEmail,
+                             new { @class = "form-control", type = "email" })
+                    @Html.ValidationMessageFor(m => m.CustomerEmail, "",
+                             new { @class = "text-danger" })
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label font-weight-bold">Địa chỉ nhận hàng mặc định</label>
-                    @Html.TextAreaFor(m => m.CustomerAddress, new { @class = "form-control", rows = "3" })
-                    @Html.ValidationMessageFor(m => m.CustomerAddress, "", new { @class = "text-danger" })
+                    <label class="form-label font-weight-bold">
+                        Địa chỉ nhận hàng mặc định
+                    </label>
+                    @Html.TextAreaFor(m => m.CustomerAddress,
+                             new { @class = "form-control", rows = "3" })
+                    @Html.ValidationMessageFor(m => m.CustomerAddress, "",
+                             new { @class = "text-danger" })
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">
-                    <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary">
+                    <a href="@Url.Action("Index", "Home")"
+                       class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left"></i> Quay lại
                     </a>
+
                     <button type="submit" class="btn btn-success">
                         <i class="fas fa-save"></i> Cập nhật thông tin
                     </button>
@@ -64,4 +84,87 @@
             }
         </div>
     </div>
+
+    <!-- THAY ĐỔI MẬT KHẨU -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h4 class="mb-0">
+                <i class="fas fa-lock me-2"></i> Thay đổi mật khẩu
+            </h4>
+        </div>
+
+        <div class="card-body">
+
+            @if (TempData["PasswordError"] != null)
+            {
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-1"></i>
+                    @TempData["PasswordError"]
+                </div>
+            }
+
+            @if (TempData["PasswordSuccess"] != null)
+            {
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-1"></i>
+                    @TempData["PasswordSuccess"]
+                </div>
+            }
+
+            @using (Html.BeginForm("ChangePassword", "User", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">
+                        Mật khẩu hiện tại
+                    </label>
+                    <input type="password"
+                           name="CurrentPassword"
+                           class="form-control"
+                           placeholder="Nhập mật khẩu hiện tại"
+                           autocomplete="current-password"
+                           required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">
+                        Mật khẩu mới
+                    </label>
+                    <input type="password"
+                           name="NewPassword"
+                           class="form-control"
+                           placeholder="Nhập mật khẩu mới"
+                           minlength="8"
+                           maxlength="30"
+                           autocomplete="new-password"
+                           required />
+                    <small class="text-muted">
+                        Từ 8–30 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.
+                    </small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label font-weight-bold">
+                        Xác nhận mật khẩu mới
+                    </label>
+                    <input type="password"
+                           name="ConfirmNewPassword"
+                           class="form-control"
+                           placeholder="Nhập lại mật khẩu mới"
+                           minlength="8"
+                           maxlength="30"
+                           autocomplete="new-password"
+                           required />
+                </div>
+
+                <div class="text-right mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-key me-1"></i> Đổi mật khẩu
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+
 </div>

@@ -1,46 +1,213 @@
-﻿@model _25DH110528_MyStore.Models.Product
+﻿
+@model _25DH110528_MyStore.Models.Product
 
 @{
     ViewBag.Title = "Thêm sản phẩm";
 }
 
-<div class="panel panel-success">
+<style>
+    .create-product-page {
+        background: #f5f7fb;
+        min-height: 100vh;
+        padding: 30px 25px 45px;
+        color: #263445;
+    }
 
-    <div class="panel-heading">
-        <h3 class="panel-title">
-            <span class="glyphicon glyphicon-plus"></span>
-            THÊM SẢN PHẨM MỚI
-        </h3>
+    .create-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+        .create-header h2 {
+            font-size: 25px;
+            font-weight: 700;
+            margin: 0 0 7px;
+            color: #1e293b;
+        }
+
+        .create-header p {
+            color: #8491a5;
+            margin: 0;
+            font-size: 13px;
+        }
+
+    .create-back-btn {
+        background: #fff;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        padding: 10px 17px;
+        border-radius: 8px;
+        text-decoration: none !important;
+        font-weight: 600;
+        transition: .2s;
+    }
+
+        .create-back-btn:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+    .create-product-card {
+        background: #fff;
+        border: 1px solid #e8edf4;
+        border-radius: 13px;
+        box-shadow: 0 4px 18px rgba(15, 23, 42, .04);
+        overflow: hidden;
+    }
+
+    .create-card-heading {
+        padding: 20px 25px;
+        border-bottom: 1px solid #edf0f5;
+        display: flex;
+        align-items: center;
+        gap: 13px;
+    }
+
+    .create-icon {
+        width: 43px;
+        height: 43px;
+        border-radius: 10px;
+        background: #eff6ff;
+        color: #2563eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 19px;
+    }
+
+    .create-card-heading h3 {
+        font-size: 17px;
+        font-weight: 700;
+        margin: 0 0 5px;
+        color: #1e293b;
+    }
+
+    .create-card-heading p {
+        font-size: 12px;
+        color: #94a3b8;
+        margin: 0;
+    }
+
+    .create-card-body {
+        padding: 28px 30px;
+    }
+
+    .create-card-footer {
+        padding: 18px 30px;
+        background: #fafbfc;
+        border-top: 1px solid #edf0f5;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .create-save-btn {
+        background: #2563eb;
+        border: none;
+        color: #fff;
+        padding: 11px 23px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: .2s;
+    }
+
+        .create-save-btn:hover {
+            background: #1d4ed8;
+        }
+
+    .create-cancel-btn {
+        background: #fff;
+        color: #475569;
+        border: 1px solid #dce3ec;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none !important;
+    }
+
+        .create-cancel-btn:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+    @@media (max-width: 767px) {
+        .create-product-page {
+            padding: 20px 12px;
+        }
+
+        .create-card-body {
+            padding: 20px 15px;
+        }
+
+        .create-card-footer {
+            padding: 15px;
+        }
+
+        .create-header h2 {
+            font-size: 21px;
+        }
+    }
+</style>
+
+<div class="create-product-page">
+
+    <div class="create-header">
+        <div>
+            <h2>Thêm sản phẩm mới</h2>
+            <p>Quản lý cửa hàng / Sản phẩm / Thêm mới</p>
+        </div>
+
+        @Html.ActionLink(
+                 "← Quay lại danh sách",
+                 "Index",
+                 null,
+                 new { @class = "create-back-btn" })
     </div>
 
-    <div class="panel-body">
+    <div class="create-product-card">
+
+        <div class="create-card-heading">
+            <div class="create-icon">
+                <span class="glyphicon glyphicon-plus"></span>
+            </div>
+
+            <div>
+                <h3>Thông tin sản phẩm</h3>
+                <p>Nhập thông tin để thêm sản phẩm vào cửa hàng</p>
+            </div>
+        </div>
 
         @using (Html.BeginForm(
-        "Create",
-        "Products",
-        FormMethod.Post,
-        new { enctype = "multipart/form-data" }))
+            "Create",
+            "Products",
+            FormMethod.Post,
+            new { enctype = "multipart/form-data" }))
         {
-        @Html.AntiForgeryToken()
+            @Html.AntiForgeryToken()
 
-        @Html.Partial("PVCreateEditProduct", Model)
+            <div class="create-card-body">
+                @Html.Partial("PVCreateEditProduct", Model)
+            </div>
 
-        <hr />
+            <div class="create-card-footer">
 
-        <div class="text-center">
+                @Html.ActionLink(
+                         "Hủy bỏ",
+                         "Index",
+                         null,
+                         new { @class = "create-cancel-btn" })
 
-            <button type="submit" class="btn btn-success">
-                <span class="glyphicon glyphicon-save"></span>
-                Lưu sản phẩm
-            </button>
+                <button type="submit" class="create-save-btn">
+                    <span class="glyphicon glyphicon-save"></span>
+                    Lưu sản phẩm
+                </button>
 
-            @Html.ActionLink(
-            "Quay lại",
-            "Index",
-            null,
-            new { @class = "btn btn-default" })
-
-        </div>
+            </div>
         }
 
     </div>

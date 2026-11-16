@@ -1,24 +1,38 @@
-﻿@model _25DH110528_MyStore.Models.Category
+﻿
+@model _25DH110528_MyStore.Models.Category
 
 @* Giữ lại ID danh mục khi cập nhật *@
 @Html.HiddenFor(model => model.CategoryID)
 
 <div class="form-group">
-    <div class="control-label">Tên danh mục</div>
 
-    <div class="col-md-10">
-        @Html.EditorFor(
+    @Html.LabelFor(
+            model => model.CategoryName,
+            "Tên danh mục",
+            new { @class = "control-label" }
+        )
+
+    @Html.EditorFor(
             model => model.CategoryName,
             new
             {
-                htmlAttributes = new { @class = "form-control" }
+                htmlAttributes = new
+                {
+                    @class = "form-control",
+                    placeholder = "Ví dụ: Áo thể thao, Giày chạy bộ..."
+                }
             }
         )
 
-        @Html.ValidationMessageFor(
+    @Html.ValidationMessageFor(
             model => model.CategoryName,
             "",
             new { @class = "text-danger" }
         )
-    </div>
+
+    <small style="display:block; margin-top:9px; color:#8491a3; font-size:12px;">
+        <span class="glyphicon glyphicon-info-sign"></span>
+        Nhập tên danh mục dễ hiểu và phù hợp với sản phẩm.
+    </small>
+
 </div>

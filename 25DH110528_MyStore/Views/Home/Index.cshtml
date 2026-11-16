@@ -247,6 +247,89 @@
                 }
 
             </div>
+
+            <!-- PHÂN TRANG SẢN PHẨM -->
+            @if (ViewBag.TotalPages != null &&
+                 (int)ViewBag.TotalPages > 1)
+            {
+                <div class="d-flex justify-content-center align-items-center flex-wrap mt-4 mb-3">
+
+                    <nav aria-label="Product pagination">
+
+                        <ul class="pagination mb-0">
+
+                            <!-- TRANG TRƯỚC -->
+                            <li class="page-item @((int)ViewBag.CurrentPage <= 1 ? "disabled" : "")">
+
+                                @if ((int)ViewBag.CurrentPage > 1)
+                                {
+                                    <a class="page-link"
+                                       href="@Url.Action("Index", "Home", new {
+                                           categoryId = ViewBag.SelectedCategory,
+                                           searchTerm = ViewBag.SearchTerm,
+                                           page = (int)ViewBag.CurrentPage - 1
+                                       })">
+                                        &laquo;
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="page-link">&laquo;</span>
+                                }
+
+                            </li>
+
+                            <!-- CÁC SỐ TRANG -->
+                            @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == (int)ViewBag.CurrentPage ? "active" : "")">
+
+                                    <a class="page-link"
+                                       href="@Url.Action("Index", "Home", new {
+                                           categoryId = ViewBag.SelectedCategory,
+                                           searchTerm = ViewBag.SearchTerm,
+                                           page = i
+                                       })">
+                                        @i
+                                    </a>
+
+                                </li>
+                            }
+
+                            <!-- TRANG SAU -->
+                            <li class="page-item @((int)ViewBag.CurrentPage >= (int)ViewBag.TotalPages ? "disabled" : "")">
+
+                                @if ((int)ViewBag.CurrentPage < (int)ViewBag.TotalPages)
+                                {
+                                    <a class="page-link"
+                                       href="@Url.Action("Index", "Home", new {
+                                           categoryId = ViewBag.SelectedCategory,
+                                           searchTerm = ViewBag.SearchTerm,
+                                           page = (int)ViewBag.CurrentPage + 1
+                                       })">
+                                        &raquo;
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="page-link">&raquo;</span>
+                                }
+
+                            </li>
+
+                        </ul>
+
+                    </nav>
+
+                </div>
+
+                <!-- THÔNG TIN PHÂN TRANG -->
+                <p class="text-center text-muted small mt-2">
+                    Trang @ViewBag.CurrentPage / @ViewBag.TotalPages
+                    — Tổng cộng @ViewBag.TotalProducts sản phẩm
+                </p>
+            }
+
         </div>
     </div>
 </div>

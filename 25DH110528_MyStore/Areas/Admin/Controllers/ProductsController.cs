@@ -7,7 +7,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Data.Entity;
 using PagedList;
-
+using System.Data.Entity.Validation;
 namespace _25DH110528_MyStore.Areas.Admin.Controllers
 {
     public class ProductsController : AdminBaseController
@@ -242,25 +242,42 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
         }
 
 
-        // HÀM CON DÙNG CHUNG CHO CREATE, EDIT VÀ DELETE
+
         private void SaveProduct(Product product, string action)
         {
-            if (action == "Create")
+            try
             {
-                db.Products.Add(product);
-            }
-            else if (action == "Edit")
-            {
-                db.Entry(product).State = EntityState.Modified;
-            }
-            else if (action == "Delete")
-            {
-                db.Products.Remove(product);
-            }
+                if (action == "Create")
+                {
+                    db.Products.Add(product);
+                }
+                else if (action == "Edit")
+                {
+                    db.Entry(product).State = EntityState.Modified;
+                }
+                else if (action == "Delete")
+                {
+                    db.Products.Remove(product);
+                }
 
-            db.SaveChanges();
+                db.SaveChanges();
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                foreach (var entityError in ex.EntityValidationErrors)
+                {
+                    foreach (var validationError in entityError.ValidationErrors)
+                    {
+                        System.Diagnostics.Debug.WriteLine(
+                            "Property: " + validationError.PropertyName
+                            + " | Error: " + validationError.ErrorMessage
+                        );
+                    }
+                }
+
+                throw;
+            }
         }
-
 
         // HÀM DÙNG CHUNG ĐỂ LOAD DANH MỤC
         private void LoadCategories(object selectedCategory = null)
