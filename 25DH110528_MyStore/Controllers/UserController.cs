@@ -631,12 +631,13 @@ namespace _25DH110528_MyStore.Controllers
 
             return RedirectToAction("Profile");
         }
+
         // ==========================================
-        // 7. LICH SU DON HANG
+        // 7. LICH SU DON HANG VA LOC THEO TRANG THAI
         // ==========================================
 
         [HttpGet]
-        public ActionResult OrderHistory()
+        public ActionResult OrderHistory(string status)
         {
             if (Session["Username"] == null)
             {
@@ -653,12 +654,221 @@ namespace _25DH110528_MyStore.Controllers
                 return HttpNotFound();
             }
 
-            var orders = db.Orders
-                .Where(o => o.CustomerID == customer.CustomerID)
+            // Cac trang thai duoc phep loc
+            string[] validStatuses =
+            {
+                "Chờ xác nhận",
+                "Đã xác nhận",
+                "Đang giao",
+                "Đã giao",
+                "Đã hủy"
+            };
+
+            // Kiem tra trang thai duoc chon
+            if (!string.IsNullOrWhiteSpace(status) &&
+                !validStatuses.Contains(status))
+            {
+                status = null;
+            }
+
+            // Lay don hang cua khach hang hien tai
+            var ordersQuery = db.Orders.Where(o =>
+                o.CustomerID == customer.CustomerID);
+
+            // Loc theo trang thai
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                if (status == "Chờ xác nhận")
+                {
+                    ordersQuery = ordersQuery.Where(o =>
+                        o.OrderStatus == "Chờ xác nhận" ||
+                        o.OrderStatus == null ||
+                        o.OrderStatus == "");
+                }
+                else
+                {
+                    ordersQuery = ordersQuery.Where(o =>
+                        o.OrderStatus == status);
+                }
+            }
+
+            var orders = ordersQuery
                 .OrderByDescending(o => o.OrderDate)
                 .ToList();
 
+            ViewBag.SelectedStatus = status ?? "Tất cả";
+
+            ViewBag.HasAnyOrders = db.Orders.Any(o =>
+                o.CustomerID == customer.CustomerID);
+
             return View(orders);
+        }
+
+
+        // ==========================================
+        // 8. MUA LAI DON HANG CU
+        // ==========================================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Reorder(int id)
+        {
+            // Chi khach hang moi duoc su dung chuc nang mua lai
+            if (Session["Username"] == null ||
+                !string.Equals(
+                    Convert.ToString(Session["UserRole"]),
+                    "C",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return RedirectToAction("Login", "User");
+            }
+
+            string username = Session["Username"].ToString();
+
+            var customer = db.Customers.FirstOrDefault(c =>
+                c.Username == username);
+
+            if (customer == null)
+            {
+                return HttpNotFound();
+            }
+
+            // Chi duoc mua lai don hang cua chinh minh
+            var order = db.Orders.FirstOrDefault(o =>
+                o.OrderID == id &&
+                o.CustomerID == customer.CustomerID);
+
+            if (order == null)
+            {
+                return HttpNotFound();
+            }
+
+            // Lay chi tiet don hang cu
+            var orderDetails = db.OrderDetails
+                .Where(d => d.OrderID == order.OrderID)
+                .ToList();
+
+            if (orderDetails.Count == 0)
+            {
+                TempData["ReorderError"] =
+                    "Don hang nay khong co san pham de mua lai.";
+
+                return RedirectToAction("OrderHistory");
+            }
+
+            // Gom cac san pham trung ProductID
+            var reorderItems = orderDetails
+                .GroupBy(d => d.ProductID)
+                .Select(g => new
+                {
+                    ProductID = g.Key,
+                    Quantity = g.Sum(d => d.Quantity)
+                })
+                .ToList();
+
+            // Lay thong tin san pham moi nhat
+            var productIds = reorderItems
+                .Select(i => i.ProductID)
+                .ToList();
+
+            var products = db.Products
+                .Where(p => productIds.Contains(p.ProductID))
+                .ToList();
+
+            // Lay gio hang hien tai
+            List<CartItem> currentCart =
+                Session["Cart"] as List<CartItem>;
+
+            if (currentCart == null)
+            {
+                currentCart = CartController.GetUserCart(username);
+            }
+
+            // Tao danh sach gio hang tam
+            List<CartItem> cart = currentCart != null
+                ? new List<CartItem>(currentCart)
+                : new List<CartItem>();
+
+            // Kiem tra tat ca san pham truoc khi them vao gio
+            foreach (var reorderItem in reorderItems)
+            {
+                var product = products.FirstOrDefault(p =>
+                    p.ProductID == reorderItem.ProductID);
+
+                if (product == null)
+                {
+                    TempData["ReorderError"] =
+                        "Mot san pham trong don hang cu khong con kinh doanh.";
+
+                    return RedirectToAction("OrderHistory");
+                }
+
+                CartItem existingItem = cart.FirstOrDefault(i =>
+                    i.ProductID == product.ProductID);
+
+                int currentQuantity = existingItem != null
+                    ? existingItem.Quantity
+                    : 0;
+
+                int newQuantity =
+                    currentQuantity + reorderItem.Quantity;
+
+                if (product.StockQuantity <= 0 ||
+                    newQuantity > product.StockQuantity)
+                {
+                    TempData["ReorderError"] =
+                        "San pham \"" + product.ProductName
+                        + "\" khong du ton kho. Hien con "
+                        + product.StockQuantity
+                        + " san pham. Gio hang chua duoc thay doi.";
+
+                    return RedirectToAction("OrderHistory");
+                }
+            }
+
+            // Tat ca san pham hop le: tien hanh them vao gio
+            foreach (var reorderItem in reorderItems)
+            {
+                var product = products.First(p =>
+                    p.ProductID == reorderItem.ProductID);
+
+                CartItem existingItem = cart.FirstOrDefault(i =>
+                    i.ProductID == product.ProductID);
+
+                if (existingItem != null)
+                {
+                    existingItem.Quantity += reorderItem.Quantity;
+                    existingItem.ProductName = product.ProductName;
+                    existingItem.ProductImage = product.ProductImage;
+                    existingItem.UnitPrice =
+                        Convert.ToDecimal(product.ProductPrice);
+                }
+                else
+                {
+                    cart.Add(new CartItem
+                    {
+                        ProductID = product.ProductID,
+                        ProductName = product.ProductName,
+                        ProductImage = product.ProductImage,
+                        UnitPrice =
+                            Convert.ToDecimal(product.ProductPrice),
+                        Quantity = reorderItem.Quantity
+                    });
+                }
+            }
+
+            // Luu va dong bo gio hang theo tai khoan
+            Session["Cart"] = cart;
+            Session["CartCount"] = cart.Sum(i => i.Quantity);
+
+            CartController.SyncUserCart(username, cart);
+
+            TempData["CartSuccess"] =
+                "Da them san pham tu don hang #"
+                + order.OrderID
+                + " vao gio hang. Vui long kiem tra lai truoc khi dat hang.";
+
+            return RedirectToAction("Index", "Cart");
         }
 
         // ==========================================
