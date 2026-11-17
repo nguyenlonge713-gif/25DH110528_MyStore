@@ -4,6 +4,10 @@
 @{
     ViewBag.Title = "Quản lý đơn hàng";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    string customerName = ViewBag.CustomerName as string ?? "";
+    string paymentStatus = ViewBag.PaymentStatus as string ?? "";
+    string orderDate = ViewBag.OrderDate as string ?? "";
 }
 
 <div class="container-fluid">
@@ -13,7 +17,7 @@
         Quản lý đơn hàng
     </h2>
 
-    @* Thông báo kết quả *@
+    @* THÔNG BÁO *@
     @if (TempData["Success"] != null)
     {
         <div class="alert alert-success">
@@ -28,7 +32,7 @@
         </div>
     }
 
-    @* Thống kê đơn hàng *@
+    @* THỐNG KÊ *@
     <div class="row mb-4">
 
         <div class="col-md-4">
@@ -45,7 +49,8 @@
                 <div class="card-body">
                     <h6 class="text-muted">Chờ xác nhận</h6>
                     <h3>
-                        @Model.Count(o => (o.OrderStatus ?? "").Trim() == "Chờ xác nhận")
+                        @Model.Count(o =>
+                                 (o.OrderStatus ?? "").Trim() == "Chờ xác nhận")
                     </h3>
                 </div>
             </div>
@@ -56,7 +61,8 @@
                 <div class="card-body">
                     <h6 class="text-muted">Đã giao</h6>
                     <h3>
-                        @Model.Count(o => (o.OrderStatus ?? "").Trim() == "Đã giao")
+                        @Model.Count(o =>
+                                 (o.OrderStatus ?? "").Trim() == "Đã giao")
                     </h3>
                 </div>
             </div>
@@ -64,7 +70,110 @@
 
     </div>
 
-    @* Bảng danh sách đơn hàng *@
+    @* TÌM KIẾM VÀ LỌC *@
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+
+            <h5 class="mb-3">
+                <i class="glyphicon glyphicon-search"></i>
+                Tìm kiếm và lọc đơn hàng
+            </h5>
+
+            @using (Html.BeginForm(
+                "Index",
+                "Orders",
+                new { area = "Admin" },
+                FormMethod.Get,
+                new { @class = "row g-3 align-items-end" }))
+            {
+                <div class="col-md-4">
+                    <label for="customerName" class="form-label">
+                        Tên khách hàng
+                    </label>
+
+                    <input type="text"
+                           id="customerName"
+                           name="customerName"
+                           class="form-control"
+                           placeholder="Nhập tên khách hàng..."
+                           value="@customerName" />
+                </div>
+
+                <div class="col-md-3">
+                    <label for="paymentStatus" class="form-label">
+                        Trạng thái thanh toán
+                    </label>
+
+                    <select id="paymentStatus"
+                            name="paymentStatus"
+                            class="form-select">
+
+                        <option value="">Tất cả trạng thái</option>
+
+                        <option value="Đã thanh toán"
+                                @(paymentStatus == "Đã thanh toán" ? "selected" : "")>
+                            Đã thanh toán
+                        </option>
+
+                        <option value="Chưa thanh toán"
+                                @(paymentStatus == "Chưa thanh toán" ? "selected" : "")>
+                            Chưa thanh toán
+                        </option>
+
+                        <option value="Chưa cập nhật"
+                                @(paymentStatus == "Chưa cập nhật" ? "selected" : "")>
+                            Chưa cập nhật
+                        </option>
+
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label for="orderDate" class="form-label">
+                        Ngày đặt hàng
+                    </label>
+
+                    <input type="date"
+                           id="orderDate"
+                           name="orderDate"
+                           class="form-control"
+                           value="@orderDate" />
+                </div>
+
+                <div class="col-md-2">
+
+                    <button type="submit"
+                            class="btn btn-primary w-100 mb-2">
+                        <i class="glyphicon glyphicon-search"></i>
+                        Lọc đơn hàng
+                    </button>
+
+                    <a href="@Url.Action("Index", "Orders", new { area = "Admin" })"
+                       class="btn btn-secondary w-100">
+                        <i class="glyphicon glyphicon-refresh"></i>
+                        Xóa bộ lọc
+                    </a>
+
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(customerName) ||
+                 !string.IsNullOrWhiteSpace(paymentStatus) ||
+                 !string.IsNullOrWhiteSpace(orderDate))
+            {
+                <hr />
+
+                <div class="text-muted">
+                    <i class="glyphicon glyphicon-filter"></i>
+                    Đang áp dụng bộ lọc:
+                    <strong>@Model.Count() kết quả</strong>
+                </div>
+            }
+
+        </div>
+    </div>
+
+    @* DANH SÁCH ĐƠN HÀNG *@
     <div class="card shadow-sm">
         <div class="card-body">
 
@@ -78,7 +187,9 @@
                             <th>Khách hàng</th>
                             <th>Ngày đặt</th>
                             <th>Tổng tiền</th>
-                            <th>Thanh toán</th>
+                            <th style="min-width: 220px;">
+                                Thanh toán
+                            </th>
                             <th>Trạng thái đơn hàng</th>
                             <th style="min-width: 280px;">
                                 Cập nhật trạng thái
@@ -93,23 +204,26 @@
                         {
                             foreach (var item in Model)
                             {
-                                // Chuẩn hóa trạng thái hiện tại
                                 string currentStatus =
                                     (item.OrderStatus ?? "").Trim();
 
-                                // Kiểm tra đơn hàng đã kết thúc
+                                string currentPaymentStatus =
+                                    string.IsNullOrWhiteSpace(item.PaymentStatus)
+                                        ? "Chưa cập nhật"
+                                        : item.PaymentStatus.Trim();
+
                                 bool isCompleted =
                                     currentStatus == "Đã giao" ||
                                     currentStatus == "Đã hủy";
 
                                 <tr>
 
-                                    @* Mã đơn *@
+                                    @* MÃ ĐƠN *@
                                     <td>
                                         <strong>#@item.OrderID</strong>
                                     </td>
 
-                                    @* Khách hàng *@
+                                    @* KHÁCH HÀNG *@
                                     <td>
                                         @if (item.Customer != null)
                                         {
@@ -121,37 +235,87 @@
                                         }
                                     </td>
 
-                                    @* Ngày đặt *@
+                                    @* NGÀY ĐẶT *@
                                     <td>
                                         @item.OrderDate.ToString("dd/MM/yyyy")
                                     </td>
 
-                                    @* Tổng tiền *@
+                                    @* TỔNG TIỀN *@
                                     <td class="text-end">
                                         @item.TotalAmount.ToString("N0") đ
                                     </td>
 
-                                    @* Trạng thái thanh toán *@
+                                    @* CẬP NHẬT THANH TOÁN *@
                                     <td>
 
-                                        @if (item.PaymentStatus == "Đã thanh toán")
+                                        @if (currentPaymentStatus == "Đã thanh toán")
                                         {
-                                            <span class="badge bg-success">
+                                            <span class="badge bg-success mb-2">
                                                 Đã thanh toán
+                                            </span>
+                                        }
+                                        else if (currentPaymentStatus == "Chưa thanh toán")
+                                        {
+                                            <span class="badge bg-warning text-dark mb-2">
+                                                Chưa thanh toán
                                             </span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-warning text-dark">
-                                                @(string.IsNullOrWhiteSpace(item.PaymentStatus)
-                                                    ? "Chưa cập nhật"
-                                                    : item.PaymentStatus)
+                                            <span class="badge bg-secondary mb-2">
+                                                Chưa cập nhật
                                             </span>
+                                        }
+
+                                        @using (Html.BeginForm(
+                                            "UpdatePaymentStatus",
+                                            "Orders",
+                                            new { area = "Admin" },
+                                            FormMethod.Post,
+                                            new { @class = "d-flex flex-column gap-2" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+
+                                            @Html.Hidden("id", item.OrderID)
+
+                                            @* Giữ lại điều kiện tìm kiếm *@
+                                            @Html.Hidden("customerName", customerName)
+                                            @Html.Hidden("filterPaymentStatus", paymentStatus)
+                                            @Html.Hidden("orderDate", orderDate)
+
+                                            <select name="paymentStatus"
+                                                    class="form-select form-select-sm"
+                                                    required>
+
+                                                <option value="Chưa cập nhật"
+                                                        @(currentPaymentStatus == "Chưa cập nhật" ? "selected" : "")>
+                                                    Chưa cập nhật
+                                                </option>
+
+                                                <option value="Chưa thanh toán"
+                                                        @(currentPaymentStatus == "Chưa thanh toán" ? "selected" : "")>
+                                                    Chưa thanh toán
+                                                </option>
+
+                                                <option value="Đã thanh toán"
+                                                        @(currentPaymentStatus == "Đã thanh toán" ? "selected" : "")>
+                                                    Đã thanh toán
+                                                </option>
+
+                                            </select>
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-success mt-1">
+
+                                                <i class="glyphicon glyphicon-save"></i>
+                                                Cập nhật thanh toán
+
+                                            </button>
                                         }
 
                                     </td>
 
-                                    @* Trạng thái đơn hàng *@
+                                    @* TRẠNG THÁI ĐƠN HÀNG *@
                                     <td>
 
                                         @if (currentStatus == "Đã giao")
@@ -197,7 +361,7 @@
 
                                     </td>
 
-                                    @* Cập nhật trạng thái *@
+                                    @* CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG *@
                                     <td>
 
                                         @if (isCompleted)
@@ -261,17 +425,15 @@
 
                                                 <button type="submit"
                                                         class="btn btn-sm btn-primary">
-
                                                     <i class="glyphicon glyphicon-refresh"></i>
                                                     Cập nhật
-
                                                 </button>
                                             }
                                         }
 
                                     </td>
 
-                                    @* Thao tác *@
+                                    @* THAO TÁC *@
                                     <td>
 
                                         @Html.ActionLink(
@@ -289,7 +451,14 @@
                         {
                             <tr>
                                 <td colspan="8" class="text-center py-4">
-                                    Chưa có đơn hàng nào.
+
+                                    <i class="glyphicon glyphicon-search"
+                                       style="font-size: 25px; color: #999;"></i>
+
+                                    <p class="mt-2 mb-0">
+                                        Không tìm thấy đơn hàng phù hợp.
+                                    </p>
+
                                 </td>
                             </tr>
                         }

@@ -10,7 +10,33 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
     public class CustomersController : AdminBaseController
     {
         private MyStoreEntities db = new MyStoreEntities();
+        // Kiem tra so dien thoai Viet Nam
+        private bool IsValidVietnamesePhone(string phone)
+        {
+            if (string.IsNullOrWhiteSpace(phone))
+                return false;
 
+            phone = phone.Trim();
+
+            // Phai gom dung 10 chu so
+            if (!System.Text.RegularExpressions.Regex.IsMatch(
+                phone, @"^0[0-9]{9}$"))
+                return false;
+
+            // Khong cho phep 10 chu so giong nhau
+            if (System.Text.RegularExpressions.Regex.IsMatch(
+                phone, @"^([0-9])\1{9}$"))
+                return false;
+
+            // Kiem tra dau so di dong Viet Nam
+            return System.Text.RegularExpressions.Regex.IsMatch(
+                phone,
+                @"^(032|033|034|035|036|037|038|039|" +
+                @"052|055|056|058|059|" +
+                @"070|076|077|078|079|" +
+                @"081|082|083|084|085|086|087|088|089|" +
+                @"090|091|092|093|094|096|097|098|099)\d{7}$");
+        }
         // GET: Admin/Customers
         // DANH SACH VA TIM KIEM KHACH HANG
         public ActionResult Index(string searchString)
@@ -201,21 +227,13 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(
             [Bind(Include =
-                "CustomerID,CustomerName,CustomerPhone,CustomerEmail,CustomerAddress")]
-            Customer model)
+        "CustomerID,CustomerName,CustomerPhone,CustomerEmail,CustomerAddress")]
+    Customer model)
         {
-            if (string.IsNullOrWhiteSpace(model.CustomerName))
+            if (model == null)
             {
-                ModelState.AddModelError(
-                    "CustomerName",
-                    "Vui lòng nhập tên khách hàng.");
-
-                return View(model);
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return View(model);
+                return new HttpStatusCodeResult(
+                    HttpStatusCode.BadRequest);
             }
 
             Customer customer = db.Customers.Find(model.CustomerID);
@@ -225,19 +243,70 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
                 return HttpNotFound();
             }
 
+            string fullName = (model.CustomerName ?? "").Trim();
+            string phone = (model.CustomerPhone ?? "").Trim();
+            string email = (model.CustomerEmail ?? "").Trim();
+
+            // Kiem tra ho ten
+            if (string.IsNullOrWhiteSpace(fullName))
+            {
+                ModelState.AddModelError(
+                    "CustomerName",
+                    "Vui lòng nhập tên khách hàng.");
+            }
+
+            // Kiem tra so dien thoai
+            if (!IsValidVietnamesePhone(phone))
+            {
+                ModelState.AddModelError(
+                    "CustomerPhone",
+                    "Số điện thoại phải gồm 10 chữ số, bắt đầu bằng 0, thuộc đầu số di động Việt Nam hợp lệ và không được trùng toàn bộ các chữ số.");
+            }
+            else if (db.Customers.Any(c =>
+                c.CustomerPhone == phone &&
+                c.CustomerID != customer.CustomerID))
+            {
+                ModelState.AddModelError(
+                    "CustomerPhone",
+                    "Số điện thoại này đã được khách hàng khác sử dụng.");
+            }
+
+            // Kiem tra email
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                if (!System.Text.RegularExpressions.Regex.IsMatch(
+                    email,
+                    @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+                {
+                    ModelState.AddModelError(
+                        "CustomerEmail",
+                        "Địa chỉ email không đúng định dạng.");
+                }
+                else if (db.Customers.Any(c =>
+                    c.CustomerEmail.ToLower() == email.ToLower() &&
+                    c.CustomerID != customer.CustomerID))
+                {
+                    ModelState.AddModelError(
+                        "CustomerEmail",
+                        "Email này đã được khách hàng khác sử dụng.");
+                }
+            }
+
+            if (!ModelState.IsValid)
+            {
+                model.CustomerName = fullName;
+                model.CustomerPhone = phone;
+                model.CustomerEmail = email;
+                return View(model);
+            }
+
             try
             {
-                customer.CustomerName =
-                    model.CustomerName.Trim();
-
-                customer.CustomerPhone =
-                    model.CustomerPhone;
-
-                customer.CustomerEmail =
-                    model.CustomerEmail;
-
+                customer.CustomerName = fullName;
+                customer.CustomerPhone = phone;
+                customer.CustomerEmail = email;
                 customer.CustomerAddress =
-                    model.CustomerAddress;
+                    (model.CustomerAddress ?? "").Trim();
 
                 // Khong thay doi Username va User
                 db.SaveChanges();

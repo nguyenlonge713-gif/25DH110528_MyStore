@@ -84,14 +84,26 @@ namespace _25DH110528_MyStore.Controllers
         }
 
         // 1. TRANG XEM GIỎ HÀNG
+
         public ActionResult Index()
         {
             List<CartItem> cart = GetCart();
 
             ViewBag.TotalAmount = cart.Sum(item => item.TotalPrice);
 
+            // Lấy tồn kho mới nhất của các sản phẩm trong giỏ
+            var productIds = cart
+                .Select(item => item.ProductID)
+                .Distinct()
+                .ToList();
+
+            ViewBag.StockByProduct = db.Products
+                .Where(p => productIds.Contains(p.ProductID))
+                .ToDictionary(p => p.ProductID, p => p.StockQuantity);
+
             return View(cart);
         }
+
 
         // 2. THÊM SẢN PHẨM VÀO GIỎ HÀNG BẰNG AJAX
         [HttpPost]
@@ -171,49 +183,119 @@ namespace _25DH110528_MyStore.Controllers
         }
 
         // 3. CẬP NHẬT SỐ LƯỢNG SẢN PHẨM
+
+
         [HttpPost]
         public ActionResult UpdateCart(int id, int quantity)
         {
-            List<CartItem> cart = GetCart();
+            var cart = GetCart();
 
-            CartItem item = cart.FirstOrDefault(p => p.ProductID == id);
+            var item = cart.FirstOrDefault(x => x.ProductID == id);
 
-            if (item != null)
+            if (item == null)
             {
-                if (quantity > 0)
+                string message = "Không tìm thấy sản phẩm trong giỏ hàng.";
+
+                if (Request.IsAjaxRequest())
                 {
-                    var product = db.Products.Find(id);
-
-                    if (product == null)
-                    {
-                        TempData["CartError"] =
-                            "Sản phẩm không còn tồn tại.";
-
-                        return RedirectToAction("Index");
-                    }
-
-                    // Kiểm tra số lượng cập nhật có vượt tồn kho không
-                    if (quantity > product.StockQuantity)
-                    {
-                        TempData["CartError"] =
-                            "Số lượng yêu cầu vượt quá tồn kho. Hiện chỉ còn "
-                            + product.StockQuantity + " sản phẩm.";
-
-                        return RedirectToAction("Index");
-                    }
-
-                    item.Quantity = quantity;
+                    return Json(new { success = false, message = message });
                 }
-                else
-                {
-                    cart.Remove(item);
-                }
+
+                TempData["CartError"] = message;
+                return RedirectToAction("Index");
             }
+
+            // Xóa sản phẩm nếu số lượng <= 0
+            if (quantity <= 0)
+            {
+                cart.Remove(item);
+                SaveCart(cart);
+
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new { success = true });
+                }
+
+                TempData["CartSuccess"] = "Đã xóa sản phẩm khỏi giỏ hàng.";
+                return RedirectToAction("Index");
+            }
+
+            // Kiểm tra tồn kho mới nhất từ database
+            var product = db.Products.Find(id);
+
+            if (product == null)
+            {
+                string message = "Sản phẩm không còn tồn tại.";
+
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new { success = false, message = message });
+                }
+
+                TempData["CartError"] = message;
+                return RedirectToAction("Index");
+            }
+
+            int stock = product.StockQuantity;
+
+            if (stock <= 0)
+            {
+                string message = "Sản phẩm đã hết hàng.";
+
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = message,
+                        stock = stock
+                    });
+                }
+
+                TempData["CartError"] = message;
+                return RedirectToAction("Index");
+            }
+
+            if (quantity > stock)
+            {
+                string message =
+                    "Số lượng vượt quá tồn kho! Hiện chỉ còn "
+                    + stock + " sản phẩm.";
+
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = message,
+                        stock = stock
+                    });
+                }
+
+                TempData["CartError"] = message;
+                return RedirectToAction("Index");
+            }
+
+            // Chỉ cập nhật khi số lượng hợp lệ
+            item.Quantity = quantity;
 
             SaveCart(cart);
 
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = "Cập nhật giỏ hàng thành công.",
+                    stock = stock
+                });
+            }
+
+            TempData["CartSuccess"] = "Cập nhật giỏ hàng thành công.";
             return RedirectToAction("Index");
         }
+
+
 
         // 4. XÓA SẢN PHẨM KHỎI GIỎ
         public ActionResult RemoveFromCart(int id)

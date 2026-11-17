@@ -47,10 +47,25 @@
 
                 <div class="mb-3">
                     <label class="form-label font-weight-bold">Số điện thoại</label>
-                    @Html.TextBoxFor(m => m.CustomerPhone,
-                             new { @class = "form-control" })
+
+                    @Html.TextBoxFor(m => m.CustomerPhone, new
+                    {
+                        @class = "form-control",
+                        type = "tel",
+                        maxlength = "10",
+                        minlength = "10",
+                        inputmode = "numeric",
+                        pattern = "0[0-9]{9}",
+                        placeholder = "Nhập số điện thoại",
+                        oninput = "this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"
+                    })
+
                     @Html.ValidationMessageFor(m => m.CustomerPhone, "",
-                             new { @class = "text-danger" })
+                                 new { @class = "text-danger" })
+
+                    <small class="text-muted">
+                        Số điện thoại gồm 10 chữ số, bắt đầu bằng 0 và không được trùng toàn bộ các chữ số.
+                    </small>
                 </div>
 
                 <div class="mb-3">
@@ -168,3 +183,33 @@
     </div>
 
 </div>
+<script>document.addEventListener("DOMContentLoaded", function () {
+        const phoneInput = document.getElementById("CustomerPhone");
+
+        if (!phoneInput) return;
+
+        phoneInput.addEventListener("input", function () {
+            this.setCustomValidity("");
+
+            const phone = this.value;
+
+            if (phone.length === 10 && !/^0[0-9]{9}$/.test(phone)) {
+                this.setCustomValidity("Số điện thoại phải bắt đầu bằng số 0 và gồm 10 chữ số.");
+            }
+            else if (phone.length === 10 && /^(\d)\1{9}$/.test(phone)) {
+                this.setCustomValidity("Số điện thoại không được gồm 10 chữ số giống nhau.");
+            }
+        });
+
+        phoneInput.form.addEventListener("submit", function (event) {
+            const phone = phoneInput.value;
+
+            if (!/^0[0-9]{9}$/.test(phone) || /^(\d)\1{9}$/.test(phone)) {
+                event.preventDefault();
+                phoneInput.setCustomValidity(
+                    "Số điện thoại phải gồm 10 chữ số, bắt đầu bằng 0 và không được trùng toàn bộ."
+                );
+                phoneInput.reportValidity();
+            }
+        });
+    });</script>

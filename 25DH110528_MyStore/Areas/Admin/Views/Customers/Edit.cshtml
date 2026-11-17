@@ -124,8 +124,19 @@
                             @Html.TextBoxFor(m => m.CustomerPhone, new
                             {
                                 @class = "form-control",
-                                placeholder = "Nhập số điện thoại"
+                                type = "tel",
+                                maxlength = "10",
+                                minlength = "10",
+                                inputmode = "numeric",
+                                pattern = "0[0-9]{9}",
+                                placeholder = "Nhập số điện thoại",
+                                oninput = "this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)"
                             })
+
+                            <small class="text-muted">
+                                Gồm 10 chữ số, bắt đầu bằng 0, thuộc đầu số di động Việt Nam hợp lệ.
+                                Không được trùng toàn bộ các chữ số.
+                            </small>
                             @Html.ValidationMessageFor(m => m.CustomerPhone)
                         </div>
                     </div>

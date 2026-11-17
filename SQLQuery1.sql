@@ -93,3 +93,20 @@ LEFT JOIN dbo.Customer c
     ON u.Username = c.Username
 ORDER BY u.Username;
 GO
+
+
+
+
+USE MyStore;
+GO
+
+SELECT
+    t.name AS TableName,
+    SUM(p.rows) AS TotalRecords
+FROM sys.tables t
+INNER JOIN sys.partitions p
+    ON t.object_id = p.object_id
+WHERE p.index_id IN (0, 1)
+GROUP BY t.name
+ORDER BY t.name;
+GO

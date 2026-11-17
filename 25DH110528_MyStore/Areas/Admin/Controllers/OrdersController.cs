@@ -13,16 +13,69 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
     {
         private MyStoreEntities db = new MyStoreEntities();
 
-        public ActionResult Index()
+        // DANH SÁCH ĐƠN HÀNG + TÌM KIẾM VÀ LỌC
+        public ActionResult Index(
+            string customerName,
+            string paymentStatus,
+            DateTime? orderDate)
         {
             var orders = db.Orders
                 .Include(o => o.Customer)
+                .AsQueryable();
+
+            // 1. Tìm theo tên khách hàng
+            if (!string.IsNullOrWhiteSpace(customerName))
+            {
+                customerName = customerName.Trim();
+
+                orders = orders.Where(o =>
+                    o.Customer != null &&
+                    o.Customer.CustomerName.Contains(customerName));
+            }
+
+            // 2. Lọc theo trạng thái thanh toán
+            if (!string.IsNullOrWhiteSpace(paymentStatus))
+            {
+                if (paymentStatus == "Chưa cập nhật")
+                {
+                    orders = orders.Where(o =>
+                        o.PaymentStatus == null ||
+                        o.PaymentStatus == "");
+                }
+                else
+                {
+                    orders = orders.Where(o =>
+                        o.PaymentStatus == paymentStatus);
+                }
+            }
+
+            // 3. Lọc theo ngày đặt hàng
+            if (orderDate.HasValue)
+            {
+                DateTime startDate = orderDate.Value.Date;
+                DateTime endDate = startDate.AddDays(1);
+
+                orders = orders.Where(o =>
+                    o.OrderDate >= startDate &&
+                    o.OrderDate < endDate);
+            }
+
+            // Sắp xếp đơn hàng mới nhất lên đầu
+            var result = orders
                 .OrderByDescending(o => o.OrderDate)
                 .ToList();
 
-            return View(orders);
+            // Giữ lại giá trị bộ lọc trên giao diện
+            ViewBag.CustomerName = customerName;
+            ViewBag.PaymentStatus = paymentStatus;
+            ViewBag.OrderDate = orderDate.HasValue
+                ? orderDate.Value.ToString("yyyy-MM-dd")
+                : "";
+
+            return View(result);
         }
 
+        // CHI TIẾT ĐƠN HÀNG
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -39,6 +92,66 @@ namespace _25DH110528_MyStore.Areas.Admin.Controllers
             return View(order);
         }
 
+        // CẬP NHẬT TRẠNG THÁI THANH TOÁN
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UpdatePaymentStatus(
+            int id,
+            string paymentStatus,
+            string customerName,
+            string filterPaymentStatus,
+            DateTime? orderDate)
+        {
+            string[] validStatuses =
+            {
+        "Chưa thanh toán",
+        "Đã thanh toán",
+        "Chưa cập nhật"
+    };
+
+            if (string.IsNullOrWhiteSpace(paymentStatus) ||
+                !validStatuses.Contains(paymentStatus.Trim()))
+            {
+                TempData["Error"] = "Trạng thái thanh toán không hợp lệ.";
+            }
+            else
+            {
+                try
+                {
+                    var order = db.Orders.FirstOrDefault(o => o.OrderID == id);
+
+                    if (order == null)
+                    {
+                        TempData["Error"] = "Không tìm thấy đơn hàng.";
+                    }
+                    else
+                    {
+                        order.PaymentStatus = paymentStatus.Trim();
+
+                        db.SaveChanges();
+
+                        TempData["Success"] =
+                            "Cập nhật trạng thái thanh toán thành công.";
+                    }
+                }
+                catch (Exception)
+                {
+                    TempData["Error"] =
+                        "Có lỗi xảy ra khi cập nhật trạng thái thanh toán.";
+                }
+            }
+
+            return RedirectToAction("Index", new
+            {
+                customerName = customerName,
+                paymentStatus = filterPaymentStatus,
+                orderDate = orderDate.HasValue
+                    ? orderDate.Value.ToString("yyyy-MM-dd")
+                    : null
+            });
+        }
+
+        // CẬP NHẬT TRẠNG THÁI ĐƠN HÀNG
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult UpdateStatus(int id, string orderStatus)

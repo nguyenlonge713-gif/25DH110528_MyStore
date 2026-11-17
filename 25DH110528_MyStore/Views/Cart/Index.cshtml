@@ -4,6 +4,10 @@
 @{
     ViewBag.Title = "Giỏ hàng của bạn";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var stockByProduct =
+        ViewBag.StockByProduct as System.Collections.Generic.Dictionary<int, int>
+        ?? new System.Collections.Generic.Dictionary<int, int>();
 }
 
 <div class="container mt-4 mb-5">
@@ -43,7 +47,21 @@
             </button>
         </div>
     }
+    @* Thông báo lỗi cập nhật giỏ hàng *@
+    @if (TempData["CartError"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show"
+             role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            @TempData["CartError"]
 
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close">
+            </button>
+        </div>
+    }
     @if (Model == null || !Model.Any())
     {
         <div class="alert alert-info text-center py-5">
@@ -78,7 +96,10 @@
                     @foreach (var item in Model)
                     {
                         <tr data-price="@item.UnitPrice"
-                            data-product-id="@item.ProductID">
+                            data-product-id="@item.ProductID"
+                            data-stock="@(stockByProduct.ContainsKey(item.ProductID)
+        ? stockByProduct[item.ProductID]
+        : 0)">
 
                             <td class="text-center">
                                 <img src="@Url.Content(string.IsNullOrEmpty(item.ProductImage)
@@ -108,6 +129,9 @@
                                            class="form-control form-control-sm quantity-input text-center mx-1"
                                            value="@item.Quantity"
                                            min="1"
+                                           max="@(stockByProduct.ContainsKey(item.ProductID)
+           ? stockByProduct[item.ProductID]
+           : 0)"
                                            style="width:65px;" />
 
                                     <button type="button"
@@ -163,6 +187,8 @@
     }
 </div>
 
+
+
 @section Scripts {
     <script>
         $(document).ready(function () {
@@ -171,12 +197,15 @@
                 return new Intl.NumberFormat('vi-VN').format(amount) + ' VNĐ';
             }
 
+            // Tính tổng tiền
             function updateCartTotal() {
                 var total = 0;
 
                 $('tbody tr[data-price]').each(function () {
                     var price = parseFloat($(this).attr('data-price'));
-                    var quantity = parseInt($(this).find('.quantity-input').val()) || 1;
+                    var quantity = parseInt(
+                        $(this).find('.quantity-input').val()
+                    ) || 0;
 
                     total += price * quantity;
                 });
@@ -184,62 +213,148 @@
                 $('#cart-total').text(formatCurrency(total));
             }
 
-            function saveQuantity(row, quantity) {
-                var productId = row.attr('data-product-id');
+            // Cập nhật số lượng và kiểm tra tồn kho
+            function updateProduct(row, quantity) {
+
+                var input = row.find('.quantity-input');
+
+                var stock = parseInt(row.attr('data-stock')) || 0;
+
+                var oldQuantity = parseInt(
+                    input.attr('data-current-quantity')
+                ) || parseInt(input.val()) || 1;
+
+                // Không cho cập nhật nếu hết hàng
+                if (stock <= 0) {
+                    alert('Sản phẩm đã hết hàng.');
+                    input.val(oldQuantity);
+                    return;
+                }
+
+                // Kiểm tra vượt tồn kho
+                if (quantity > stock) {
+                    alert(
+                        'Số lượng vượt quá tồn kho! Hiện chỉ còn '
+                        + stock + ' sản phẩm.'
+                    );
+
+                    input.val(oldQuantity);
+                    return;
+                }
+
+                // Kiểm tra số lượng không hợp lệ
+                if (isNaN(quantity) || quantity < 1) {
+                    quantity = 1;
+                }
+
+                // Không cần gửi nếu số lượng không thay đổi
+                if (quantity === oldQuantity) {
+                    input.val(oldQuantity);
+                    return;
+                }
+
+                // Khóa thao tác trong lúc chờ máy chủ
+                row.find('.btn-plus, .btn-minus, .quantity-input')
+                    .prop('disabled', true);
 
                 $.ajax({
                     url: '@Url.Action("UpdateCart", "Cart")',
                     type: 'POST',
+                    dataType: 'json',
                     data: {
-                        id: productId,
+                        id: row.attr('data-product-id'),
                         quantity: quantity
                     },
-                    success: function () {
-                        console.log('Đã lưu số lượng sản phẩm.');
+
+                    success: function (response) {
+
+                        if (response.success) {
+
+                            // Chỉ cập nhật giao diện sau khi máy chủ đồng ý
+                            input.val(quantity);
+
+                            input.attr(
+                                'data-current-quantity',
+                                quantity
+                            );
+
+                            updateCartTotal();
+
+                        } else {
+
+                            // Khôi phục số lượng cũ
+                            input.val(oldQuantity);
+
+                            alert(
+                                response.message ||
+                                'Không thể cập nhật số lượng.'
+                            );
+
+                            if (response.stock !== undefined) {
+                                row.attr('data-stock', response.stock);
+                                input.attr('max', response.stock);
+                            }
+                        }
                     },
+
                     error: function () {
-                        alert('Không thể cập nhật giỏ hàng. Vui lòng thử lại.');
-                        location.reload();
+
+                        input.val(oldQuantity);
+
+                        alert(
+                            'Không thể kết nối để cập nhật giỏ hàng. '
+                            + 'Vui lòng thử lại.'
+                        );
+                    },
+
+                    complete: function () {
+
+                        row.find('.btn-plus, .btn-minus, .quantity-input')
+                            .prop('disabled', false);
                     }
                 });
             }
 
-            function updateProduct(row, quantity) {
-                if (quantity < 1 || isNaN(quantity)) {
-                    quantity = 1;
-                }
+            // Lưu số lượng ban đầu
+            $('.quantity-input').each(function () {
+                $(this).attr(
+                    'data-current-quantity',
+                    $(this).val()
+                );
+            });
 
-                row.find('.quantity-input').val(quantity);
-
-                var price = parseFloat(row.attr('data-price'));
-                var itemTotal = price * quantity;
-
-                row.find('.item-total').text(formatCurrency(itemTotal));
-
-                updateCartTotal();
-
-                saveQuantity(row, quantity);
-            }
-
+            // Nút tăng
             $('.btn-plus').click(function () {
+
                 var row = $(this).closest('tr');
-                var quantity = parseInt(row.find('.quantity-input').val()) || 1;
+
+                var quantity = parseInt(
+                    row.find('.quantity-input').val()
+                ) || 1;
 
                 updateProduct(row, quantity + 1);
             });
 
+            // Nút giảm
             $('.btn-minus').click(function () {
+
                 var row = $(this).closest('tr');
-                var quantity = parseInt(row.find('.quantity-input').val()) || 1;
+
+                var quantity = parseInt(
+                    row.find('.quantity-input').val()
+                ) || 1;
 
                 if (quantity > 1) {
                     updateProduct(row, quantity - 1);
                 }
             });
 
+            // Nhập số lượng trực tiếp
             $('.quantity-input').on('change', function () {
+
                 var row = $(this).closest('tr');
-                var quantity = parseInt($(this).val()) || 1;
+
+                var quantity = parseInt($(this).val());
 
                 updateProduct(row, quantity);
             });
@@ -247,3 +362,4 @@
         });
     </script>
 }
+

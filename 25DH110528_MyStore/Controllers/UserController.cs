@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
-
+using System.Data.Entity;
 namespace _25DH110528_MyStore.Controllers
 {
     public class UserController : Controller
@@ -60,7 +60,7 @@ namespace _25DH110528_MyStore.Controllers
                 c == '’');
         }
 
-        // Kiem tra so di dong Viet Nam
+        // Kiem tra so dien thoai Viet Nam
         private bool IsValidVietnamesePhone(string phone)
         {
             if (string.IsNullOrWhiteSpace(phone))
@@ -68,6 +68,15 @@ namespace _25DH110528_MyStore.Controllers
 
             phone = phone.Trim();
 
+            // Phai gom dung 10 chu so
+            if (!Regex.IsMatch(phone, @"^0[0-9]{9}$"))
+                return false;
+
+            // Khong cho phep 10 chu so giong nhau
+            if (Regex.IsMatch(phone, @"^([0-9])\1{9}$"))
+                return false;
+
+            // Kiem tra dau so di dong Viet Nam hop le
             return Regex.IsMatch(
                 phone,
                 @"^(032|033|034|035|036|037|038|039|" +
@@ -201,7 +210,7 @@ namespace _25DH110528_MyStore.Controllers
             {
                 ModelState.AddModelError(
                     "CustomerPhone",
-                    "So dien thoai phai gom 10 chu so va la dau so di dong Viet Nam hop le.");
+                    "So dien thoai phai gom 10 chu so, bat dau bang 0, co dau so di dong Viet Nam hop le va khong duoc trung toan bo cac chu so.");
             }
             else if (db.Customers.Any(c => c.CustomerPhone == phone))
             {
@@ -502,7 +511,7 @@ namespace _25DH110528_MyStore.Controllers
             {
                 ModelState.AddModelError(
                     "CustomerPhone",
-                    "So dien thoai phai gom 10 chu so va la dau so di dong Viet Nam hop le.");
+                    "So dien thoai phai gom 10 chu so, bat dau bang 0, co dau so di dong Viet Nam hop le va khong duoc trung toan bo cac chu so.");
             }
             else if (db.Customers.Any(c =>
                 c.CustomerPhone == phone &&
@@ -636,8 +645,12 @@ namespace _25DH110528_MyStore.Controllers
         // 7. LICH SU DON HANG VA LOC THEO TRANG THAI
         // ==========================================
 
+
         [HttpGet]
-        public ActionResult OrderHistory(string status)
+        public ActionResult OrderHistory(
+            string status,
+            string keyword,
+            bool showAll = false)
         {
             if (Session["Username"] == null)
             {
@@ -654,55 +667,113 @@ namespace _25DH110528_MyStore.Controllers
                 return HttpNotFound();
             }
 
-            // Cac trang thai duoc phep loc
+            // 5 trang thai tren giao dien
             string[] validStatuses =
             {
-                "Chờ xác nhận",
-                "Đã xác nhận",
-                "Đang giao",
-                "Đã giao",
-                "Đã hủy"
-            };
+        "Chờ thanh toán",
+        "Đang xử lý",
+        "Đang vận chuyển",
+        "Đã giao",
+        "Đã hủy"
+    };
 
-            // Kiem tra trang thai duoc chon
-            if (!string.IsNullOrWhiteSpace(status) &&
+            if (string.IsNullOrWhiteSpace(status) ||
                 !validStatuses.Contains(status))
             {
-                status = null;
+                status = "Chờ thanh toán";
             }
 
-            // Lay don hang cua khach hang hien tai
-            var ordersQuery = db.Orders.Where(o =>
-                o.CustomerID == customer.CustomerID);
+            // Chi lay don hang cua khach hang hien tai
+            var ordersQuery = db.Orders
+                .Include(o => o.OrderDetails.Select(d => d.Product))
+                .Where(o => o.CustomerID == customer.CustomerID);
 
-            // Loc theo trang thai
-            if (!string.IsNullOrWhiteSpace(status))
+            // Loc theo 5 tab
+            switch (status)
             {
-                if (status == "Chờ xác nhận")
-                {
+                case "Chờ thanh toán":
+                    ordersQuery = ordersQuery.Where(o =>
+                        o.PaymentStatus == "Chưa thanh toán" ||
+                        o.PaymentStatus == "Chưa cập nhật" ||
+                        o.PaymentStatus == null ||
+                        o.PaymentStatus == "");
+                    break;
+
+                case "Đang xử lý":
                     ordersQuery = ordersQuery.Where(o =>
                         o.OrderStatus == "Chờ xác nhận" ||
+                        o.OrderStatus == "Đã xác nhận" ||
                         o.OrderStatus == null ||
                         o.OrderStatus == "");
+                    break;
+
+                case "Đang vận chuyển":
+                    ordersQuery = ordersQuery.Where(o =>
+                        o.OrderStatus == "Đang giao");
+                    break;
+
+                case "Đã giao":
+                    ordersQuery = ordersQuery.Where(o =>
+                        o.OrderStatus == "Đã giao");
+                    break;
+
+                case "Đã hủy":
+                    ordersQuery = ordersQuery.Where(o =>
+                        o.OrderStatus == "Đã hủy");
+                    break;
+            }
+
+            // Tim kiem theo ma don hang hoac ten san pham
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                keyword = keyword.Trim();
+
+                int orderId;
+
+                if (int.TryParse(keyword, out orderId))
+                {
+                    ordersQuery = ordersQuery.Where(o =>
+                        o.OrderID == orderId ||
+                        o.OrderDetails.Any(d =>
+                            d.Product != null &&
+                            d.Product.ProductName.Contains(keyword)));
                 }
                 else
                 {
                     ordersQuery = ordersQuery.Where(o =>
-                        o.OrderStatus == status);
+                        o.OrderDetails.Any(d =>
+                            d.Product != null &&
+                            d.Product.ProductName.Contains(keyword)));
                 }
             }
 
+            // Lay 2 don ban dau hoac toi da 50 don khi bam Xem them
+            int limit = showAll ? 50 : 2;
+
             var orders = ordersQuery
                 .OrderByDescending(o => o.OrderDate)
+                .ThenByDescending(o => o.OrderID)
+                .Take(limit + 1)
                 .ToList();
 
-            ViewBag.SelectedStatus = status ?? "Tất cả";
+            bool hasMoreOrders = orders.Count > limit;
+
+            if (hasMoreOrders)
+            {
+                orders.RemoveAt(limit);
+            }
+
+            ViewBag.SelectedStatus = status;
+            ViewBag.SearchKeyword = keyword ?? "";
+            ViewBag.ShowAll = showAll;
+            ViewBag.HasMoreOrders = !showAll && hasMoreOrders;
 
             ViewBag.HasAnyOrders = db.Orders.Any(o =>
                 o.CustomerID == customer.CustomerID);
 
             return View(orders);
         }
+
 
 
         // ==========================================
