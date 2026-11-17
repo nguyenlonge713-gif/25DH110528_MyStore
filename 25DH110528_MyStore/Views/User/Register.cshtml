@@ -7,75 +7,206 @@
 }
 
 <style>
-    .register-container {
-        max-width: 600px;
-        margin: 35px auto;
+    .register-page {
+        min-height: 75vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 45px 15px;
+        background: linear-gradient(135deg, #f4f7fb, #e9eef5);
     }
 
-    .register-panel {
-        border-radius: 12px;
+    .register-wrapper {
+        width: 100%;
+        max-width: 1050px;
+        display: grid;
+        grid-template-columns: 0.85fr 1.15fr;
+        background: #fff;
+        border-radius: 20px;
         overflow: hidden;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
-        border: none;
+        box-shadow: 0 15px 45px rgba(20, 35, 60, 0.12);
     }
 
-        .register-panel .panel-heading {
-            background: linear-gradient(135deg, #1677d2, #0755a5);
-            color: white;
-            padding: 18px;
-            border: none;
-        }
-
-        .register-panel .panel-title {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .register-panel .panel-body {
-            padding: 28px;
-        }
-
-        .register-panel .form-group {
-            margin-bottom: 18px;
-        }
-
-        .register-panel label {
-            font-weight: 600;
-            margin-bottom: 7px;
-        }
-
-        .register-panel .form-control {
-            height: 44px;
-            border-radius: 7px;
-            box-shadow: none;
-        }
-
-            .register-panel .form-control:focus {
-                border-color: #1677d2;
-                box-shadow: 0 0 5px rgba(22, 119, 210, 0.25);
-            }
-
-    .register-divider {
-        margin: 25px 0;
-        border-top: 1px solid #e5e5e5;
+    .register-banner {
+        background: linear-gradient(145deg, #101c35, #203b63);
+        color: white;
+        padding: 50px 35px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
     }
 
-    .register-btn {
-        height: 46px;
-        border-radius: 7px;
+        .register-banner::before {
+            content: "";
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 50%;
+            right: -110px;
+            top: -100px;
+        }
+
+        .register-banner::after {
+            content: "";
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 50%;
+            left: -100px;
+            bottom: -100px;
+        }
+
+    .register-brand {
+        color: #ff9f1c;
+        font-size: 29px;
+        font-weight: 800;
+        margin-bottom: 35px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .register-banner h2 {
+        font-size: 30px;
+        font-weight: 800;
+        line-height: 1.4;
+        margin-bottom: 18px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .register-banner p {
+        color: #d1dbea;
+        font-size: 14px;
+        line-height: 1.8;
+        position: relative;
+        z-index: 1;
+    }
+
+    .register-features {
+        margin-top: 28px;
+        position: relative;
+        z-index: 1;
+    }
+
+        .register-features div {
+            margin-bottom: 17px;
+            color: #e5edf8;
+            font-size: 14px;
+        }
+
+        .register-features i {
+            color: #ff9f1c;
+            margin-right: 10px;
+            width: 18px;
+        }
+
+    .register-form-area {
+        padding: 40px 45px;
+    }
+
+    .register-heading {
+        font-size: 27px;
+        font-weight: 800;
+        color: #17243b;
+        margin-bottom: 7px;
+    }
+
+    .register-subheading {
+        color: #7b8798;
+        font-size: 14px;
+        margin-bottom: 25px;
+    }
+
+    .register-section-title {
         font-size: 16px;
-        font-weight: bold;
-        background: #198754;
-        border: none;
+        font-weight: 800;
+        color: #203b63;
+        margin: 24px 0 18px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e9edf3;
     }
 
-        .register-btn:hover {
-            background: #146c43;
+        .register-section-title i {
+            color: #f58220;
+            margin-right: 8px;
         }
+
+    .register-form-group {
+        margin-bottom: 17px;
+    }
+
+    .register-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        color: #26354d;
+        margin-bottom: 8px;
+    }
+
+    .register-input-group {
+        position: relative;
+    }
+
+        .register-input-group > i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8793a5;
+            z-index: 2;
+        }
+
+    .register-input {
+        width: 100% !important;
+        max-width: none !important;
+        height: 46px;
+        padding: 10px 42px;
+        border: 1px solid #dce3ed;
+        border-radius: 9px;
+        background: #f9fafc;
+        font-size: 13px;
+        outline: none;
+        transition: .25s;
+        box-sizing: border-box;
+    }
+
+        .register-input:focus {
+            border-color: #ff9f1c;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(255,159,28,.12);
+        }
+
+    .register-password-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: none;
+        background: transparent;
+        color: #8793a5;
+        cursor: pointer;
+        padding: 5px;
+    }
+
+        .register-password-toggle:hover {
+            color: #ff9f1c;
+        }
+
+    .register-hint {
+        color: #8793a5;
+        font-size: 11px;
+        display: block;
+        margin-top: 6px;
+        line-height: 1.5;
+    }
 
     .field-error {
         color: #dc3545;
-        font-size: 13px;
+        font-size: 12px;
         display: block;
         margin-top: 5px;
     }
@@ -84,9 +215,10 @@
         color: #dc3545;
         background: #fff1f0;
         border: 1px solid #ffcccc;
-        border-radius: 7px;
+        border-radius: 9px;
         padding: 12px 15px;
         margin-bottom: 18px;
+        font-size: 13px;
     }
 
         .validation-summary-errors ul {
@@ -94,26 +226,133 @@
             padding-left: 20px;
         }
 
-    .register-hint {
-        color: #777;
-        font-size: 12px;
-        margin-top: 5px;
-        display: block;
+    .register-divider {
+        border: none;
+        border-top: 1px solid #e9edf3;
+        margin: 22px 0;
+    }
+
+    .register-submit {
+        width: 100%;
+        height: 49px;
+        border: none;
+        border-radius: 9px;
+        background: linear-gradient(135deg, #ff9f1c, #f58220);
+        color: white;
+        font-size: 15px;
+        font-weight: 800;
+        margin-top: 10px;
+        transition: .25s;
+        box-shadow: 0 6px 15px rgba(245,130,32,.22);
+    }
+
+        .register-submit:hover {
+            background: linear-gradient(135deg, #f58220, #e96b0c);
+            transform: translateY(-2px);
+            box-shadow: 0 9px 20px rgba(245,130,32,.3);
+        }
+
+    .register-footer {
+        text-align: center;
+        margin-top: 22px;
+        color: #7b8798;
+        font-size: 13px;
+    }
+
+        .register-footer a {
+            color: #f58220;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+            .register-footer a:hover {
+                text-decoration: underline;
+            }
+
+    @@media (max-width: 768px) {
+        .register-wrapper {
+            grid-template-columns: 1fr;
+            max-width: 520px;
+        }
+
+        .register-banner {
+            padding: 30px;
+        }
+
+            .register-banner h2 {
+                font-size: 24px;
+            }
+
+        .register-brand {
+            margin-bottom: 15px;
+        }
+
+        .register-features {
+            margin-top: 15px;
+        }
+
+        .register-form-area {
+            padding: 30px 22px;
+        }
     }
 </style>
 
-<div class="container register-container">
+<div class="register-page">
 
-    <div class="panel panel-primary register-panel">
+    <div class="register-wrapper">
 
-        <div class="panel-heading">
-            <h3 class="panel-title text-center">
-                <span class="glyphicon glyphicon-user"></span>
-                ĐĂNG KÝ TÀI KHOẢN KHÁCH HÀNG
-            </h3>
+        <!-- BÊN TRÁI: GIỚI THIỆU MYSTORE -->
+        <div class="register-banner">
+
+            <div class="register-brand">
+                <i class="fas fa-running"></i> MYSTORE
+            </div>
+
+            <h2>
+                BẮT ĐẦU HÀNH TRÌNH CỦA BẠN!
+            </h2>
+
+            <p>
+                Tạo tài khoản MyStore để khám phá những sản phẩm
+                thể thao chất lượng và tận hưởng trải nghiệm mua sắm thuận tiện.
+            </p>
+
+            <div class="register-features">
+
+                <div>
+                    <i class="fas fa-check-circle"></i>
+                    Đăng ký nhanh chóng và dễ dàng
+                </div>
+
+                <div>
+                    <i class="fas fa-shopping-bag"></i>
+                    Mua sắm sản phẩm yêu thích
+                </div>
+
+                <div>
+                    <i class="fas fa-shipping-fast"></i>
+                    Theo dõi đơn hàng thuận tiện
+                </div>
+
+                <div>
+                    <i class="fas fa-user-shield"></i>
+                    Quản lý tài khoản cá nhân
+                </div>
+
+            </div>
+
         </div>
 
-        <div class="panel-body">
+        <!-- BÊN PHẢI: FORM ĐĂNG KÝ -->
+        <div class="register-form-area">
+
+            <h3 class="register-heading">
+                Tạo tài khoản
+            </h3>
+
+            <p class="register-subheading">
+                Điền thông tin bên dưới để trở thành thành viên MyStore.
+            </p>
 
             @using (Html.BeginForm(
                 "Register",
@@ -132,30 +371,38 @@
                          "",
                          new { @class = "text-danger" })
 
-                <!-- THONG TIN TAI KHOAN -->
-
-                <h4>
-                    <span class="glyphicon glyphicon-lock"></span>
+                <!-- THÔNG TIN TÀI KHOẢN -->
+                <h4 class="register-section-title">
+                    <i class="fas fa-lock"></i>
                     Thông tin tài khoản
                 </h4>
 
-                <div class="form-group">
-                    <label for="Username">Tên đăng nhập:</label>
+                <div class="register-form-group">
 
-                    <input type="text"
-                           id="Username"
-                           name="Username"
-                           class="form-control"
-                           placeholder="Nhập tên đăng nhập..."
-                           value="@ViewBag.RegisterUsername"
-                           autocomplete="username"
-                           autocapitalize="none"
-                           spellcheck="false"
-                           minlength="4"
-                           maxlength="20"
-                           pattern="[A-Za-z0-9._]{4,20}"
-                           title="Username gồm 4-20 ký tự, chỉ dùng chữ không dấu, số, dấu chấm và dấu gạch dưới."
-                           required />
+                    <label class="register-label" for="Username">
+                        Tên đăng nhập
+                    </label>
+
+                    <div class="register-input-group">
+
+                        <i class="fas fa-user"></i>
+
+                        <input type="text"
+                               id="Username"
+                               name="Username"
+                               class="register-input"
+                               placeholder="Nhập tên đăng nhập..."
+                               value="@ViewBag.RegisterUsername"
+                               autocomplete="username"
+                               autocapitalize="none"
+                               spellcheck="false"
+                               minlength="4"
+                               maxlength="20"
+                               pattern="[A-Za-z0-9._]{4,20}"
+                               title="Username gồm 4-20 ký tự, chỉ dùng chữ không dấu, số, dấu chấm và dấu gạch dưới."
+                               required />
+
+                    </div>
 
                     <small class="register-hint">
                         Từ 4-20 ký tự, không dấu, không khoảng trắng.
@@ -165,20 +412,39 @@
                              "Username",
                              "",
                              new { @class = "field-error" })
+
                 </div>
 
-                <div class="form-group">
-                    <label for="Password">Mật khẩu:</label>
+                <div class="register-form-group">
 
-                    <input type="password"
-                           id="Password"
-                           name="Password"
-                           class="form-control"
-                           placeholder="Nhập mật khẩu..."
-                           autocomplete="new-password"
-                           minlength="8"
-                           maxlength="30"
-                           required />
+                    <label class="register-label" for="Password">
+                        Mật khẩu
+                    </label>
+
+                    <div class="register-input-group">
+
+                        <i class="fas fa-lock"></i>
+
+                        <input type="password"
+                               id="Password"
+                               name="Password"
+                               class="register-input"
+                               placeholder="Nhập mật khẩu..."
+                               autocomplete="new-password"
+                               minlength="8"
+                               maxlength="30"
+                               required />
+
+                        <button type="button"
+                                class="register-password-toggle"
+                                data-target="Password"
+                                aria-label="Hiện hoặc ẩn mật khẩu">
+
+                            <i class="fas fa-eye"></i>
+
+                        </button>
+
+                    </div>
 
                     <small class="register-hint">
                         Từ 8-30 ký tự, gồm chữ hoa, chữ thường,
@@ -189,20 +455,39 @@
                              "Password",
                              "",
                              new { @class = "field-error" })
+
                 </div>
 
-                <div class="form-group">
-                    <label for="ConfirmPassword">Xác nhận mật khẩu:</label>
+                <div class="register-form-group">
 
-                    <input type="password"
-                           id="ConfirmPassword"
-                           name="ConfirmPassword"
-                           class="form-control"
-                           placeholder="Nhập lại mật khẩu..."
-                           autocomplete="new-password"
-                           minlength="8"
-                           maxlength="30"
-                           required />
+                    <label class="register-label" for="ConfirmPassword">
+                        Xác nhận mật khẩu
+                    </label>
+
+                    <div class="register-input-group">
+
+                        <i class="fas fa-lock"></i>
+
+                        <input type="password"
+                               id="ConfirmPassword"
+                               name="ConfirmPassword"
+                               class="register-input"
+                               placeholder="Nhập lại mật khẩu..."
+                               autocomplete="new-password"
+                               minlength="8"
+                               maxlength="30"
+                               required />
+
+                        <button type="button"
+                                class="register-password-toggle"
+                                data-target="ConfirmPassword"
+                                aria-label="Hiện hoặc ẩn mật khẩu">
+
+                            <i class="fas fa-eye"></i>
+
+                        </button>
+
+                    </div>
 
                     <span id="confirmPasswordError"
                           class="field-error"></span>
@@ -211,64 +496,81 @@
                              "ConfirmPassword",
                              "",
                              new { @class = "field-error" })
+
                 </div>
 
                 <hr class="register-divider" />
 
-                <!-- THONG TIN KHACH HANG -->
-
-                <h4>
-                    <span class="glyphicon glyphicon-user"></span>
+                <!-- THÔNG TIN KHÁCH HÀNG -->
+                <h4 class="register-section-title">
+                    <i class="fas fa-address-card"></i>
                     Thông tin khách hàng
                 </h4>
 
-                <div class="form-group">
+                <div class="register-form-group">
+
                     @Html.LabelFor(
                              m => m.CustomerName,
-                             "Họ tên khách hàng:")
+                             "Họ tên khách hàng:",
+                             new { @class = "register-label" })
 
-                    @Html.TextBoxFor(
-                             m => m.CustomerName,
-                             new
-                             {
-                                 @class = "form-control",
-                                 placeholder = "Nhập họ tên đầy đủ...",
-                                 autocomplete = "name",
-                                 minlength = "2",
-                                 maxlength = "60",
-                                 required = "required"
-                             })
+                    <div class="register-input-group">
+
+                        <i class="fas fa-id-card"></i>
+
+                        @Html.TextBoxFor(
+                                 m => m.CustomerName,
+                                 new
+                                 {
+                                     @class = "register-input",
+                                     placeholder = "Nhập họ tên đầy đủ...",
+                                     autocomplete = "name",
+                                     minlength = "2",
+                                     maxlength = "60",
+                                     required = "required"
+                                 })
+
+                    </div>
 
                     <small class="register-hint">
-                        Từ 2-60 ký tự, không nhập số điện thoại hoặc ký tự lạ.
+                        Từ 2-60 ký tự.
                     </small>
 
                     @Html.ValidationMessageFor(
                              m => m.CustomerName,
                              "",
                              new { @class = "field-error" })
+
                 </div>
 
-                <div class="form-group">
+                <div class="register-form-group">
+
                     @Html.LabelFor(
                              m => m.CustomerPhone,
-                             "Số điện thoại:")
+                             "Số điện thoại:",
+                             new { @class = "register-label" })
 
-                    @Html.TextBoxFor(
-                             m => m.CustomerPhone,
-                             new
-                             {
-                                 @class = "form-control",
-                                 placeholder = "Ví dụ: 0901234567",
-                                 autocomplete = "tel",
-                                 inputmode = "numeric",
-                                 type = "tel",
-                                 minlength = "10",
-                                 maxlength = "10",
-                                 pattern = "(032|033|034|035|036|037|038|039|052|055|056|058|059|070|076|077|078|079|081|082|083|084|085|086|087|088|089|090|091|092|093|094|096|097|098|099)[0-9]{7}",
-                                 title = "Nhập đúng 10 chữ số, bắt đầu bằng đầu số di động Việt Nam hợp lệ.",
-                                 required = "required"
-                             })
+                    <div class="register-input-group">
+
+                        <i class="fas fa-phone"></i>
+
+                        @Html.TextBoxFor(
+                                 m => m.CustomerPhone,
+                                 new
+                                 {
+                                     @class = "register-input",
+                                     placeholder = "Ví dụ: 0901234567",
+                                     autocomplete = "tel",
+                                     inputmode = "numeric",
+                                     type = "tel",
+                                     minlength = "10",
+                                     maxlength = "10",
+                                     pattern = "(032|033|034|035|036|037|038|039|052|055|056|058|059|070|076|077|078|079|081|082|083|084|085|086|087|088|089|090|091|092|093|094|096|097|098|099)[0-9]{7}",
+                                     title = "Nhập đúng 10 chữ số, bắt đầu bằng đầu số di động Việt Nam hợp lệ.",
+                                     required = "required"
+                                 })
+
+                    </div>
 
                     <small class="register-hint">
                         Chỉ chấp nhận số di động Việt Nam gồm đúng 10 chữ số.
@@ -278,64 +580,82 @@
                              m => m.CustomerPhone,
                              "",
                              new { @class = "field-error" })
+
                 </div>
 
-                <div class="form-group">
+                <div class="register-form-group">
+
                     @Html.LabelFor(
                              m => m.CustomerEmail,
-                             "Email:")
+                             "Email:",
+                             new { @class = "register-label" })
 
-                    @Html.TextBoxFor(
-                             m => m.CustomerEmail,
-                             new
-                             {
-                                 @class = "form-control",
-                                 placeholder = "Nhập địa chỉ email...",
-                                 autocomplete = "email",
-                                 type = "email",
-                                 maxlength = "100",
-                                 required = "required"
-                             })
+                    <div class="register-input-group">
+
+                        <i class="fas fa-envelope"></i>
+
+                        @Html.TextBoxFor(
+                                 m => m.CustomerEmail,
+                                 new
+                                 {
+                                     @class = "register-input",
+                                     placeholder = "Nhập địa chỉ email...",
+                                     autocomplete = "email",
+                                     type = "email",
+                                     maxlength = "100",
+                                     required = "required"
+                                 })
+
+                    </div>
 
                     @Html.ValidationMessageFor(
                              m => m.CustomerEmail,
                              "",
                              new { @class = "field-error" })
+
                 </div>
 
-                <div class="form-group">
+                <div class="register-form-group">
+
                     @Html.LabelFor(
                              m => m.CustomerAddress,
-                             "Địa chỉ:")
+                             "Địa chỉ:",
+                             new { @class = "register-label" })
 
-                    @Html.TextBoxFor(
-                             m => m.CustomerAddress,
-                             new
-                             {
-                                 @class = "form-control",
-                                 placeholder = "Nhập địa chỉ...",
-                                 autocomplete = "street-address",
-                                 maxlength = "250"
-                             })
+                    <div class="register-input-group">
+
+                        <i class="fas fa-map-marker-alt"></i>
+
+                        @Html.TextBoxFor(
+                                 m => m.CustomerAddress,
+                                 new
+                                 {
+                                     @class = "register-input",
+                                     placeholder = "Nhập địa chỉ...",
+                                     autocomplete = "street-address",
+                                     maxlength = "250"
+                                 })
+
+                    </div>
 
                     @Html.ValidationMessageFor(
                              m => m.CustomerAddress,
                              "",
                              new { @class = "field-error" })
+
                 </div>
 
-                <button type="submit"
-                        class="btn btn-success btn-block register-btn">
+                <!-- NÚT ĐĂNG KÝ -->
+                <button type="submit" class="register-submit">
 
-                    <span class="glyphicon glyphicon-ok"></span>
-                    ĐĂNG KÝ NGAY
+                    <i class="fas fa-user-plus mr-2"></i>
+                    ĐĂNG KÝ TÀI KHOẢN
 
                 </button>
             }
 
-            <hr />
+            <div class="register-footer">
 
-            <div class="text-center">
                 Đã có tài khoản?
 
                 @Html.ActionLink(
@@ -343,11 +663,26 @@
                          "Login",
                          "User",
                          null,
-                         new { @class = "text-primary" })
+                         new { })
+
+                <div class="mt-3">
+
+                    <a href="@Url.Action("Index", "Home")"
+                       style="color:#7b8798; font-weight:500;">
+
+                        <i class="fas fa-arrow-left mr-1"></i>
+                        Quay về trang chủ
+
+                    </a>
+
+                </div>
+
             </div>
 
         </div>
+
     </div>
+
 </div>
 
 <script>
@@ -362,15 +697,51 @@
             return;
         }
 
+        // HIỆN / ẨN MẬT KHẨU
+        document.querySelectorAll(".register-password-toggle")
+            .forEach(function (button) {
+
+                button.addEventListener("click", function () {
+
+                    var target = document.getElementById(
+                        button.getAttribute("data-target")
+                    );
+
+                    var icon = button.querySelector("i");
+
+                    if (target.type === "password") {
+
+                        target.type = "text";
+
+                        icon.classList.remove("fa-eye");
+                        icon.classList.add("fa-eye-slash");
+
+                    } else {
+
+                        target.type = "password";
+
+                        icon.classList.remove("fa-eye-slash");
+                        icon.classList.add("fa-eye");
+
+                    }
+
+                });
+
+            });
+
+        // KIỂM TRA MẬT KHẨU XÁC NHẬN
         function checkConfirmPassword() {
 
             if (confirmPassword.value === "") {
+
                 confirmError.textContent = "";
                 confirmPassword.setCustomValidity("");
+
                 return true;
             }
 
             if (password.value !== confirmPassword.value) {
+
                 confirmError.textContent =
                     "Mật khẩu xác nhận không trùng khớp.";
 
@@ -393,9 +764,13 @@
         form.addEventListener("submit", function (event) {
 
             if (!checkConfirmPassword()) {
+
                 event.preventDefault();
                 confirmPassword.reportValidity();
+
             }
+
         });
+
     });
 </script>

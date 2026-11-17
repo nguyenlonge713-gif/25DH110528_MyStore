@@ -198,6 +198,15 @@
         text-align: right;
     }
 
+    .oh-product-detail-link {
+        display: inline-block;
+        margin-top: 9px;
+        font-size: 13px;
+        font-weight: 600;
+        border-radius: 6px;
+        padding: 6px 10px;
+    }
+
     .oh-order-footer {
         background: #fafafa;
         padding: 16px 20px;
@@ -302,7 +311,7 @@
 
         .oh-actions {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
         }
 
             .oh-actions .btn {
@@ -464,7 +473,6 @@
                 var statusClass = "waiting";
                 var statusIcon = "fas fa-clock";
 
-                // Tab Chờ thanh toán sử dụng PaymentStatus
                 if (selectedStatus == "Chờ thanh toán")
                 {
                     status = "Chưa thanh toán";
@@ -543,6 +551,7 @@
                                          onerror="this.onerror=null;this.src='@Url.Content("~/Content/images/default.png")';" />
 
                                     <div class="oh-product-info">
+
                                         <div class="oh-product-name">
                                             @productName
                                         </div>
@@ -555,6 +564,20 @@
                                         <div class="oh-product-quantity">
                                             x @detail.Quantity
                                         </div>
+
+                                        @* XEM CHI TIET SAN PHAM *@
+                                        @if (detail.Product != null)
+                                        {
+                                            <a href="@Url.Action(
+                                                "Details",
+                                                "Home",
+                                                new { id = detail.ProductID })"
+                                               class="btn btn-outline-dark btn-sm oh-product-detail-link">
+                                                <i class="fas fa-eye me-1"></i>
+                                                Xem chi tiết 
+                                            </a>
+                                        }
+
                                     </div>
 
                                     <div class="oh-product-price">
@@ -582,15 +605,6 @@
                         </div>
 
                         <div class="oh-actions">
-
-                            <a href="@Url.Action(
-                                "OrderDetail",
-                                "User",
-                                new { id = order.OrderID })"
-                               class="btn btn-outline-dark">
-                                <i class="fas fa-eye me-1"></i>
-                                Xem chi tiết
-                            </a>
 
                             @using (Html.BeginForm(
                                 "Reorder",

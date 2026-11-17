@@ -101,9 +101,11 @@ namespace _25DH110528_MyStore.Controllers
                 .Where(p => p.CategoryID == product.CategoryID && p.ProductID != product.ProductID)
                 .Take(4)
                 .ToList();
+
             ViewBag.RelatedProducts = relatedProducts;
 
-            return View(product);
+            // Sử dụng lại giao diện ProductDetail.cshtml
+            return View("ProductDetail", product);
         }
 
         public ActionResult About()

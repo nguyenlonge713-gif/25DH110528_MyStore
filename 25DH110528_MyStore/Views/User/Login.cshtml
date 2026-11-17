@@ -1,112 +1,446 @@
-﻿﻿@{
+﻿@{ 
+
     ViewBag.Title = "Đăng nhập";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container my-5">
+<style>
+    .login-page {
+        min-height: 75vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 45px 15px;
+        background: linear-gradient(135deg, #f4f7fb, #e9eef5);
+    }
 
-    <div class="row justify-content-center align-items-center"
-         style="min-height: 60vh;">
+    .login-wrapper {
+        width: 100%;
+        max-width: 950px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background: #fff;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 15px 45px rgba(20, 35, 60, 0.12);
+    }
 
-        <div class="col-md-6 col-lg-4"
-             style="max-width: 450px; margin: 0 auto;">
+    .login-banner {
+        background: linear-gradient(145deg, #101c35, #203b63);
+        color: white;
+        padding: 55px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
 
-            @* THONG BAO DANG KY THANH CONG *@
-            @if (TempData["RegisterSuccess"] != null)
-            {
-                <div class="alert alert-success"
-                     style="border-radius: 8px; margin-bottom: 20px;">
+        .login-banner::before {
+            content: "";
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 50%;
+            right: -100px;
+            top: -100px;
+        }
 
-                    <span class="glyphicon glyphicon-ok-circle"></span>
+        .login-banner::after {
+            content: "";
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 50%;
+            left: -100px;
+            bottom: -100px;
+        }
 
-                    <strong>
-                        @TempData["RegisterSuccess"]
-                    </strong>
+    .login-brand {
+        color: #ff9f1c;
+        font-size: 30px;
+        font-weight: 800;
+        margin-bottom: 35px;
+        position: relative;
+        z-index: 1;
+    }
 
-                </div>
+    .login-banner h2 {
+        font-size: 32px;
+        font-weight: 800;
+        line-height: 1.35;
+        margin-bottom: 18px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .login-banner p {
+        color: #d1dbea;
+        font-size: 15px;
+        line-height: 1.8;
+        position: relative;
+        z-index: 1;
+    }
+
+    .login-feature {
+        margin-top: 30px;
+        position: relative;
+        z-index: 1;
+    }
+
+        .login-feature div {
+            margin-bottom: 15px;
+            color: #e5edf8;
+            font-size: 14px;
+        }
+
+        .login-feature i {
+            color: #ff9f1c;
+            margin-right: 10px;
+            width: 18px;
+        }
+
+    .login-form-area {
+        padding: 55px 45px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .login-heading {
+        font-size: 27px;
+        font-weight: 800;
+        color: #17243b;
+        margin-bottom: 8px;
+    }
+
+    .login-subheading {
+        color: #7b8798;
+        font-size: 14px;
+        margin-bottom: 30px;
+    }
+
+    .login-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 700;
+        color: #26354d;
+        margin-bottom: 9px;
+    }
+
+    .login-input-group {
+        position: relative;
+        margin-bottom: 22px;
+    }
+
+        .login-input-group > i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8793a5;
+            z-index: 2;
+        }
+
+    .login-input {
+        width: 100% !important;
+        max-width: none !important;
+        height: 50px;
+        padding: 10px 45px;
+        border: 1px solid #dce3ed;
+        border-radius: 10px;
+        background: #f9fafc;
+        font-size: 14px;
+        outline: none;
+        transition: .25s;
+        box-sizing: border-box;
+    }
+
+        .login-input:focus {
+            border-color: #ff9f1c;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(255,159,28,.12);
+        }
+
+    .login-password-toggle {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: none;
+        background: transparent;
+        color: #8793a5;
+        cursor: pointer;
+        padding: 5px;
+    }
+
+        .login-password-toggle:hover {
+            color: #ff9f1c;
+        }
+
+    .login-submit {
+        width: 100%;
+        height: 50px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #ff9f1c, #f58220);
+        color: #fff;
+        font-size: 16px;
+        font-weight: 800;
+        margin-top: 5px;
+        transition: .25s;
+        box-shadow: 0 6px 15px rgba(245,130,32,.22);
+    }
+
+        .login-submit:hover {
+            background: linear-gradient(135deg, #f58220, #e96b0c);
+            transform: translateY(-2px);
+            box-shadow: 0 9px 20px rgba(245,130,32,.3);
+        }
+
+    .login-footer {
+        text-align: center;
+        margin-top: 25px;
+        color: #7b8798;
+        font-size: 13px;
+    }
+
+        .login-footer a {
+            color: #f58220;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+            .login-footer a:hover {
+                text-decoration: underline;
             }
 
-            <div class="card shadow border-0 rounded-lg">
+    .login-alert {
+        border-radius: 10px;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
 
-                <div class="card-header bg-primary text-white text-center py-3"
-                     style="background-color: #007bff !important;">
+    @@media (max-width: 768px) {
+        .login-wrapper {
+            grid-template-columns: 1fr;
+            max-width: 480px;
+        }
 
-                    <h4 class="mb-0 font-weight-bold">
-                        <i class="fas fa-sign-in-alt me-1"></i>
-                        ĐĂNG NHẬP HỆ THỐNG
-                    </h4>
+        .login-banner {
+            padding: 30px;
+        }
 
+            .login-banner h2 {
+                font-size: 25px;
+            }
+
+        .login-brand {
+            margin-bottom: 15px;
+        }
+
+        .login-feature {
+            margin-top: 15px;
+        }
+
+        .login-form-area {
+            padding: 35px 25px;
+        }
+    }
+</style>
+
+<div class="login-page">
+
+    <div class="login-wrapper">
+
+        <!-- BÊN TRÁI: GIỚI THIỆU THƯƠNG HIỆU -->
+        <div class="login-banner">
+
+            <div class="login-brand">
+                <i class="fas fa-running"></i> MYSTORE
+            </div>
+
+            <h2>
+                CHÀO MỪNG BẠN ĐẾN VỚI MYSTORE!
+            </h2>
+
+            <p>
+                Khám phá phong cách thể thao của riêng bạn.
+                Đăng nhập để trải nghiệm mua sắm và quản lý đơn hàng dễ dàng hơn.
+            </p>
+
+            <div class="login-feature">
+
+                <div>
+                    <i class="fas fa-check-circle"></i>
+                    Sản phẩm thể thao chất lượng
                 </div>
 
-                <div class="card-body p-4 bg-white">
-
-                    @using (Html.BeginForm(
-                        "Login",
-                        "User",
-                        FormMethod.Post,
-                        new { autocomplete = "on" }))
-                    {
-                        @Html.AntiForgeryToken()
-
-                        @Html.ValidationSummary(
-                                 true,
-                                 "",
-                                 new { @class = "text-danger mb-3 small" })
-
-                        <div class="form-group mb-3">
-
-                            <label class="font-weight-bold text-dark mb-1"
-                                   for="Username">
-                                Tên đăng nhập:
-                            </label>
-
-                            <input type="text"
-                                   id="Username"
-                                   name="Username"
-                                   class="form-control"
-                                   placeholder="Nhập tên đăng nhập..."
-                                   autocomplete="username"
-                                   autocapitalize="none"
-                                   required
-                                   style="height: 42px; width: 100% !important; max-width: none !important;" />
-
-                        </div>
-
-                        <div class="form-group mb-4">
-
-                            <label class="font-weight-bold text-dark mb-1"
-                                   for="Password">
-                                Mật khẩu:
-                            </label>
-
-                            <input type="password"
-                                   id="Password"
-                                   name="Password"
-                                   class="form-control"
-                                   placeholder="Nhập mật khẩu..."
-                                   autocomplete="current-password"
-                                   required
-                                   style="height: 42px; width: 100% !important; max-width: none !important;" />
-
-                        </div>
-
-                        <div class="d-grid">
-
-                            <button type="submit"
-                                    class="btn btn-primary w-100 py-2 font-weight-bold shadow-sm"
-                                    style="background-color: #007bff; border: none; font-size: 16px;">
-
-                                <i class="fas fa-sign-in-alt me-1"></i>
-                                Đăng nhập
-
-                            </button>
-
-                        </div>
-                    }
-
+                <div>
+                    <i class="fas fa-shipping-fast"></i>
+                    Theo dõi đơn hàng thuận tiện
                 </div>
+
+                <div>
+                    <i class="fas fa-shopping-bag"></i>
+                    Trải nghiệm mua sắm dễ dàng
+                </div>
+
             </div>
 
         </div>
+
+        <!-- BÊN PHẢI: FORM ĐĂNG NHẬP -->
+        <div class="login-form-area">
+
+            <h3 class="login-heading">
+                Đăng nhập
+            </h3>
+
+            <p class="login-subheading">
+                Vui lòng nhập thông tin tài khoản của bạn.
+            </p>
+
+            @* THÔNG BÁO ĐĂNG KÝ THÀNH CÔNG *@
+            @if (TempData["RegisterSuccess"] != null)
+            {
+                <div class="alert alert-success login-alert">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <strong>@TempData["RegisterSuccess"]</strong>
+                </div>
+            }
+
+            @using (Html.BeginForm(
+                "Login",
+                "User",
+                FormMethod.Post,
+                new { autocomplete = "on" }))
+            {
+                @Html.AntiForgeryToken()
+
+                @Html.ValidationSummary(
+                         true,
+                         "",
+                         new { @class = "text-danger login-alert small" })
+
+                <!-- TÊN ĐĂNG NHẬP -->
+                <div class="form-group">
+
+                    <label class="login-label" for="Username">
+                        Tên đăng nhập
+                    </label>
+
+                    <div class="login-input-group">
+
+                        <i class="fas fa-user"></i>
+
+                        <input type="text"
+                               id="Username"
+                               name="Username"
+                               class="login-input"
+                               placeholder="Nhập tên đăng nhập..."
+                               autocomplete="username"
+                               autocapitalize="none"
+                               required />
+
+                    </div>
+
+                </div>
+
+                <!-- MẬT KHẨU -->
+                <div class="form-group">
+
+                    <label class="login-label" for="Password">
+                        Mật khẩu
+                    </label>
+
+                    <div class="login-input-group">
+
+                        <i class="fas fa-lock"></i>
+
+                        <input type="password"
+                               id="Password"
+                               name="Password"
+                               class="login-input"
+                               placeholder="Nhập mật khẩu..."
+                               autocomplete="current-password"
+                               required />
+
+                        <button type="button"
+                                class="login-password-toggle"
+                                id="togglePassword"
+                                aria-label="Hiện hoặc ẩn mật khẩu">
+
+                            <i class="fas fa-eye"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- NÚT ĐĂNG NHẬP -->
+                <button type="submit" class="login-submit">
+
+                    <i class="fas fa-sign-in-alt mr-2"></i>
+                    ĐĂNG NHẬP
+
+                </button>
+            }
+
+            <div class="login-footer">
+
+                Chưa có tài khoản?
+                <a href="@Url.Action("Register", "User")">
+                    Đăng ký ngay
+                </a>
+
+                <div class="mt-3">
+                    <a href="@Url.Action("Index", "Home")"
+                       style="color:#7b8798; font-weight:500;">
+
+                        <i class="fas fa-arrow-left mr-1"></i>
+                        Quay về trang chủ
+
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
+
 </div>
+
+@section Scripts {
+
+    <script>$(document).ready(function () {
+
+            // HIỆN / ẨN MẬT KHẨU
+            $('#togglePassword').click(function () {
+
+                var passwordInput = $('#Password');
+                var icon = $(this).find('i');
+
+                if (passwordInput.attr('type') === 'password') {
+
+                    passwordInput.attr('type', 'text');
+
+                    icon.removeClass('fa-eye')
+                        .addClass('fa-eye-slash');
+
+                } else {
+
+                    passwordInput.attr('type', 'password');
+
+                    icon.removeClass('fa-eye-slash')
+                        .addClass('fa-eye');
+                }
+
+            });
+
+        });</script>
+}
